@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thợ Thiết Kế Văn Bản Mini - Lớp 2</title>
+    <style>
+/* Reset và Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Container chính */
+.game-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 1400px;
+    overflow: hidden;
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header */
+.game-header {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+.game-header h1 {
+    font-size: 32px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.game-info {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 15px;
+}
+
+.score-display, .timer-display, .level-display {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: bold;
+    backdrop-filter: blur(10px);
+}
+
+/* Toolbar */
+.toolbar {
+    background: #f8f9fa;
+    padding: 20px;
+    border-bottom: 3px solid #e0e0e0;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.tool-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s;
+}
+
+.tool-group:hover {
+    border-color: #4CAF50;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tool-group label {
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+}
+
+/* Selectors */
+.font-selector, .size-selector {
+    padding: 8px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.font-selector:hover, .size-selector:hover {
+    border-color: #4CAF50;
+}
+
+/* Format Buttons */
+.format-btn {
+    width: 45px;
+    height: 45px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.format-btn:hover {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+    transform: scale(1.1);
+}
+
+.format-btn.active {
+    background: #2196F3;
+    color: white;
+    border-color: #2196F3;
+}
+
+/* Color Palette */
+.color-palette {
+    display: flex;
+    gap: 8px;
+}
+
+.color-btn {
+    width: 35px;
+    height: 35px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.color-btn:hover {
+    transform: scale(1.2);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.color-btn.selected {
+    border-color: #FFD700;
+    transform: scale(1.2);
+}
+
+/* Help Buttons */
+.help-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#hintBtn {
+    background: #FFC107;
+    color: #333;
+}
+
+#hintBtn:hover {
+    background: #FFB300;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+}
+
+#resetBtn {
+    background: #FF5722;
+    color: white;
+}
+
+#resetBtn:hover {
+    background: #F4511E;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 87, 34, 0.4);
+}
+
+/* Requirements Panel */
+.requirements-panel {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border: 3px solid #2196F3;
+    margin: 20px 30px;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.2);
+}
+
+.requirements-panel h3 {
+    color: #1565C0;
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.requirements-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.requirement-item {
+    background: white;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.requirement-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.requirement-item.completed {
+    background: #e8f5e9;
+    border-color: #4CAF50;
+    animation: completePulse 0.5s ease;
+}
+
+@keyframes completePulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.requirement-checkbox {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #ddd;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.requirement-item.completed .requirement-checkbox {
+    background: #4CAF50;
+    border-color: #4CAF50;
+    color: white;
+}
+
+.requirement-text {
+    color: #333;
+    font-size: 15px;
+    font-weight: 500;
+    flex: 1;
+}
+
+.requirement-text .req-highlight {
+    color: #D32F2F;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.requirement-item.completed .requirement-text {
+    color: #2E7D32;
+    text-decoration: line-through;
+}
+
+.requirement-item.completed .requirement-text .req-highlight {
+    color: #2E7D32;
+    text-decoration: line-through;
+}
+
+/* Text Area */
+.text-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 30px;
+    background: #f5f5f5;
+}
+
+.text-panel {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    min-height: 400px;
+}
+
+.text-panel h3 {
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #e0e0e0;
+    font-size: 20px;
+}
+
+.sample-panel {
+    border: 3px solid #4CAF50;
+}
+
+.sample-panel h3 {
+    color: #4CAF50;
+}
+
+.practice-panel {
+    border: 3px solid #FF9800;
+}
+
+.practice-panel h3 {
+    color: #FF9800;
+}
+
+.text-content {
+    font-size: 16px;
+    line-height: 1.8;
+    padding: 15px;
+    min-height: 300px;
+    user-select: none;
+}
+
+.practice-panel .text-content {
+    user-select: text;
+    cursor: text;
+}
+
+/* Text selection */
+.text-content::selection {
+    background: #b3d4fc;
+    color: #000;
+}
+
+/* Check Button */
+.check-btn {
+    display: block;
+    margin: 0 auto 30px;
+    padding: 15px 50px;
+    background: linear-gradient(135deg, #2196F3, #1976D2);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+}
+
+.check-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.5);
+}
+
+.check-btn:active {
+    transform: translateY(-1px);
+}
+
+/* Progress Bar */
+.progress-bar {
+    margin: 20px 30px 30px;
+    height: 40px;
+    background: #e0e0e0;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    border-radius: 20px;
+    width: 0%;
+    transition: width 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.show {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-content h2 {
+    color: #4CAF50;
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.result-stars {
+    font-size: 48px;
+    margin: 20px 0;
+}
+
+.result-score, .result-time {
+    font-size: 20px;
+    margin: 10px 0;
+    color: #333;
+}
+
+.play-again-btn {
+    margin-top: 30px;
+    padding: 15px 40px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+.play-again-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .text-area {
+        grid-template-columns: 1fr;
+    }
+
+    .game-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .toolbar {
+        flex-direction: column;
+    }
+
+    .game-header h1 {
+        font-size: 24px;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.task-completed {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.notification {
+    transition: opacity 0.3s ease;
+}
+    </style>
+</head>
+<body>
+    <!-- Container chính -->
+    <div class="game-container">
+
+        <!-- Header với thông tin game -->
+        <header class="game-header">
+            <h1>🎨 Thợ Thiết Kế Văn Bản Mini</h1>
+            <div class="game-info">
+                <div class="score-display">
+                    <span>Điểm: </span>
+                    <span id="score">0</span>
+                </div>
+                <div class="timer-display">
+                    <span>⏱️ Thời gian: </span>
+                    <span id="timer">00:00</span>
+                </div>
+                <div class="level-display">
+                    <span>Cấp độ: </span>
+                    <span id="level">Dễ</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Thanh công cụ định dạng -->
+        <div class="toolbar">
+            <!-- Nhóm chọn Font -->
+            <div class="tool-group">
+                <label>Font chữ:</label>
+                <select id="fontFamily" class="font-selector">
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Comic Sans MS">Comic Sans MS</option>
+                </select>
+            </div>
+
+            <!-- Nhóm chọn Size -->
+            <div class="tool-group">
+                <label>Cỡ chữ:</label>
+                <select id="fontSize" class="size-selector">
+                    <option value="12px">12</option>
+                    <option value="14px">14</option>
+                    <option value="16px">16</option>
+                    <option value="18px">18</option>
+                    <option value="24px">24</option>
+                </select>
+            </div>
+
+            <!-- Nhóm nút định dạng -->
+            <div class="tool-group format-buttons">
+                <button id="boldBtn" class="format-btn" title="In đậm">
+                    <strong>B</strong>
+                </button>
+                <button id="italicBtn" class="format-btn" title="In nghiêng">
+                    <em>I</em>
+                </button>
+                <button id="underlineBtn" class="format-btn" title="Gạch chân">
+                    <u>U</u>
+                </button>
+            </div>
+
+            <!-- Bảng màu -->
+            <div class="tool-group color-group">
+                <label>Màu chữ:</label>
+                <div class="color-palette">
+                    <button class="color-btn" data-color="#000000" style="background: #000000"></button>
+                    <button class="color-btn" data-color="#FF0000" style="background: #FF0000"></button>
+                    <button class="color-btn" data-color="#00FF00" style="background: #00FF00"></button>
+                    <button class="color-btn" data-color="#0000FF" style="background: #0000FF"></button>
+                    <button class="color-btn" data-color="#FFA500" style="background: #FFA500"></button>
+                    <button class="color-btn" data-color="#800080" style="background: #800080"></button>
+                </div>
+            </div>
+
+            <!-- Nút hỗ trợ -->
+            <div class="tool-group help-buttons">
+                <button id="hintBtn" class="help-btn">💡 Gợi ý</button>
+                <button id="resetBtn" class="help-btn">🔄 Làm lại</button>
+            </div>
+        </div>
+
+        <!-- Bảng Yêu Cầu Nhiệm Vụ -->
+        <div class="requirements-panel">
+            <h3>Yêu Cầu Nhiệm Vụ</h3>
+            <div id="requirementsList" class="requirements-list">
+                <!-- Danh sách yêu cầu sẽ được load bằng JS -->
+            </div>
+        </div>
+
+        <!-- Khu vực văn bản chính -->
+        <div class="text-area">
+            <!-- Văn bản mẫu (bên trái) -->
+            <div class="text-panel sample-panel">
+                <h3>📝 VĂN BẢN MẪU</h3>
+                <div id="sampleText" class="text-content">
+                    <!-- Nội dung mẫu sẽ được load bằng JS -->
+                </div>
+            </div>
+
+            <!-- Văn bản thực hành (bên phải) -->
+            <div class="text-panel practice-panel">
+                <h3>✏️ VĂN BẢN CỦA EM</h3>
+                <div id="practiceText" class="text-content" contenteditable="false">
+                    <!-- Nội dung thực hành sẽ được load bằng JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Thanh tiến độ -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+            <span class="progress-text" id="progressText">0/5 hoàn thành</span>
+        </div>
+
+        <!-- Nút kiểm tra -->
+        <button id="checkBtn" class="check-btn">✅ Kiểm tra</button>
+    </div>
+
+    <!-- Modal kết quả -->
+    <div id="resultModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>🎉 Chúc Mừng Em!</h2>
+            <div class="result-stars" id="resultStars"></div>
+            <p class="result-score">Điểm số: <span id="finalScore">0</span></p>
+            <p class="result-time">Thời gian: <span id="finalTime">00:00</span></p>
+            <button id="playAgainBtn" class="play-again-btn">Chơi Lại</button>
+        </div>
+    </div>
+
+    <script>
+// Game Configuration
+const gameConfig = {
+    levels: {
+        easy: {
+            name: 'Dễ',
+            time: 120, // 2 phút
+            tasks: [
+                {
+                    text: 'TRƯỜNG CỦA EM',
+                    instruction: 'Làm chữ màu đỏ và cỡ 16px',
+                    formats: {
+                        color: '#FF0000',
+                        fontSize: '16px'
+                    },
+                    requirements: [
+                        { id: 'req-0-0', text: 'Định dạng chữ "TRƯỜNG CỦA EM" thành: cỡ chữ 16, màu Đỏ', checks: [
+                            { check: 'color', value: 'rgb(255, 0, 0)' },
+                            { check: 'fontSize', value: '16px' }
+                        ]}
+                    ]
+                },
+                {
+                    text: 'Em yêu trường em rất nhiều.',
+                    instruction: 'Làm chữ "yêu" in đậm và "trường em" màu xanh dương',
+                    formats: {
+                        color: '#000000',
+                        fontSize: '16px',
+                        fontWeight: 'normal'
+                    },
+                    requirements: [
+                        { id: 'req-1-0', text: 'Định dạng chữ "yêu" thành: in đậm', check: 'partial', target: 'yêu', style: 'fontWeight', value: '700' },
+                        { id: 'req-1-1', text: 'Định dạng chữ "trường em" thành: màu xanh dương', check: 'partial', target: 'trường em', style: 'color', value: 'rgb(0, 0, 255)' }
+                    ]
+                },
+                {
+                    text: 'Gia đình em có bốn người.',
+                    instruction: 'Làm chữ "Gia đình" in đậm và "bốn người" màu xanh',
+                    formats: {
+                        color: '#000000',
+                        fontSize: '16px',
+                        fontWeight: 'normal'
+                    },
+                    requirements: [
+                        { id: 'req-2-0', text: 'Định dạng chữ "Gia đình" thành: in đậm', check: 'partial', target: 'Gia đình', style: 'fontWeight', value: '700' },
+                        { id: 'req-2-1', text: 'Định dạng chữ "bốn người" thành: màu xanh lá', check: 'partial', target: 'bốn người', style: 'color', value: 'rgb(0, 255, 0)' }
+                    ]
+                }
+            ]
+        },
+        medium: {
+            name: 'Trung bình',
+            time: 180, // 3 phút
+            tasks: [
+                {
+                    text: 'CHUYẾN THAM QUAN VƯỜN THÚ',
+                    instruction: 'Cỡ 24px, màu đỏ, in đậm, font Arial',
+                    formats: {
+                        color: '#FF0000',
+                        fontSize: '24px',
+                        fontWeight: 'bold',
+                        fontFamily: 'Arial'
+                    },
+                    requirements: [
+                        { id: 'req-0-0', text: 'Đổi font chữ thành Arial', check: 'fontFamily', value: 'Arial' },
+                        { id: 'req-0-1', text: 'Đổi cỡ chữ thành 24px', check: 'fontSize', value: '24px' },
+                        { id: 'req-0-2', text: 'Làm chữ màu đỏ', check: 'color', value: 'rgb(255, 0, 0)' },
+                        { id: 'req-0-3', text: 'In đậm chữ', check: 'fontWeight', value: 'bold' }
+                    ]
+                },
+                {
+                    text: 'Hôm qua, lớp em đã đi tham quan vườn thú.',
+                    instruction: 'In đậm "Hôm qua", in nghiêng "tham quan", gạch chân "vườn thú"',
+                    formats: {
+                        color: '#000000',
+                        fontSize: '16px'
+                    },
+                    requirements: [
+                        { id: 'req-1-0', text: 'In đậm chữ "Hôm qua"', check: 'partial', target: 'Hôm qua', style: 'fontWeight', value: '700' },
+                        { id: 'req-1-1', text: 'In nghiêng chữ "tham quan"', check: 'partial', target: 'tham quan', style: 'fontStyle', value: 'italic' },
+                        { id: 'req-1-2', text: 'Gạch chân chữ "vườn thú"', check: 'partial', target: 'vườn thú', style: 'textDecoration', value: 'underline' }
+                    ]
+                },
+                {
+                    text: 'Em đã nhìn thấy nhiều con vật dễ thương.',
+                    instruction: 'Màu xanh lá cho "nhiều con vật", in đậm "dễ thương"',
+                    formats: {
+                        color: '#000000',
+                        fontSize: '16px'
+                    },
+                    requirements: [
+                        { id: 'req-2-0', text: 'Làm chữ "nhiều con vật" màu xanh lá', check: 'partial', target: 'nhiều con vật', style: 'color', value: 'rgb(0, 255, 0)' },
+                        { id: 'req-2-1', text: 'In đậm chữ "dễ thương"', check: 'partial', target: 'dễ thương', style: 'fontWeight', value: '700' }
+                    ]
+                }
+            ]
+        },
+        hard: {
+            name: 'Khó',
+            time: 240, // 4 phút
+            tasks: [
+                {
+                    text: 'BÀI VĂN CỦA EM',
+                    instruction: 'Font Times New Roman, cỡ 24px, màu tím, in đậm và gạch chân',
+                    formats: {
+                        color: '#800080',
+                        fontSize: '24px',
+                        fontWeight: 'bold',
+                        fontFamily: 'Times New Roman',
+                        textDecoration: 'underline'
+                    },
+                    requirements: [
+                        { id: 'req-0-0', text: 'Đổi font chữ thành Times New Roman', check: 'fontFamily', value: 'Times New Roman' },
+                        { id: 'req-0-1', text: 'Đổi cỡ chữ thành 24px', check: 'fontSize', value: '24px' },
+                        { id: 'req-0-2', text: 'Làm chữ màu tím', check: 'color', value: 'rgb(128, 0, 128)' },
+                        { id: 'req-0-3', text: 'In đậm chữ', check: 'fontWeight', value: 'bold' },
+                        { id: 'req-0-4', text: 'Gạch chân toàn bộ', check: 'textDecoration', value: 'underline' }
+                    ]
+                },
+                {
+                    text: 'Mùa xuân đã về, cây cối nở hoa rất đẹp.',
+                    instruction: 'In đậm và nghiêng "Mùa xuân", màu xanh lá "cây cối", màu đỏ "nở hoa"',
+                    formats: {
+                        color: '#000000',
+                        fontSize: '16px'
+                    },
+                    requirements: [
+                        { id: 'req-1-0', text: 'In đậm chữ "Mùa xuân"', check: 'partial', target: 'Mùa xuân', style: 'fontWeight', value: '700' },
+                        { id: 'req-1-1', text: 'In nghiêng chữ "Mùa xuân"', check: 'partial', target: 'Mùa xuân', style: 'fontStyle', value: 'italic' },
+                        { id: 'req-1-2', text: 'Làm chữ "cây cối" màu xanh lá', check: 'partial', target: 'cây cối', style: 'color', value: 'rgb(0, 255, 0)' },
+                        { id: 'req-1-3', text: 'Làm chữ "nở hoa" màu đỏ', check: 'partial', target: 'nở hoa', style: 'color', value: 'rgb(255, 0, 0)' }
+                    ]
+                }
+            ]
+        }
+    }
+};
+
+// Game State
+let gameState = {
+    currentLevel: 'easy',
+    score: 0,
+    timeLeft: 0,
+    tasksCompleted: 0,
+    totalTasks: 0,
+    timerInterval: null,
+    currentTaskIndex: 0
+};
+
+// Initialize Game
+function initGame(level = 'easy') {
+    gameState.currentLevel = level;
+    gameState.score = 0;
+    gameState.timeLeft = gameConfig.levels[level].time;
+    gameState.tasksCompleted = 0;
+    gameState.currentTaskIndex = 0;
+    gameState.totalTasks = gameConfig.levels[level].tasks.length;
+
+    // Load level content
+    loadLevelContent(level);
+
+    // Setup event listeners
+    setupEventListeners();
+
+    // Start timer
+    startTimer();
+
+    // Update UI
+    updateUI();
+    updateCurrentTask();
+}
+
+// Load Level Content
+function loadLevelContent(level) {
+    const levelData = gameConfig.levels[level];
+    const sampleTextDiv = document.getElementById('sampleText');
+    const practiceTextDiv = document.getElementById('practiceText');
+    const requirementsListDiv = document.getElementById('requirementsList');
+
+    // Clear existing content
+    sampleTextDiv.innerHTML = '';
+    practiceTextDiv.innerHTML = '';
+    requirementsListDiv.innerHTML = '';
+
+    // Build requirements list for current task
+    loadRequirements();
+
+    // Build sample and practice text
+    levelData.tasks.forEach((task, index) => {
+        // Sample text with formatting
+        const samplePara = document.createElement('p');
+        samplePara.id = `sample-${index}`;
+        samplePara.style.marginBottom = '15px';
+
+        // Check if task has partial formatting requirements
+        if (task.requirements && task.requirements.some(req => req.check === 'partial')) {
+            // Build text with partial formatting
+            let html = task.text;
+
+            // Apply formatting for each partial requirement
+            task.requirements.forEach(req => {
+                if (req.check === 'partial' && req.target) {
+                    let style = '';
+                    switch(req.style) {
+                        case 'fontWeight':
+                            style = 'font-weight: 700';
+                            break;
+                        case 'color':
+                            style = `color: ${req.value}`;
+                            break;
+                        case 'fontStyle':
+                            style = 'font-style: italic';
+                            break;
+                        case 'textDecoration':
+                            style = `text-decoration: ${req.value}`;
+                            break;
+                    }
+                    // Replace target text with formatted version
+                    html = html.replace(req.target, `<span style="${style}">${req.target}</span>`);
+                }
+            });
+
+            // Apply base formats if any
+            if (task.formats) {
+                const baseStyles = [];
+                if (task.formats.fontSize) baseStyles.push(`font-size: ${task.formats.fontSize}`);
+                if (task.formats.fontFamily) baseStyles.push(`font-family: ${task.formats.fontFamily}`);
+                samplePara.style.cssText = baseStyles.join('; ');
+            }
+
+            samplePara.innerHTML = html;
+        } else {
+            // Apply full paragraph formatting
+            const cssText = formatsToCss(task.formats);
+            samplePara.style.cssText = cssText;
+            samplePara.textContent = task.text;
+        }
+
+        sampleTextDiv.appendChild(samplePara);
+
+        // Practice text (unformatted, editable)
+        const practicePara = document.createElement('p');
+        practicePara.id = `practice-${index}`;
+        practicePara.innerHTML = task.text; // Use innerHTML instead of textContent
+        practicePara.className = 'editable-text';
+        practicePara.style.marginBottom = '15px';
+        practicePara.dataset.taskIndex = index;
+        practiceTextDiv.appendChild(practicePara);
+    });
+
+    // Enable editing on each practice paragraph
+    document.querySelectorAll('.editable-text').forEach(el => {
+        el.contentEditable = 'true';
+    });
+
+    // Add event listener for real-time checking
+    setupRealTimeChecking();
+}
+
+// Setup real-time checking for requirements
+function setupRealTimeChecking() {
+    const practiceText = document.getElementById('practiceText');
+    if (!practiceText) return;
+
+    // Check on input/change events
+    let checkTimeout;
+    const scheduleCheck = () => {
+        clearTimeout(checkTimeout);
+        checkTimeout = setTimeout(() => checkRequirements(), 300);
+    };
+
+    // Listen for various events that might change formatting
+    practiceText.addEventListener('input', scheduleCheck);
+    practiceText.addEventListener('DOMSubtreeModified', scheduleCheck);
+
+    // Also check when selection changes (user might be reviewing their work)
+    document.addEventListener('selectionchange', () => {
+        const selection = window.getSelection();
+        if (practiceText.contains(selection.anchorNode)) {
+            scheduleCheck();
+        }
+    });
+}
+
+// Load requirements for current task
+function loadRequirements() {
+    const task = gameConfig.levels[gameState.currentLevel].tasks[gameState.currentTaskIndex];
+    const requirementsListDiv = document.getElementById('requirementsList');
+
+    requirementsListDiv.innerHTML = '';
+
+    if (!task.requirements) return;
+
+    task.requirements.forEach(req => {
+        const reqItem = document.createElement('div');
+        reqItem.className = 'requirement-item';
+        reqItem.id = req.id;
+
+        const checkbox = document.createElement('div');
+        checkbox.className = 'requirement-checkbox';
+
+        const text = document.createElement('div');
+        text.className = 'requirement-text';
+
+        // Format text with highlighted quoted words
+        let formattedText = req.text.replace(/"([^"]+)"/g, '<span class="req-highlight">"$1"</span>');
+        text.innerHTML = formattedText;
+
+        reqItem.appendChild(checkbox);
+        reqItem.appendChild(text);
+        requirementsListDiv.appendChild(reqItem);
+    });
+}
+
+// Convert formats object to CSS string
+function formatsToCss(formats) {
+    let css = [];
+    if (formats.color) css.push(`color: ${formats.color} !important`);
+    if (formats.fontSize) css.push(`font-size: ${formats.fontSize} !important`);
+    if (formats.fontWeight) css.push(`font-weight: ${formats.fontWeight} !important`);
+    if (formats.fontFamily) css.push(`font-family: ${formats.fontFamily} !important`);
+    if (formats.fontStyle) css.push(`font-style: ${formats.fontStyle} !important`);
+    if (formats.textDecoration) css.push(`text-decoration: ${formats.textDecoration} !important`);
+    return css.join('; ');
+}
+
+// Setup Event Listeners
+function setupEventListeners() {
+    // Format buttons
+    document.getElementById('boldBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        applyFormat('bold');
+    });
+    document.getElementById('italicBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        applyFormat('italic');
+    });
+    document.getElementById('underlineBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        applyFormat('underline');
+    });
+
+    // Font and size selectors
+    document.getElementById('fontFamily').addEventListener('change', (e) => {
+        applyFormat('fontName', e.target.value);
+    });
+
+    document.getElementById('fontSize').addEventListener('change', (e) => {
+        // Use CSS font-size instead of deprecated font size attribute
+        const selection = window.getSelection();
+        if (selection.rangeCount && selection.toString().length > 0) {
+            const range = selection.getRangeAt(0);
+            const span = document.createElement('span');
+            span.style.fontSize = e.target.value;
+
+            try {
+                const contents = range.extractContents();
+                span.appendChild(contents);
+                range.insertNode(span);
+
+                // Reselect the text
+                const newRange = document.createRange();
+                newRange.selectNodeContents(span);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+
+                showNotification('✏️ Đã áp dụng cỡ chữ!', 'info');
+                setTimeout(() => checkRequirements(), 200);
+            } catch (err) {
+                console.error('Error applying font size:', err);
+            }
+        } else {
+            showNotification('⚠️ Vui lòng chọn văn bản trước!', 'warning');
+        }
+    });
+
+    // Color buttons - use mousedown to prevent losing selection
+    document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // Prevent losing focus/selection
+
+            const selection = window.getSelection();
+            if (selection.rangeCount && selection.toString().length > 0) {
+                const range = selection.getRangeAt(0);
+                const span = document.createElement('span');
+                span.style.color = e.target.dataset.color;
+
+                try {
+                    const contents = range.extractContents();
+                    span.appendChild(contents);
+                    range.insertNode(span);
+
+                    // Reselect the text
+                    const newRange = document.createRange();
+                    newRange.selectNodeContents(span);
+                    selection.removeAllRanges();
+                    selection.addRange(newRange);
+
+                    // Visual feedback
+                    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+                    e.target.classList.add('selected');
+
+                    showNotification('✏️ Đã áp dụng màu!', 'info');
+                    setTimeout(() => checkRequirements(), 200);
+                } catch (err) {
+                    console.error('Error applying color:', err);
+                    applyFormat('foreColor', e.target.dataset.color);
+                }
+            } else {
+                showNotification('⚠️ Vui lòng chọn văn bản trước!', 'warning');
+            }
+        });
+    });
+
+    // Help buttons
+    document.getElementById('hintBtn').addEventListener('click', showHint);
+    document.getElementById('resetBtn').addEventListener('click', resetLevel);
+
+    // Check button
+    document.getElementById('checkBtn').addEventListener('click', checkCurrentTask);
+
+    // Play again button
+    document.getElementById('playAgainBtn').addEventListener('click', () => {
+        document.getElementById('resultModal').classList.remove('show');
+        document.getElementById('resultModal').classList.add('hidden');
+        initGame(gameState.currentLevel);
+    });
+}
+
+// Apply Format to Selected Text
+function applyFormat(command, value = null) {
+    const selection = window.getSelection();
+
+    if (!selection.rangeCount || selection.toString().length === 0) {
+        showNotification('⚠️ Vui lòng chọn văn bản trước!', 'warning');
+        return;
+    }
+
+    // Get the range and make sure we're in practice text
+    const range = selection.getRangeAt(0);
+    const container = range.commonAncestorContainer;
+    const practiceText = document.getElementById('practiceText');
+
+    if (!practiceText) return;
+
+    const practiceElement = container.nodeType === Node.TEXT_NODE
+        ? container.parentElement
+        : container;
+
+    if (!practiceText.contains(practiceElement)) {
+        showNotification('⚠️ Vui lòng chọn văn bản trong khung "VĂN BẢN CỦA EM"!', 'warning');
+        return;
+    }
+
+    // Apply formatting using execCommand
+    practiceText.focus();
+
+    try {
+        let success = false;
+
+        if (value) {
+            success = document.execCommand(command, false, value);
+        } else {
+            success = document.execCommand(command, false, null);
+        }
+
+        // If execCommand failed or for certain commands, apply manually
+        if (!success || command === 'foreColor') {
+            const newRange = applyFormatManually(range, command, value);
+            // Restore selection after manual application
+            if (newRange) {
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+            }
+        }
+    } catch (e) {
+        console.error('Error applying format:', e);
+        // Fallback to manual application
+        const newRange = applyFormatManually(range, command, value);
+        if (newRange) {
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+        }
+    }
+
+    // Visual feedback
+    showNotification('✏️ Đã áp dụng định dạng!', 'info');
+
+    // Check requirements after applying format
+    setTimeout(() => checkRequirements(), 200);
+}
+
+// Apply format manually when execCommand fails
+function applyFormatManually(range, command, value) {
+    const span = document.createElement('span');
+
+    switch(command) {
+        case 'bold':
+            span.style.fontWeight = 'bold';
+            break;
+        case 'italic':
+            span.style.fontStyle = 'italic';
+            break;
+        case 'underline':
+            span.style.textDecoration = 'underline';
+            break;
+        case 'foreColor':
+            span.style.color = value;
+            break;
+        case 'fontSize':
+            span.style.fontSize = value;
+            break;
+        case 'fontName':
+            span.style.fontFamily = value;
+            break;
+        default:
+            return null;
+    }
+
+    try {
+        // Extract the selected content
+        const fragment = range.extractContents();
+
+        // Add content to span
+        span.appendChild(fragment);
+
+        // Insert the span at the selection
+        range.insertNode(span);
+
+        // Create a new range that selects the content of the span
+        const newRange = document.createRange();
+        newRange.selectNodeContents(span);
+
+        return newRange;
+    } catch (e) {
+        console.error('Error in manual format application:', e);
+        return null;
+    }
+}
+
+// Update current task display
+function updateCurrentTask() {
+    const task = gameConfig.levels[gameState.currentLevel].tasks[gameState.currentTaskIndex];
+    loadRequirements();
+}
+
+// Check requirements automatically
+function checkRequirements() {
+    const task = gameConfig.levels[gameState.currentLevel].tasks[gameState.currentTaskIndex];
+    const practiceElement = document.getElementById(`practice-${gameState.currentTaskIndex}`);
+
+    if (!task.requirements || !practiceElement) return;
+
+    let allRequirementsComplete = true;
+
+    task.requirements.forEach(req => {
+        let isComplete = false;
+
+        // New format: requirement with multiple checks
+        if (req.checks && Array.isArray(req.checks)) {
+            isComplete = req.checks.every(checkItem =>
+                checkFullRequirement(practiceElement, checkItem)
+            );
+        }
+        // Old format: single check
+        else if (req.check === 'partial') {
+            // Check specific text within paragraph
+            isComplete = checkPartialRequirement(practiceElement, req);
+        } else {
+            // Check whole paragraph style
+            isComplete = checkFullRequirement(practiceElement, req);
+        }
+
+        // Update UI
+        const reqElement = document.getElementById(req.id);
+        if (reqElement) {
+            if (isComplete) {
+                reqElement.classList.add('completed');
+                reqElement.querySelector('.requirement-checkbox').textContent = '✓';
+            } else {
+                reqElement.classList.remove('completed');
+                reqElement.querySelector('.requirement-checkbox').textContent = '';
+                allRequirementsComplete = false;
+            }
+        }
+    });
+
+    // Auto advance if all requirements are complete
+    if (allRequirementsComplete && !practiceElement.classList.contains('task-completed')) {
+        // Mark as completed
+        practiceElement.classList.add('task-completed');
+        practiceElement.style.border = '2px solid #4CAF50';
+
+        gameState.tasksCompleted++;
+        gameState.score += 10;
+
+        showNotification('✅ Chính xác! +10 điểm', 'success');
+
+        // Update progress
+        updateProgress();
+
+        // Move to next task or end game
+        if (gameState.currentTaskIndex < gameState.totalTasks - 1) {
+            setTimeout(() => {
+                gameState.currentTaskIndex++;
+                updateCurrentTask();
+                showNotification('📝 Chuyển sang nhiệm vụ tiếp theo!', 'info');
+
+                // Scroll to next task if needed
+                const nextPractice = document.getElementById(`practice-${gameState.currentTaskIndex}`);
+                if (nextPractice) {
+                    nextPractice.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 1500);
+        } else if (gameState.tasksCompleted === gameState.totalTasks) {
+            setTimeout(() => endGame(true), 1500);
+        }
+    }
+}
+
+// Check requirement for full paragraph
+function checkFullRequirement(element, req) {
+    // Check if all text in the paragraph has the required formatting
+    // We need to find the element that actually has the formatting
+
+    let targetElement = element;
+
+    // Try to find the deepest element that contains all the text
+    function findDeepestElement(el) {
+        // If element has children, check them
+        if (el.children.length > 0) {
+            for (let child of el.children) {
+                // Check if this child contains all the text
+                if (child.textContent.trim() === element.textContent.trim()) {
+                    // Recursively go deeper
+                    return findDeepestElement(child);
+                }
+            }
+        }
+        // No child contains all text, return this element
+        return el;
+    }
+
+    targetElement = findDeepestElement(element);
+    const style = window.getComputedStyle(targetElement);
+
+    switch(req.check) {
+        case 'color':
+            return style.color === req.value;
+        case 'fontSize':
+            return style.fontSize === req.value;
+        case 'fontWeight':
+            const weight = style.fontWeight;
+            return weight === req.value || (req.value === 'bold' && (weight === '700' || weight === 'bold'));
+        case 'fontFamily':
+            const family = style.fontFamily.split(',')[0].replace(/['"]/g, '').trim();
+            return family.toLowerCase() === req.value.toLowerCase();
+        case 'textDecoration':
+            return style.textDecoration.includes(req.value);
+        default:
+            return false;
+    }
+}
+
+// Check requirement for partial text
+function checkPartialRequirement(element, req) {
+    const textContent = element.textContent;
+    const targetIndex = textContent.indexOf(req.target);
+
+    console.log('Checking partial requirement for:', req.target, 'in', textContent);
+
+    if (targetIndex === -1) {
+        console.log('Target text not found');
+        return false;
+    }
+
+    // Find the element containing the target text
+    const walker = document.createTreeWalker(
+        element,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+    );
+
+    let currentPos = 0;
+    let targetNode = null;
+    let node;
+
+    while (node = walker.nextNode()) {
+        const nodeLength = node.textContent.length;
+        if (currentPos <= targetIndex && targetIndex < currentPos + nodeLength) {
+            targetNode = node;
+            break;
+        }
+        currentPos += nodeLength;
+    }
+
+    if (!targetNode) {
+        console.log('Target node not found');
+        return false;
+    }
+
+    // Get the parent element that has the formatting
+    let parent = targetNode.parentElement;
+
+    console.log('Parent element:', parent.tagName, parent.id || parent.className);
+
+    // Check if we're in the practice element directly (no formatting)
+    if (parent.id === `practice-${gameState.currentTaskIndex}`) {
+        console.log('No formatting applied yet (still in practice element)');
+        return false;
+    }
+
+    const style = window.getComputedStyle(parent);
+
+    switch(req.style) {
+        case 'color':
+            console.log('Checking partial color:', style.color, 'vs', req.value);
+            return style.color === req.value;
+        case 'fontWeight':
+            const weight = style.fontWeight;
+            console.log('Checking partial fontWeight:', weight, 'vs', req.value);
+            return weight === req.value || (req.value === '700' && (weight === '700' || weight === 'bold'));
+        case 'fontStyle':
+            console.log('Checking partial fontStyle:', style.fontStyle, 'vs', req.value);
+            return style.fontStyle === req.value;
+        case 'textDecoration':
+            console.log('Checking partial textDecoration:', style.textDecoration, 'vs', req.value);
+            return style.textDecoration.includes(req.value);
+        default:
+            return false;
+    }
+}
+
+// Check current task formatting
+function checkCurrentTask() {
+    const task = gameConfig.levels[gameState.currentLevel].tasks[gameState.currentTaskIndex];
+    const practiceElement = document.getElementById(`practice-${gameState.currentTaskIndex}`);
+
+    if (!practiceElement || !task.requirements) return;
+
+    // Check if all requirements are completed
+    let allCompleted = true;
+    task.requirements.forEach(req => {
+        const reqElement = document.getElementById(req.id);
+        if (!reqElement || !reqElement.classList.contains('completed')) {
+            allCompleted = false;
+        }
+    });
+
+    if (allCompleted) {
+        // Mark as completed
+        practiceElement.classList.add('task-completed');
+        practiceElement.style.border = '2px solid #4CAF50';
+
+        gameState.tasksCompleted++;
+        gameState.score += 10;
+
+        showNotification('✅ Chính xác! +10 điểm', 'success');
+
+        // Update progress
+        updateProgress();
+
+        // Move to next task or end game
+        if (gameState.currentTaskIndex < gameState.totalTasks - 1) {
+            setTimeout(() => {
+                gameState.currentTaskIndex++;
+                updateCurrentTask();
+                showNotification('📝 Chuyển sang nhiệm vụ tiếp theo!', 'info');
+            }, 1500);
+        } else if (gameState.tasksCompleted === gameState.totalTasks) {
+            setTimeout(() => endGame(true), 1500);
+        }
+    } else {
+        showNotification('❌ Chưa hoàn thành hết yêu cầu! Hãy kiểm tra lại bảng yêu cầu.', 'error');
+    }
+}
+
+// Timer Functions
+function startTimer() {
+    clearInterval(gameState.timerInterval);
+    gameState.timerInterval = setInterval(() => {
+        gameState.timeLeft--;
+        updateTimer();
+
+        if (gameState.timeLeft <= 0) {
+            endGame(false);
+        }
+    }, 1000);
+}
+
+function updateTimer() {
+    const minutes = Math.floor(gameState.timeLeft / 60);
+    const seconds = gameState.timeLeft % 60;
+    const timerElement = document.getElementById('timer');
+    timerElement.textContent =
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    // Warning when time is low
+    if (gameState.timeLeft <= 30) {
+        timerElement.style.color = '#FF0000';
+        if (gameState.timeLeft === 30) {
+            showNotification('⏰ Còn 30 giây!', 'warning');
+        }
+    } else {
+        timerElement.style.color = '#FFFFFF';
+    }
+}
+
+// Update Progress Bar
+function updateProgress() {
+    const progressPercent = (gameState.tasksCompleted / gameState.totalTasks) * 100;
+    document.getElementById('progressFill').style.width = progressPercent + '%';
+    document.getElementById('progressText').textContent =
+        `${gameState.tasksCompleted}/${gameState.totalTasks} hoàn thành`;
+}
+
+// Show Hint
+function showHint() {
+    const task = gameConfig.levels[gameState.currentLevel].tasks[gameState.currentTaskIndex];
+    showNotification(`💡 ${task.instruction}`, 'info');
+
+    // Highlight current task
+    const currentPractice = document.getElementById(`practice-${gameState.currentTaskIndex}`);
+    if (currentPractice) {
+        currentPractice.style.backgroundColor = '#FFEB3B';
+        setTimeout(() => {
+            currentPractice.style.backgroundColor = '';
+        }, 2000);
+    }
+}
+
+// Reset Level
+function resetLevel() {
+    if (confirm('Em có chắc muốn làm lại từ đầu không?')) {
+        clearInterval(gameState.timerInterval);
+        initGame(gameState.currentLevel);
+        showNotification('🔄 Đã làm mới!', 'info');
+    }
+}
+
+// End Game
+function endGame(completed) {
+    clearInterval(gameState.timerInterval);
+
+    // Calculate final score
+    if (completed) {
+        // Bonus for time remaining
+        const timeBonus = Math.floor(gameState.timeLeft / 10) * 5;
+        gameState.score += timeBonus;
+        showNotification(`🎉 Hoàn thành! Thưởng thời gian: +${timeBonus} điểm`, 'success');
+    }
+
+    // Determine stars
+    let stars = '';
+    if (gameState.score >= 80) {
+        stars = '⭐⭐⭐';
+    } else if (gameState.score >= 50) {
+        stars = '⭐⭐';
+    } else if (gameState.score >= 20) {
+        stars = '⭐';
+    } else {
+        stars = '😢';
+    }
+
+    // Show result modal
+    const timeUsed = gameConfig.levels[gameState.currentLevel].time - gameState.timeLeft;
+    document.getElementById('resultStars').textContent = stars;
+    document.getElementById('finalScore').textContent = gameState.score;
+    document.getElementById('finalTime').textContent = formatTime(timeUsed);
+
+    const modal = document.getElementById('resultModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('show');
+}
+
+// Update UI
+function updateUI() {
+    document.getElementById('score').textContent = gameState.score;
+    document.getElementById('level').textContent = gameConfig.levels[gameState.currentLevel].name;
+    updateTimer();
+    updateProgress();
+}
+
+// Utility Functions
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+
+    // Style the notification
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        border-radius: 10px;
+        font-weight: bold;
+        z-index: 2000;
+        animation: slideInRight 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    `;
+
+    // Set background color based on type
+    switch(type) {
+        case 'success':
+            notification.style.background = '#4CAF50';
+            notification.style.color = 'white';
+            break;
+        case 'warning':
+            notification.style.background = '#FF9800';
+            notification.style.color = 'white';
+            break;
+        case 'error':
+            notification.style.background = '#f44336';
+            notification.style.color = 'white';
+            break;
+        default:
+            notification.style.background = '#2196F3';
+            notification.style.color = 'white';
+    }
+
+    document.body.appendChild(notification);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+// Start game when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    initGame('easy');
+    showNotification('🎮 Chào mừng đến với game! Hãy bắt đầu nhé!', 'info');
+});
+    </script>
+</body>
+</html>
