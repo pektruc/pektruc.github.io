@@ -1538,30 +1538,57 @@ function resetLevel() {
 function endGame(completed) {
     clearInterval(gameState.timerInterval);
 
-    // Calculate final score
-    if (completed) {
-        // Bonus for time remaining
-        const timeBonus = Math.floor(gameState.timeLeft / 10) * 5;
-        gameState.score += timeBonus;
-        showNotification(`🎉 Hoàn thành! Thưởng thời gian: +${timeBonus} điểm`, 'success');
-    }
+    // Calculate time used
+    const timeUsed = gameConfig.levels[gameState.currentLevel].time - gameState.timeLeft;
 
-    // Determine stars
+    // Calculate final score - chấm điểm dễ dàng cho các em
+    let finalScore = 0;
     let stars = '';
-    if (gameState.score >= 80) {
-        stars = '⭐⭐⭐';
-    } else if (gameState.score >= 50) {
-        stars = '⭐⭐';
-    } else if (gameState.score >= 20) {
-        stars = '⭐';
+    let message = '';
+
+    if (completed) {
+        // Hoàn thành trong vòng 1 phút: 100 điểm
+        if (timeUsed <= 60) {
+            finalScore = 100;
+            stars = '⭐⭐⭐';
+            message = '🎉 Xuất sắc! Em làm rất nhanh!';
+        }
+        // Hoàn thành sau 1 phút: 90 điểm
+        else {
+            finalScore = 90;
+            stars = '⭐⭐⭐';
+            message = '🎉 Tuyệt vời! Em đã hoàn thành!';
+        }
+        showNotification(message, 'success');
     } else {
-        stars = '😢';
+        // Không hoàn thành: không hiện điểm
+        stars = '💪';
+        message = 'Em cố gắng hơn lần sau';
+        finalScore = null; // Không hiện điểm
     }
 
     // Show result modal
-    const timeUsed = gameConfig.levels[gameState.currentLevel].time - gameState.timeLeft;
     document.getElementById('resultStars').textContent = stars;
-    document.getElementById('finalScore').textContent = gameState.score;
+
+    // Hiển thị điểm số hoặc lời động viên
+    const scoreElement = document.getElementById('finalScore');
+    const scoreContainer = scoreElement.parentElement;
+
+    if (finalScore !== null) {
+        scoreElement.textContent = finalScore;
+        scoreContainer.style.display = 'block';
+    } else {
+        scoreContainer.style.display = 'none';
+    }
+
+    // Update message in modal
+    const modalContent = document.querySelector('.modal-content h2');
+    if (completed) {
+        modalContent.textContent = '🎉 Chúc Mừng Em!';
+    } else {
+        modalContent.textContent = message;
+    }
+
     document.getElementById('finalTime').textContent = formatTime(timeUsed);
 
     const modal = document.getElementById('resultModal');
