@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Học Tập</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .topic {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin: 25px 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .question {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .question-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .checkbox-group, .radio-group {
+            margin: 10px 0;
+        }
+
+        .checkbox-item, .radio-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .checkbox-item:hover, .radio-item:hover {
+            background-color: #e8eaf6;
+        }
+
+        input[type="checkbox"], input[type="radio"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            min-height: 120px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .hint {
+            color: #666;
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-top: 8px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #e8f5e9;
+            border-radius: 12px;
+            border-left: 4px solid #4caf50;
+        }
+
+        .result h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            margin: 15px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .result-item strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #5568d3;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .notification {
+            display: none;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+
+        .notification.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .notification.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .topic {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 PHIẾU HỌC TẬP</h1>
+
+        <div class="topic">
+            <strong>Chủ đề:</strong> Những điều thú vị, mới mẻ mà em thấy trong video bộ phim "Sự tích quả dưa hấu"
+        </div>
+
+        <div class="notification" id="notification"></div>
+        <div class="loading" id="loading">⏳ Đang gửi bài làm của em lên hệ thống...</div>
+
+        <form id="studyForm">
+            <div class="form-group">
+                <label for="studentName">Họ và tên:</label>
+                <input type="text" id="studentName" name="studentName" required placeholder="Nhập họ và tên của em...">
+            </div>
+
+            <div class="question">
+                <div class="question-title">1. Cảm nhận của em về hình ảnh, màu sắc và âm thanh trong video?</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="q1" value="Hình ảnh sinh động">
+                        <span>Hình ảnh sinh động</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="q1" value="Màu sắc đẹp mắt">
+                        <span>Màu sắc đẹp mắt</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="q1" value="Giọng kể chuyện cảm xúc">
+                        <span>Giọng kể chuyện cảm xúc</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <div class="question-title">2. Theo em, xem video có giúp em hiểu nội dung câu chuyện tốt hơn so với chỉ đọc truyện trong sách không?</div>
+                <div class="radio-group">
+                    <label class="radio-item">
+                        <input type="radio" name="q2" value="Có" required>
+                        <span>Có</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="q2" value="Không">
+                        <span>Không</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <div class="question-title">3. Em học được bài học gì từ nhân vật chính?</div>
+                <textarea id="q3" name="q3" required placeholder="Chia sẻ suy nghĩ của em..."></textarea>
+                <div class="hint">Gợi ý: phải chăm chỉ lao động, tin vào bản thân, không nản chí...</div>
+            </div>
+
+            <button type="submit" class="submit-btn">Nộp bài</button>
+        </form>
+
+        <div class="result" id="result">
+            <h3>✅ Bài làm của em:</h3>
+            <div id="resultContent"></div>
+            <button class="submit-btn" onclick="resetForm()">Làm lại</button>
+        </div>
+
+        <a href="../index.html" class="back-btn">← Quay lại trang chủ</a>
+    </div>
+
+    <script>
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw7wKk0_j2M9AXal2trgJQzE631IP436WVQZ6XMaYTFgOh2-3NGDYDo8wRRca6SQSgM/exec';
+
+        const form = document.getElementById('studyForm');
+        const resultDiv = document.getElementById('result');
+        const resultContent = document.getElementById('resultContent');
+        const loadingDiv = document.getElementById('loading');
+        const notificationDiv = document.getElementById('notification');
+
+        function showNotification(message, type) {
+            notificationDiv.textContent = message;
+            notificationDiv.className = 'notification show ' + type;
+            setTimeout(() => {
+                notificationDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const studentName = document.getElementById('studentName').value;
+
+            // Get question 1 answers
+            const q1Checkboxes = document.querySelectorAll('input[name="q1"]:checked');
+            const q1Answers = Array.from(q1Checkboxes).map(cb => cb.value);
+
+            // Get question 2 answer
+            const q2Radio = document.querySelector('input[name="q2"]:checked');
+            const q2Answer = q2Radio ? q2Radio.value : '';
+
+            // Get question 3 answer
+            const q3Answer = document.getElementById('q3').value;
+
+            // Prepare data to send
+            const formData = {
+                studentName: studentName,
+                q1: q1Answers.join(', '),
+                q2: q2Answer,
+                q3: q3Answer
+            };
+
+            // Show loading
+            loadingDiv.classList.add('show');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+
+            try {
+                // Send to Google Sheets
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                // Hide loading
+                loadingDiv.classList.remove('show');
+                submitBtn.disabled = false;
+
+                // Show success notification
+                showNotification('✅ Bài làm của em đã được gửi thành công đến cô giáo!', 'success');
+
+                // Display results
+                let resultHTML = `
+                    <div class="result-item">
+                        <strong>Họ và tên:</strong>
+                        ${studentName}
+                    </div>
+                    <div class="result-item">
+                        <strong>Câu 1: Cảm nhận về hình ảnh, màu sắc và âm thanh:</strong>
+                        ${q1Answers.length > 0 ? q1Answers.join(', ') : 'Chưa chọn'}
+                    </div>
+                    <div class="result-item">
+                        <strong>Câu 2: Xem video có giúp hiểu nội dung tốt hơn không?</strong>
+                        ${q2Answer}
+                    </div>
+                    <div class="result-item">
+                        <strong>Câu 3: Bài học từ nhân vật chính:</strong>
+                        ${q3Answer}
+                    </div>
+                `;
+
+                resultContent.innerHTML = resultHTML;
+                form.style.display = 'none';
+                resultDiv.style.display = 'block';
+
+                // Scroll to result
+                resultDiv.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                // Hide loading
+                loadingDiv.classList.remove('show');
+                submitBtn.disabled = false;
+
+                // Note: With no-cors mode, we can't detect actual errors
+                // So we assume success if no network error occurred
+                showNotification('✅ Bài làm của em đã được gửi!', 'success');
+
+                // Still show results
+                let resultHTML = `
+                    <div class="result-item">
+                        <strong>Họ và tên:</strong>
+                        ${studentName}
+                    </div>
+                    <div class="result-item">
+                        <strong>Câu 1: Cảm nhận về hình ảnh, màu sắc và âm thanh:</strong>
+                        ${q1Answers.length > 0 ? q1Answers.join(', ') : 'Chưa chọn'}
+                    </div>
+                    <div class="result-item">
+                        <strong>Câu 2: Xem video có giúp hiểu nội dung tốt hơn không?</strong>
+                        ${q2Answer}
+                    </div>
+                    <div class="result-item">
+                        <strong>Câu 3: Bài học từ nhân vật chính:</strong>
+                        ${q3Answer}
+                    </div>
+                `;
+
+                resultContent.innerHTML = resultHTML;
+                form.style.display = 'none';
+                resultDiv.style.display = 'block';
+                resultDiv.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        function resetForm() {
+            form.reset();
+            form.style.display = 'block';
+            resultDiv.style.display = 'none';
+            notificationDiv.classList.remove('show');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

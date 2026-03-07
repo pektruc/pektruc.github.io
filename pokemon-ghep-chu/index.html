@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ Pokémon Ghép Chữ Telex</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Be+Vietnam+Pro:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0e1a;
+  --card: #1a1930;
+  --card2: #20203a;
+  --yellow: #FFCB05;
+  --yellow2: #c8a000;
+  --blue: #3d5a99;
+  --green: #2dc653;
+  --red: #e63946;
+  --white: #f0f0fa;
+  --muted: #6a6a9a;
+  --pixel: 'Baloo 2', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  color: var(--white);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Twinkling star background */
+.stars {
+  position: fixed; inset: 0; pointer-events: none; overflow: hidden;
+}
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle var(--d) ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  0% { opacity: 0.1; transform: scale(0.8); }
+  100% { opacity: 0.9; transform: scale(1.2); }
+}
+
+/* ─── SCREENS ──────────────────────────────── */
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 22px;
+  padding: 32px 24px;
+  max-width: 520px;
+  width: 100%;
+  z-index: 10;
+}
+.screen.active { display: flex; }
+
+/* ─── START SCREEN ─────────────────────────── */
+.start-pikachu { font-size: 72px; animation: float 3s ease-in-out infinite; }
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+.game-title {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--yellow);
+  text-shadow: 3px 3px 0 var(--yellow2), 0 0 30px rgba(255,203,5,0.4);
+  line-height: 1.35;
+  letter-spacing: 1px;
+}
+.game-desc {
+  font-size: 16px;
+  color: #b0b0d0;
+  line-height: 1.7;
+  max-width: 380px;
+}
+.example-combos {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.example-pill {
+  background: rgba(255,203,5,0.12);
+  border: 1.5px solid rgba(255,203,5,0.3);
+  border-radius: 50px;
+  padding: 6px 16px;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--yellow);
+}
+.btn {
+  background: var(--yellow);
+  color: #1a1a00;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 40px;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 6px 0 var(--yellow2), 0 8px 20px rgba(255,203,5,0.2);
+  transition: all 0.12s;
+  letter-spacing: 0.5px;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--yellow2), 0 12px 24px rgba(255,203,5,0.25); }
+.btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--yellow2); }
+
+/* ─── GAME SCREEN ──────────────────────────── */
+.game-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 580px;
+  padding: 14px 16px;
+  z-index: 10;
+}
+
+/* Header */
+.header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+.header-title {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--yellow);
+  text-shadow: 2px 2px 0 var(--yellow2);
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.score-display {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--yellow);
+  text-shadow: 2px 2px 0 var(--yellow2);
+}
+.lives { display: flex; gap: 3px; }
+.heart { font-size: 18px; transition: all 0.3s; }
+.heart.lost { filter: grayscale(1); opacity: 0.25; transform: scale(0.7); }
+
+/* Progress */
+.progress-bar {
+  width: 100%;
+  height: 7px;
+  background: var(--card2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--yellow), #ff9500);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Main area: target + mascot side by side */
+.main-area {
+  display: flex;
+  width: 100%;
+  gap: 14px;
+  align-items: stretch;
+}
+
+/* Target panel */
+.target-panel {
+  flex: 1;
+  background: var(--card);
+  border: 2.5px solid #2a2a4a;
+  border-radius: 22px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+  position: relative;
+}
+.target-panel::before {
+  content: 'GÕ CHỮ NÀO?';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card);
+  padding: 0 10px;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 800;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.target-char {
+  font-size: 96px;
+  font-weight: 900;
+  color: var(--yellow);
+  text-shadow: 0 0 50px rgba(255,203,5,0.5), 0 4px 0 rgba(0,0,0,0.4);
+  line-height: 1.3;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  display: block;
+  min-height: 1.3em;
+}
+.target-char.pop { animation: popChar 0.4s ease; }
+@keyframes popChar {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25) rotate(-5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* Slot display: = [A] + [A] */
+.combo-slots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.eq { color: var(--muted); font-size: 22px; font-weight: 900; }
+.plus { color: var(--muted); font-size: 22px; font-weight: 900; }
+.slot {
+  width: 58px; height: 62px;
+  border: 2.5px dashed #3a3a6a;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--yellow);
+  background: rgba(255,203,5,0.04);
+  transition: all 0.2s;
+  text-shadow: 2px 2px 0 var(--yellow2);
+  line-height: 1;
+}
+.slot.filled {
+  border-style: solid;
+  border-color: var(--yellow);
+  background: rgba(255,203,5,0.12);
+  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(255,203,5,0.2);
+}
+
+.hint-area { min-height: 28px; }
+.hint-btn {
+  background: transparent;
+  border: 1.5px solid #3a3a6a;
+  border-radius: 50px;
+  padding: 5px 14px;
+  color: var(--muted);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hint-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+.hint-text {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--yellow);
+  background: rgba(255,203,5,0.1);
+  border: 1.5px solid rgba(255,203,5,0.3);
+  border-radius: 8px;
+  padding: 5px 16px;
+}
+
+/* Mascot / Pikachu area */
+.mascot-wrap {
+  width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* CSS Pikachu */
+.pikachu {
+  width: 100px; height: 110px;
+  position: relative;
+  transition: transform 0.3s;
+}
+.pikachu.happy { animation: pikaHappy 0.5s ease; }
+.pikachu.sad { animation: pikaSad 0.45s ease; }
+@keyframes pikaHappy {
+  0%,100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-22px) rotate(-8deg); }
+  60% { transform: translateY(-12px) rotate(5deg); }
+}
+@keyframes pikaSad {
+  0%,100% { transform: translateX(0) rotate(0); }
+  20% { transform: translateX(-10px) rotate(-4deg); }
+  40% { transform: translateX(10px) rotate(4deg); }
+  60% { transform: translateX(-7px) rotate(-2deg); }
+  80% { transform: translateX(7px) rotate(2deg); }
+}
+
+/* Pikachu parts */
+.p-ear {
+  width: 26px; height: 44px;
+  background: var(--yellow);
+  border: 2.5px solid var(--yellow2);
+  position: absolute;
+  top: -2px;
+  border-radius: 60% 60% 0 0;
+}
+.p-ear::after {
+  content: '';
+  width: 10px; height: 28px;
+  background: #1a1a1a;
+  border-radius: 50% 50% 0 0;
+  position: absolute;
+  top: 4px;
+  left: 50%; transform: translateX(-50%);
+}
+.p-ear.L { left: 10px; transform: rotate(-18deg); }
+.p-ear.R { right: 10px; transform: rotate(18deg); }
+
+.p-body {
+  width: 80px; height: 72px;
+  background: var(--yellow);
+  border: 2.5px solid var(--yellow2);
+  border-radius: 50% 50% 48% 48%;
+  position: absolute;
+  bottom: 4px;
+  left: 50%; transform: translateX(-50%);
+  overflow: visible;
+}
+.p-eye {
+  width: 13px; height: 15px;
+  background: #111;
+  border-radius: 50%;
+  position: absolute;
+  top: 16px;
+}
+.p-eye::after {
+  content: '';
+  width: 5px; height: 5px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px; left: 2px;
+}
+.p-eye.L { left: 13px; }
+.p-eye.R { right: 13px; }
+.p-cheek {
+  width: 18px; height: 12px;
+  background: #ff7b8a;
+  border-radius: 50%;
+  position: absolute;
+  top: 30px;
+  opacity: 0.85;
+}
+.p-cheek.L { left: 7px; }
+.p-cheek.R { right: 7px; }
+.p-nose {
+  width: 8px; height: 5px;
+  background: #1a1a1a;
+  border-radius: 50%;
+  position: absolute;
+  top: 26px;
+  left: 50%; transform: translateX(-50%);
+}
+.p-mouth {
+  width: 16px; height: 9px;
+  border-bottom: 3px solid #1a1a1a;
+  border-right: 3px solid #1a1a1a;
+  border-radius: 0 0 8px 0;
+  position: absolute;
+  top: 30px;
+  left: 50%; transform: translateX(-50%) rotate(-10deg);
+}
+.p-belly {
+  width: 38px; height: 30px;
+  background: #ffe870;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 6px;
+  left: 50%; transform: translateX(-50%);
+  opacity: 0.6;
+}
+.p-tail {
+  width: 30px; height: 36px;
+  background: var(--yellow);
+  border: 2px solid var(--yellow2);
+  position: absolute;
+  bottom: 20px; right: -18px;
+  clip-path: polygon(50% 0%, 100% 30%, 75% 60%, 100% 90%, 50% 100%, 0% 70%, 25% 40%, 0% 10%);
+  transform: rotate(25deg);
+}
+.p-cheek-spark { /* electric sparks */
+  position: absolute;
+  font-size: 9px;
+  color: #fff;
+  animation: spark 1s ease-in-out infinite;
+}
+.p-cheek-spark.L { top: 26px; left: 2px; }
+.p-cheek-spark.R { top: 26px; right: 2px; }
+@keyframes spark { 0%,100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.2); } }
+
+.mascot-speech {
+  font-size: 13px;
+  font-weight: 900;
+  font-family: 'Be Vietnam Pro', sans-serif;
+  color: var(--yellow);
+  text-align: center;
+  min-height: 18px;
+  background: rgba(255,203,5,0.08);
+  border: 1px solid rgba(255,203,5,0.15);
+  border-radius: 50px;
+  padding: 4px 10px;
+  transition: all 0.2s;
+}
+
+/* ─── TILES ────────────────────────────────── */
+.tiles-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.tile {
+  width: 108px; height: 118px;
+  background: var(--card);
+  border: 2.5px solid #2a2a4a;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 5px 14px rgba(0,0,0,0.35), 0 2px 0 #0a0a18;
+}
+.tile::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 42%;
+  background: rgba(255,255,255,0.035);
+  border-radius: 18px 18px 0 0;
+  pointer-events: none;
+}
+.tile:hover:not(.selected):not(.disabled) {
+  transform: translateY(-7px) scale(1.04);
+  border-color: var(--yellow);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,203,5,0.25);
+}
+.tile.selected {
+  border-color: var(--yellow);
+  background: #1c2a10;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.4), 0 0 24px rgba(255,203,5,0.2);
+}
+.tile.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.tile.pop-correct { animation: tileCorrect 0.5s ease forwards; }
+.tile.pop-wrong { animation: tileWrong 0.45s ease forwards; }
+@keyframes tileCorrect {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18) rotate(4deg); background: #152a15; border-color: var(--green); }
+  100% { transform: scale(1); }
+}
+@keyframes tileWrong {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-11px); background: #2a1515; border-color: var(--red); }
+  40% { transform: translateX(11px); }
+  60% { transform: translateX(-7px); }
+  80% { transform: translateX(7px); }
+}
+
+.tile-emoji { font-size: 38px; line-height: 1; margin-bottom: 5px; }
+.tile-key {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--yellow);
+  text-shadow: 2px 2px 0 var(--yellow2);
+  line-height: 1;
+}
+.tile-name { font-size: 12px; color: var(--muted); margin-top: 3px; font-weight: 800; }
+
+/* Keyboard hint */
+.keyboard-hint {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 800;
+}
+.key-badge {
+  display: inline-block;
+  background: var(--card2);
+  border: 1.5px solid #3a3a6a;
+  border-radius: 6px;
+  padding: 2px 9px;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  color: #9090c0;
+  margin: 0 2px;
+}
+
+/* ─── REFERENCE CARD ───────────────────────── */
+.ref-card {
+  background: var(--card);
+  border: 2px solid #2a2a4a;
+  border-radius: 16px;
+  padding: 12px 16px;
+  width: 100%;
+}
+.ref-title {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-align: center;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.ref-grid {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.ref-item {
+  background: rgba(255,203,5,0.07);
+  border: 1.5px solid rgba(255,203,5,0.18);
+  border-radius: 8px;
+  padding: 4px 12px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #b0b0d0;
+}
+.ref-item .rc { color: var(--yellow); }
+
+/* ─── FEEDBACK OVERLAY ─────────────────────── */
+.feedback-overlay {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; z-index: 200;
+}
+.feedback-msg {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 32px;
+  font-weight: 900;
+  opacity: 0;
+  transform: scale(0.4) translateY(20px);
+  transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+.feedback-msg.show {
+  opacity: 1;
+  transform: scale(1) translateY(-50px);
+}
+.feedback-msg.correct { color: #4adf74; text-shadow: 0 0 30px rgba(74,223,116,0.6), 3px 3px 0 #1a5a2a; }
+.feedback-msg.wrong { color: #e63946; text-shadow: 0 0 30px rgba(230,57,70,0.5), 3px 3px 0 #5a1a1a; }
+
+/* Particles */
+.particle {
+  position: fixed;
+  pointer-events: none;
+  font-size: 18px;
+  z-index: 199;
+  animation: particleFly var(--dur) ease-out forwards;
+}
+@keyframes particleFly {
+  0% { opacity: 1; transform: translate(0,0) scale(1) rotate(0deg); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0) rotate(var(--rot)); }
+}
+
+/* ─── END SCREEN ───────────────────────────── */
+.star-display { font-size: 52px; animation: starPop 0.6s ease; }
+@keyframes starPop { 0% { transform: scale(0) rotate(-20deg); } 70% { transform: scale(1.2) rotate(5deg); } 100% { transform: scale(1); } }
+.result-score {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 64px;
+  font-weight: 900;
+  color: var(--yellow);
+  text-shadow: 4px 4px 0 var(--yellow2), 0 0 40px rgba(255,203,5,0.4);
+  line-height: 1;
+}
+.result-msg { font-size: 22px; color: #d0d0f0; font-weight: 900; }
+.result-sub { font-size: 15px; color: var(--muted); }
+.btn-secondary {
+  background: transparent;
+  border: 2px solid var(--yellow);
+  color: var(--yellow);
+  border-radius: 50px;
+  padding: 10px 28px;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 17px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-secondary:hover { background: rgba(255,203,5,0.1); }
+
+.q-counter {
+  font-size: 15px;
+  color: var(--muted);
+  font-weight: 800;
+  font-family: 'Baloo 2', sans-serif;
+}
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- ░░ START SCREEN ░░ -->
+<div class="screen active" id="screen-start">
+  <div class="start-pikachu">⚡</div>
+  <div class="game-title">POKÉMON<br>GHÉP CHỮ<br>TELEX</div>
+  <div class="game-desc">
+    Chọn 2 phím Telex đúng để tạo ra chữ cái tiếng Việt!<br>
+    Có thể <strong style="color:var(--yellow)">nhấn phím</strong> hoặc <strong style="color:var(--yellow)">bấm vào ô</strong> nhé 🎮
+  </div>
+  <div class="example-combos">
+    <div class="example-pill">a + a = â</div>
+    <div class="example-pill">a + w = ă</div>
+    <div class="example-pill">e + e = ê</div>
+    <div class="example-pill">o + o = ô</div>
+    <div class="example-pill">o + w = ơ</div>
+    <div class="example-pill">u + w = ư</div>
+    <div class="example-pill">d + d = đ</div>
+  </div>
+  <button class="btn" onclick="startGame()">▶  BẮT ĐẦU CHƠI!</button>
+  <div style="font-size:12px;color:var(--muted)">Lớp 1 · Học gõ Telex · 14 câu hỏi</div>
+</div>
+
+<!-- ░░ GAME SCREEN ░░ -->
+<div class="screen" id="screen-game">
+  <div class="game-wrap" id="game-wrap"></div>
+</div>
+
+<!-- ░░ END SCREEN ░░ -->
+<div class="screen" id="screen-end">
+  <div class="star-display" id="end-stars">⭐⭐⭐</div>
+  <div class="game-title" style="font-size:11px">KẾT QUẢ</div>
+  <div class="result-score" id="end-score">10/14</div>
+  <div class="result-msg" id="end-msg">Xuất sắc! 🏆</div>
+  <div class="result-sub" id="end-sub">Đúng 71% · Tim còn: ❤️❤️</div>
+  <button class="btn" onclick="startGame()">↺  CHƠI LẠI</button>
+  <button class="btn-secondary" onclick="showScreen('start')">🏠 Màn hình chính</button>
+</div>
+
+<!-- Feedback overlay -->
+<div class="feedback-overlay">
+  <div class="feedback-msg" id="feedback-msg"></div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────
+const COMBOS = [
+  { char: 'â', keys: ['a','a'] },
+  { char: 'ă', keys: ['a','w'] },
+  { char: 'ê', keys: ['e','e'] },
+  { char: 'ô', keys: ['o','o'] },
+  { char: 'ơ', keys: ['o','w'] },
+  { char: 'ư', keys: ['u','w'] },
+  { char: 'đ', keys: ['d','d'] },
+];
+
+const ALL_KEYS = ['a','w','e','o','u','d'];
+
+const KEY_DATA = {
+  a: { emoji: '🦊', name: 'Hồ Ly' },
+  w: { emoji: '🌊', name: 'Sóng' },
+  e: { emoji: '🦅', name: 'Đại Bàng' },
+  o: { emoji: '🐙', name: 'Bạch Tuộc' },
+  u: { emoji: '🦄', name: 'Kỳ Lân' },
+  d: { emoji: '🐉', name: 'Rồng' },
+};
+
+const CORRECT_MSGS = ['ĐÚNG RỒI! ⭐','TUYỆT VỜI! ✨','XUẤT SẮC! ⚡','GIỎI LẮM! 🌟','CHUẨN LUÔ N! 💥'];
+const WRONG_MSGS  = ['THỬ LẠI! 💪','CHHƯA ĐÚNG!','SÍU NỮA!'];
+
+// ─── STATE ──────────────────────────────────────────────────────
+let G = {};
+
+// ─── UTILITIES ──────────────────────────────────────────────────
+function shuffle(a) {
+  const b = [...a];
+  for (let i = b.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [b[i],b[j]] = [b[j],b[i]];
+  }
+  return b;
+}
+
+function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
+function generateTiles(combo) {
+  const [k1, k2] = combo.keys;
+  let pool;
+  if (k1 === k2) {
+    const d = shuffle(ALL_KEYS.filter(k => k !== k1)).slice(0, 2);
+    pool = shuffle([k1, k1, ...d]);
+  } else {
+    const d = shuffle(ALL_KEYS.filter(k => k !== k1 && k !== k2)).slice(0, 2);
+    pool = shuffle([k1, k2, ...d]);
+  }
+  return pool; // 4 keys
+}
+
+function makeQuestions() {
+  return shuffle([...COMBOS, ...COMBOS]); // 14 questions
+}
+
+// ─── SCREENS ────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+// ─── GAME FLOW ───────────────────────────────────────────────────
+function startGame() {
+  G = {
+    questions: makeQuestions(),
+    qi: 0,
+    score: 0,
+    lives: 3,
+    selected: [],    // [{tileIdx, key}]
+    tiles: [],
+    waiting: false,
+    hint: false,
+  };
+  G.tiles = generateTiles(G.questions[0]);
+  showScreen('game');
+  renderGame();
+}
+
+function renderGame() {
+  const wrap = document.getElementById('game-wrap');
+  const combo = G.questions[G.qi];
+  const total = G.questions.length;
+  const progress = (G.qi / total) * 100;
+
+  const heartsHTML = [0,1,2].map(i =>
+    `<span class="heart ${i >= G.lives ? 'lost' : ''}">❤️</span>`
+  ).join('');
+
+  const s1 = G.selected[0]?.key || '';
+  const s2 = G.selected[1]?.key || '';
+
+  const tilesHTML = G.tiles.map((key, i) => {
+    const d = KEY_DATA[key] || { emoji: '❓', name: key };
+    const isSel = G.selected.some(s => s.tileIdx === i);
+    return `<div class="tile${isSel ? ' selected' : ''}" id="tile-${i}" onclick="handleTile(${i})">
+      <div class="tile-emoji">${d.emoji}</div>
+      <div class="tile-key">${key}</div>
+      <div class="tile-name">${d.name}</div>
+    </div>`;
+  }).join('');
+
+  const refHTML = COMBOS.map(c =>
+    `<div class="ref-item"><span class="rc">${c.char}</span> = ${c.keys.join('+')} </div>`
+  ).join('');
+
+  let hintHTML;
+  if (G.hint) {
+    hintHTML = `<div class="hint-text">💡 ${combo.keys.join(' + ')}</div>`;
+  } else {
+    hintHTML = `<button class="hint-btn" onclick="showHint()">💡 Gợi ý</button>`;
+  }
+
+  wrap.innerHTML = `
+    <div class="header">
+      <div class="header-title">⚡ GHÉP CHỮ</div>
+      <div class="header-right">
+        <span class="q-counter">${G.qi+1}/${total}</span>
+        <div class="score-display">${G.score} ⭐</div>
+        <div class="lives">${heartsHTML}</div>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" style="width:${progress}%"></div>
+    </div>
+
+    <div class="main-area">
+      <div class="target-panel">
+        <div class="target-char" id="target-char">${combo.char}</div>
+        <div class="combo-slots">
+          <div class="eq">=</div>
+          <div class="slot${s1 ? ' filled' : ''}">${s1}</div>
+          <div class="plus">+</div>
+          <div class="slot${s2 ? ' filled' : ''}">${s2}</div>
+        </div>
+        <div class="hint-area">${hintHTML}</div>
+      </div>
+
+      <div class="mascot-wrap">
+        ${pikaSVG()}
+        <div class="mascot-speech" id="pika-speech">
+          ${G.selected.length === 0 ? 'Chọn 2 phím!' : G.selected.length === 1 ? 'Phím thứ 2?' : '...'}
+        </div>
+      </div>
+    </div>
+
+    <div class="tiles-row" id="tiles-row">${tilesHTML}</div>
+
+    <div class="keyboard-hint">
+      ⌨️ Hoặc gõ phím: <span class="key-badge">a</span><span class="key-badge">w</span>
+      <span class="key-badge">e</span><span class="key-badge">o</span>
+      <span class="key-badge">u</span><span class="key-badge">d</span>
+    </div>
+
+    <div class="ref-card">
+      <div class="ref-title">📖 Bảng tham khảo Telex</div>
+      <div class="ref-grid">${refHTML}</div>
+    </div>
+  `;
+}
+
+function pikaSVG() {
+  return `
+    <div class="pikachu" id="pikachu">
+      <div class="p-ear L"></div>
+      <div class="p-ear R"></div>
+      <div class="p-body">
+        <div class="p-eye L"></div>
+        <div class="p-eye R"></div>
+        <div class="p-cheek L"></div>
+        <div class="p-cheek R"></div>
+        <div class="p-cheek-spark L">⚡</div>
+        <div class="p-cheek-spark R">⚡</div>
+        <div class="p-nose"></div>
+        <div class="p-mouth"></div>
+        <div class="p-belly"></div>
+      </div>
+      <div class="p-tail"></div>
+    </div>`;
+}
+
+function showHint() {
+  G.hint = true;
+  renderGame();
+}
+
+// ─── TILE INTERACTION ────────────────────────────────────────────
+function handleTile(tileIdx) {
+  if (G.waiting) return;
+  if (G.selected.length >= 2) return;
+  if (G.selected.some(s => s.tileIdx === tileIdx)) return; // can't pick same tile
+
+  const key = G.tiles[tileIdx];
+  G.selected.push({ tileIdx, key });
+
+  if (G.selected.length === 2) {
+    G.waiting = true;
+    checkAnswer();
+  }
+
+  renderGame();
+}
+
+function handleKeydown(e) {
+  if (document.getElementById('screen-game').classList.contains('active') === false) return;
+  if (G.waiting) return;
+  if (G.selected.length >= 2) return;
+
+  const key = e.key.toLowerCase();
+  if (!ALL_KEYS.includes(key)) return;
+
+  // Find available tile index with this key (not already selected)
+  const usedIdx = new Set(G.selected.map(s => s.tileIdx));
+  const idx = G.tiles.findIndex((k, i) => k === key && !usedIdx.has(i));
+  if (idx === -1) return;
+
+  G.selected.push({ tileIdx: idx, key });
+
+  if (G.selected.length === 2) {
+    G.waiting = true;
+    checkAnswer();
+  }
+
+  renderGame();
+}
+
+document.addEventListener('keydown', handleKeydown);
+
+// ─── ANSWER CHECK ────────────────────────────────────────────────
+function checkAnswer() {
+  const combo = G.questions[G.qi];
+  const k1 = G.selected[0].key;
+  const k2 = G.selected[1].key;
+  const correct = k1 === combo.keys[0] && k2 === combo.keys[1];
+
+  if (correct) {
+    G.score++;
+    animateTiles(G.selected, 'pop-correct');
+    showFeedback(pick(CORRECT_MSGS), true);
+    setPika('happy');
+    spawnParticles();
+    setTimeout(nextQuestion, 1300);
+  } else {
+    G.lives--;
+    animateTiles(G.selected, 'pop-wrong');
+    showFeedback(pick(WRONG_MSGS), false);
+    setPika('sad');
+    setTimeout(() => {
+      G.selected = [];
+      G.waiting = false;
+      if (G.lives <= 0) { endGame(); return; }
+      renderGame();
+    }, 1000);
+  }
+}
+
+function animateTiles(selected, cls) {
+  selected.forEach(s => {
+    const el = document.getElementById('tile-' + s.tileIdx);
+    if (el) el.classList.add(cls);
+  });
+}
+
+function nextQuestion() {
+  G.qi++;
+  G.selected = [];
+  G.waiting = false;
+  G.hint = false;
+
+  if (G.qi >= G.questions.length) {
+    endGame();
+    return;
+  }
+
+  G.tiles = generateTiles(G.questions[G.qi]);
+  renderGame();
+
+  // Pop animation on new char
+  setTimeout(() => {
+    const tc = document.getElementById('target-char');
+    if (tc) { tc.classList.add('pop'); setTimeout(() => tc.classList.remove('pop'), 400); }
+  }, 50);
+}
+
+function endGame() {
+  const total = G.questions.length;
+  const pct = Math.round((G.score / total) * 100);
+
+  let stars = '⭐';
+  let msg = 'Cố gắng thêm nhé! 💪';
+  if (pct >= 50) { stars = '⭐⭐'; msg = 'Giỏi lắm! 🎉'; }
+  if (pct >= 75) { stars = '⭐⭐⭐'; msg = 'Xuất sắc! 🏆'; }
+  if (pct === 100) { stars = '🌟🌟🌟'; msg = 'Hoàn hảo! Pikachu tự hào về bạn! ⚡'; }
+
+  document.getElementById('end-stars').textContent = stars;
+  document.getElementById('end-score').textContent = `${G.score}/${total}`;
+  document.getElementById('end-msg').textContent = msg;
+  document.getElementById('end-sub').textContent =
+    `Đúng ${pct}% · Tim còn: ${'❤️'.repeat(Math.max(0, G.lives))}`;
+
+  showScreen('end');
+}
+
+// ─── PIKACHU MOOD ────────────────────────────────────────────────
+function setPika(mood) {
+  const el = document.getElementById('pikachu');
+  if (!el) return;
+  el.className = 'pikachu ' + mood;
+  setTimeout(() => { if (el) el.className = 'pikachu'; }, 600);
+}
+
+// ─── FEEDBACK ────────────────────────────────────────────────────
+function showFeedback(text, correct) {
+  const el = document.getElementById('feedback-msg');
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'feedback-msg ' + (correct ? 'correct' : 'wrong') + ' show';
+  setTimeout(() => { el.className = 'feedback-msg'; }, 1000);
+}
+
+// ─── PARTICLES ───────────────────────────────────────────────────
+function spawnParticles() {
+  const emojis = ['⭐','✨','💥','🌟','⚡','🎉','💫','🔥'];
+  const cx = window.innerWidth / 2;
+  const cy = window.innerHeight * 0.4;
+
+  for (let i = 0; i < 16; i++) {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = (cx + (Math.random()-0.5)*60) + 'px';
+    el.style.top  = (cy + (Math.random()-0.5)*40) + 'px';
+    const angle = (i / 16) * Math.PI * 2 + Math.random() * 0.5;
+    const dist  = 80 + Math.random() * 140;
+    el.style.setProperty('--dx', (Math.cos(angle) * dist) + 'px');
+    el.style.setProperty('--dy', (Math.sin(angle) * dist - 40) + 'px');
+    el.style.setProperty('--dur', (0.5 + Math.random() * 0.5) + 's');
+    el.style.setProperty('--rot', (Math.random() * 360) + 'deg');
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1100);
+  }
+}
+
+// ─── STARS BACKGROUND ────────────────────────────────────────────
+(function makeStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = 1 + Math.random() * 2.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      top:${Math.random()*100}%; left:${Math.random()*100}%;
+      --d: ${1.5 + Math.random()*3}s;
+      animation-delay: ${Math.random()*3}s;
+    `;
+    container.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>
