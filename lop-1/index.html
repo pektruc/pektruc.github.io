@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lớp 1 - Trò Chơi Học Tập</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+            background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;padding:70px 20px 40px;color:#fff;
+            display:flex;flex-direction:column;align-items:center;justify-content:center}
+        .back-home{position:fixed;top:16px;left:16px;color:#cbd5e1;text-decoration:none;font-size:14px;font-weight:600;
+            background:rgba(255,255,255,.08);padding:9px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.14)}
+        .back-home:hover{color:#fff;background:rgba(255,255,255,.16)}
+        h1{text-align:center;font-size:2.4rem;margin-bottom:10px;
+            background:linear-gradient(90deg,#34d399,#10b981);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+        .subtitle{text-align:center;color:#94a3b8;margin-bottom:46px}
+        .cards{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;max-width:900px}
+        .card{background:rgba(255,255,255,.1);border-radius:20px;padding:40px 30px;width:270px;text-align:center;
+            text-decoration:none;color:#fff;transition:transform .3s,box-shadow .3s;backdrop-filter:blur(10px);
+            border:1px solid rgba(52,211,153,.25)}
+        .card:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(16,185,129,.2)}
+        .card-icon{font-size:80px;margin-bottom:20px;display:block}
+        .card-title{font-size:1.3rem;font-weight:700;margin-bottom:10px;color:#34d399}
+        .card-desc{font-size:14px;color:#94a3b8;line-height:1.5}
+        .card-badge{display:inline-block;background:linear-gradient(90deg,#10b981,#059669);padding:5px 15px;border-radius:20px;font-size:12px;margin-top:15px;font-weight:500}
+        .footer{margin-top:60px;text-align:center;color:#64748b;font-size:14px}
+        .footer p{margin:5px 0}.footer strong{color:#94a3b8}
+        @media(max-width:600px){h1{font-size:1.8rem}.card{width:100%;max-width:300px;padding:30px 20px}.card-icon{font-size:60px}}
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-home">← Trang chủ</a>
+    <h1>🎒 Lớp 1</h1>
+    <p class="subtitle">Trò chơi học tập dành cho học sinh lớp 1</p>
+
+    <div class="cards">
+        <a href="ghep-bong-may-tinh/" class="card">
+            <span class="card-icon">🧩</span>
+            <h2 class="card-title">Ghép Bóng Máy Tính</h2>
+            <p class="card-desc">Kéo đồ vật thả vào đúng cái bóng của nó — làm quen 10 đồ dùng máy tính</p>
+            <span class="card-badge">Kéo thả</span>
+        </a>
+
+        <a href="pokemon-ghep-chu/" class="card">
+            <span class="card-icon">⚡</span>
+            <h2 class="card-title">Pokémon Ghép Chữ Telex</h2>
+            <p class="card-desc">Học gõ tiếng Việt Telex qua trò chơi ghép chữ cùng Pikachu</p>
+            <span class="card-badge">Gõ tiếng Việt</span>
+        </a>
+
+        <a href="noi-diem-thanh-hinh/" class="card">
+            <span class="card-icon">✏️</span>
+            <h2 class="card-title">Nối Điểm Thành Hình</h2>
+            <p class="card-desc">Dùng chuột nối các điểm theo số để tạo tam giác, ngôi sao, vương miện… — luyện dùng chuột</p>
+            <span class="card-badge">Luyện chuột</span>
+        </a>
+
+        <a href="../game-chung/to-mau/" class="card">
+            <span class="card-icon">🎨</span>
+            <h2 class="card-title">Tô Màu Ngộ Nghĩnh</h2>
+            <p class="card-desc">Chọn hình quả táo, con cá, bông hoa… rồi chọn màu và tô theo mẫu gợi ý</p>
+            <span class="card-badge">Tô màu</span>
+        </a>
+    </div>
+
+    <footer class="footer">
+        <p>Thiết kế bởi <strong>Bùi Thị Phương Trúc</strong></p>
+        <p>Trường Trung-Tiểu học Pétrus Ký</p>
+    </footer>
+</body>
+</html>

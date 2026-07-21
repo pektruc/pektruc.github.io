@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sứ Giả Di Sản Bình Dương – Bảo vệ di tích lịch sử, văn hóa, thiên nhiên</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+    background:
+        radial-gradient(circle at 10% 10%, #fff3d6 0%, transparent 50%),
+        radial-gradient(circle at 90% 90%, #d6f5e0 0%, transparent 50%),
+        linear-gradient(135deg, #fffaf0 0%, #fef5e7 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #2d3748;
+    overflow-x: hidden;
+}
+
+.app {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* ========== HEADER ========== */
+.header {
+    text-align: center;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #dc2626 100%);
+    color: white;
+    padding: 28px 20px;
+    border-radius: 24px;
+    box-shadow: 0 14px 40px rgba(220, 38, 38, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    content: "🏛️ 🌿 🎎 🗻 🏯 🌺";
+    position: absolute;
+    inset: 0;
+    font-size: 120px;
+    opacity: 0.08;
+    letter-spacing: 30px;
+    line-height: 1;
+    pointer-events: none;
+    transform: rotate(-10deg) scale(1.4);
+}
+
+.header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+    position: relative;
+    line-height: 1.25;
+}
+
+.header .subtitle {
+    margin-top: 10px;
+    font-size: 1rem;
+    opacity: 0.95;
+    position: relative;
+}
+
+.score-bar {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 18px;
+    position: relative;
+    flex-wrap: wrap;
+}
+
+.score-pill {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+/* ========== SCREENS ========== */
+.screen { display: none; animation: fadeUp 0.5s ease; }
+.screen.active { display: block; }
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== WELCOME SCREEN ========== */
+.welcome-card {
+    background: white;
+    border-radius: 28px;
+    padding: 40px 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    text-align: center;
+    border: 3px solid #fef3c7;
+}
+
+.welcome-icon {
+    font-size: 90px;
+    margin-bottom: 14px;
+    animation: float 3s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+.welcome-card h2 {
+    font-size: 1.7rem;
+    color: #c2410c;
+    margin-bottom: 12px;
+    font-weight: 800;
+}
+
+.welcome-card p {
+    color: #4a5568;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.intro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin: 24px 0;
+}
+
+.intro-item {
+    padding: 18px 12px;
+    border-radius: 16px;
+    border: 2px solid;
+}
+
+.intro-item .icon { font-size: 40px; display: block; margin-bottom: 6px; }
+.intro-item .name { font-weight: 700; font-size: 0.95rem; }
+
+.intro-item.lichsu { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+.intro-item.vanhoa { background: #fef3c7; border-color: #fde68a; color: #92400e; }
+.intro-item.thiennhien { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+
+.btn-primary {
+    background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 999px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(220, 38, 38, 0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(220, 38, 38, 0.4);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+/* ========== ROUND HEADER ========== */
+.round-title {
+    background: white;
+    border-radius: 20px;
+    padding: 16px 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.round-title .badge {
+    background: linear-gradient(135deg, #f59e0b, #dc2626);
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.round-title .text h3 {
+    font-size: 1.15rem;
+    color: #1a202c;
+    margin-bottom: 2px;
+}
+
+.round-title .text p {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+/* ========== ROUND 1: SORTING ========== */
+.sort-area {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+}
+
+.items-pool {
+    background: white;
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+    min-height: 100px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.items-pool:empty::before {
+    content: "🎉 Em đã làm xong rồi!";
+    color: #16a34a;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.heritage-card {
+    background: linear-gradient(135deg, #fff 0%, #fef3c7 100%);
+    border: 2px solid #fde68a;
+    border-radius: 14px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    font-weight: 600;
+    color: #78350f;
+    font-size: 0.95rem;
+    min-width: 130px;
+    justify-content: center;
+}
+
+.heritage-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(245, 158, 11, 0.25);
+    border-color: #f59e0b;
+}
+
+.heritage-card.selected {
+    background: linear-gradient(135deg, #f59e0b, #dc2626);
+    color: white;
+    border-color: #dc2626;
+    transform: scale(1.05);
+    box-shadow: 0 10px 24px rgba(220, 38, 38, 0.35);
+}
+
+.heritage-card .ico { font-size: 22px; }
+
+.baskets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+}
+
+.basket {
+    border-radius: 20px;
+    padding: 16px;
+    min-height: 180px;
+    border: 3px dashed;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: flex;
+    flex-direction: column;
+}
+
+.basket.lichsu { background: linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%); border-color: #fca5a5; }
+.basket.vanhoa { background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%); border-color: #fcd34d; }
+.basket.thiennhien { background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac; }
+
+.basket.hover-active {
+    transform: scale(1.03);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+.basket-header {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.basket-header .b-icon { font-size: 36px; display: block; }
+.basket-header .b-title { font-weight: 800; font-size: 1.05rem; margin-top: 4px; }
+.basket.lichsu .b-title { color: #991b1b; }
+.basket.vanhoa .b-title { color: #92400e; }
+.basket.thiennhien .b-title { color: #065f46; }
+
+.basket-items {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-content: flex-start;
+    justify-content: center;
+}
+
+.basket .placed-card {
+    padding: 6px 12px;
+    border-radius: 10px;
+    background: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    animation: pop 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.placed-card.correct { border-left: 4px solid #16a34a; }
+.placed-card.wrong { border-left: 4px solid #dc2626; opacity: 0.7; }
+
+@keyframes pop {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+/* ========== ROUND 2: SCENARIOS ========== */
+.scenario-card {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 24px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+    text-align: center;
+    border: 3px solid #fef3c7;
+}
+
+.scenario-emoji {
+    font-size: 90px;
+    margin-bottom: 12px;
+    line-height: 1;
+}
+
+.scenario-text {
+    font-size: 1.25rem;
+    color: #1a202c;
+    font-weight: 600;
+    margin-bottom: 24px;
+    line-height: 1.5;
+    min-height: 64px;
+}
+
+.choice-buttons {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.choice-btn {
+    border: none;
+    padding: 16px 30px;
+    border-radius: 999px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    color: white;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.choice-btn.yes { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.choice-btn.no { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+.choice-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 26px rgba(0,0,0,0.2);
+}
+
+.choice-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.feedback {
+    margin-top: 20px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: none;
+    animation: fadeUp 0.3s ease;
+}
+
+.feedback.show { display: block; }
+.feedback.correct { background: #dcfce7; color: #14532d; border: 2px solid #86efac; }
+.feedback.wrong { background: #fee2e2; color: #7f1d1d; border: 2px solid #fca5a5; }
+
+.progress-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.dot.active { background: #f59e0b; transform: scale(1.3); }
+.dot.done.correct { background: #22c55e; }
+.dot.done.wrong { background: #ef4444; }
+
+/* ========== FINAL SCREEN ========== */
+.final-card {
+    background: white;
+    border-radius: 28px;
+    padding: 36px 28px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    text-align: center;
+    border: 3px solid #fde68a;
+}
+
+.trophy {
+    font-size: 110px;
+    margin-bottom: 10px;
+    animation: trophyBounce 1s ease;
+}
+
+@keyframes trophyBounce {
+    0% { transform: scale(0) rotate(-180deg); }
+    60% { transform: scale(1.2) rotate(20deg); }
+    100% { transform: scale(1) rotate(0); }
+}
+
+.final-card h2 {
+    font-size: 1.8rem;
+    color: #c2410c;
+    margin-bottom: 10px;
+}
+
+.final-score {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #16a34a;
+    margin: 14px 0;
+}
+
+.message-box {
+    background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+    border-radius: 18px;
+    padding: 20px 18px;
+    margin: 20px 0;
+    border-left: 5px solid #f59e0b;
+}
+
+.message-box .label {
+    color: #92400e;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.message-box .quote {
+    font-size: 1.1rem;
+    color: #1a202c;
+    font-weight: 600;
+    margin-top: 6px;
+    line-height: 1.5;
+}
+
+.btn-secondary {
+    background: white;
+    color: #c2410c;
+    border: 2px solid #f59e0b;
+    padding: 12px 28px;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 6px;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.btn-secondary:hover {
+    background: #fff7ed;
+    transform: translateY(-2px);
+}
+
+/* ========== CONFETTI ========== */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    z-index: 1000;
+    animation: confettiFall 3s linear forwards;
+}
+
+@keyframes confettiFall {
+    0% { transform: translateY(-100vh) rotate(0); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 600px) {
+    .header h1 { font-size: 1.4rem; }
+    .header .subtitle { font-size: 0.85rem; }
+    .welcome-card h2 { font-size: 1.3rem; }
+    .welcome-card p { font-size: 0.95rem; }
+    .scenario-text { font-size: 1.05rem; min-height: 50px; }
+    .scenario-emoji { font-size: 70px; }
+    .heritage-card { font-size: 0.85rem; padding: 10px 12px; min-width: 110px; }
+    .heritage-card .ico { font-size: 18px; }
+    .basket { min-height: 130px; padding: 12px; }
+    .basket-header .b-icon { font-size: 28px; }
+    .basket-header .b-title { font-size: 0.95rem; }
+    .trophy { font-size: 80px; }
+    .final-card h2 { font-size: 1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<div class="header">
+    <h1>🏛️ Sứ Giả Di Sản 🌿</h1>
+    <p class="subtitle">Cùng giữ gìn di sản Bình Dương!</p>
+    <div class="score-bar">
+        <div class="score-pill">⭐ Điểm: <span id="scoreVal">0</span></div>
+        <div class="score-pill" id="roundPill">🎯 Vòng 1/2</div>
+    </div>
+</div>
+
+<!-- ============ WELCOME ============ -->
+<div class="screen active" id="screen-welcome">
+    <div class="welcome-card">
+        <div class="welcome-icon">🎎</div>
+        <h2>Xin chào các bạn nhỏ! 👋</h2>
+        <p>
+            Bình Dương quê mình có rất nhiều di sản đẹp.<br>
+            Em hãy cùng cô bảo vệ nhé!
+        </p>
+
+        <div class="intro-grid">
+            <div class="intro-item lichsu">
+                <span class="icon">🏯</span>
+                <div class="name">Lịch sử</div>
+            </div>
+            <div class="intro-item vanhoa">
+                <span class="icon">🎎</span>
+                <div class="name">Văn hóa</div>
+            </div>
+            <div class="intro-item thiennhien">
+                <span class="icon">🌄</span>
+                <div class="name">Thiên nhiên</div>
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="startGame()">🚀 Bắt đầu</button>
+    </div>
+</div>
+
+<!-- ============ ROUND 1: SORTING ============ -->
+<div class="screen" id="screen-round1">
+    <div class="round-title">
+        <div class="badge">1</div>
+        <div class="text">
+            <h3>Sắp xếp di sản</h3>
+            <p>Chọn 1 ô, rồi bấm vào nhóm đúng</p>
+        </div>
+    </div>
+
+    <div class="sort-area">
+        <div class="items-pool" id="itemsPool"></div>
+
+        <div class="baskets">
+            <div class="basket lichsu" data-cat="lichsu" onclick="dropToBasket('lichsu')">
+                <div class="basket-header">
+                    <span class="b-icon">🏯</span>
+                    <div class="b-title">Lịch sử</div>
+                </div>
+                <div class="basket-items" id="basket-lichsu"></div>
+            </div>
+            <div class="basket vanhoa" data-cat="vanhoa" onclick="dropToBasket('vanhoa')">
+                <div class="basket-header">
+                    <span class="b-icon">🎎</span>
+                    <div class="b-title">Văn hóa</div>
+                </div>
+                <div class="basket-items" id="basket-vanhoa"></div>
+            </div>
+            <div class="basket thiennhien" data-cat="thiennhien" onclick="dropToBasket('thiennhien')">
+                <div class="basket-header">
+                    <span class="b-icon">🌄</span>
+                    <div class="b-title">Thiên nhiên</div>
+                </div>
+                <div class="basket-items" id="basket-thiennhien"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ ROUND 2: SCENARIOS ============ -->
+<div class="screen" id="screen-round2">
+    <div class="round-title">
+        <div class="badge">2</div>
+        <div class="text">
+            <h3>Nên hay không nên?</h3>
+            <p>Bấm 👍 NÊN làm hoặc 👎 KHÔNG NÊN</p>
+        </div>
+    </div>
+
+    <div class="scenario-card">
+        <div class="scenario-emoji" id="scEmoji">🤔</div>
+        <div class="scenario-text" id="scText">...</div>
+
+        <div class="choice-buttons">
+            <button class="choice-btn yes" id="btnYes" onclick="answerScenario(true)">
+                👍 NÊN
+            </button>
+            <button class="choice-btn no" id="btnNo" onclick="answerScenario(false)">
+                👎 KHÔNG NÊN
+            </button>
+        </div>
+
+        <div class="feedback" id="scFeedback"></div>
+
+        <div class="progress-dots" id="scDots"></div>
+    </div>
+</div>
+
+<!-- ============ FINAL ============ -->
+<div class="screen" id="screen-final">
+    <div class="final-card">
+        <div class="trophy">🏆</div>
+        <h2 id="finalTitle">Tuyệt vời!</h2>
+        <div class="final-score">⭐ <span id="finalScore">0</span> điểm</div>
+
+        <div class="message-box">
+            <div class="label">💌 Thông điệp</div>
+            <div class="quote">
+                Em hãy cùng cô vẽ<br>
+                <b>sơ đồ tư duy</b> 🎨<br>
+                bảo vệ di sản Bình Dương nhé!
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="restart()">🔄 Chơi lại</button>
+        <a href="../../index.html" class="btn-secondary" style="text-decoration:none; display:inline-block;">🏠 Về trang chủ</a>
+    </div>
+</div>
+
+</div>
+
+<script>
+// ============ DATA ============
+const heritages = [
+    // Lịch sử
+    { name: 'Nhà tù Phú Lợi',           icon: '🏚️', cat: 'lichsu' },
+    { name: 'Địa đạo Tam Giác Sắt',     icon: '⛏️', cat: 'lichsu' },
+    { name: 'Chiến khu Thuận An Hòa',   icon: '🚩', cat: 'lichsu' },
+    { name: 'Chiến khu Đ (Tân Uyên)',   icon: '🎖️', cat: 'lichsu' },
+
+    // Văn hóa
+    { name: 'Nghề gốm Bình Dương',           icon: '🏺', cat: 'vanhoa' },
+    { name: 'Sơn mài Tương Bình Hiệp',       icon: '🎨', cat: 'vanhoa' },
+
+    // Thiên nhiên
+    { name: 'Hồ Dầu Tiếng',           icon: '💧', cat: 'thiennhien' },
+    { name: 'Vườn cây Lái Thiêu',     icon: '🍇', cat: 'thiennhien' },
+    { name: 'Khu sinh thái Thủy Châu', icon: '🌊', cat: 'thiennhien' },
+    { name: 'Làng tre Phú An',        icon: '🎋', cat: 'thiennhien' },
+];
+
+const allScenarios = [
+    { emoji: '🧹', text: 'Dọn rác ở khu di tích', good: true,
+      ok: 'Đúng rồi! Em giỏi quá 💚',
+      bad: 'Mình nên dọn rác nhé!' },
+
+    { emoji: '🖍️', text: 'Vẽ bậy lên tường nhà cổ', good: false,
+      ok: 'Đúng rồi! Không vẽ bậy nha 🌟',
+      bad: 'Vẽ bậy là không tốt đâu!' },
+
+    { emoji: '🌳', text: 'Bẻ cành cây trong khu di tích', good: false,
+      ok: 'Đúng rồi! Mình phải giữ cây xanh 🌿',
+      bad: 'Không nên bẻ cành cây nhé!' },
+
+    { emoji: '🗑️', text: 'Bỏ rác đúng nơi quy định', good: true,
+      ok: 'Hoan hô! Em rất ngoan ⭐',
+      bad: 'Bỏ rác đúng nơi mới đúng nha!' },
+
+    { emoji: '📚', text: 'Kể cho bạn nghe về di tích quê em', good: true,
+      ok: 'Tuyệt vời! Em là sứ giả di sản 📖',
+      bad: 'Kể cho bạn nghe là tốt đó!' },
+
+    { emoji: '🍇', text: 'Hái trộm trái ở vườn Lái Thiêu', good: false,
+      ok: 'Đúng rồi! Không được hái trộm nha 🍃',
+      bad: 'Hái trộm là không đúng đâu!' },
+
+    { emoji: '🎨', text: 'Vẽ sơ đồ tư duy bảo vệ di sản', good: true,
+      ok: 'Chính xác! Đó là bài học hôm nay 🌟',
+      bad: 'Vẽ sơ đồ rất ý nghĩa nha!' },
+
+    { emoji: '🏺', text: 'Tìm hiểu nghề gốm Bình Dương', good: true,
+      ok: 'Hay quá! Em yêu nghề truyền thống 💛',
+      bad: 'Tìm hiểu nghề truyền thống là rất tốt!' },
+
+    { emoji: '🔥', text: 'Đốt lửa trại trong rừng cây', good: false,
+      ok: 'Đúng rồi! Đốt lửa dễ cháy rừng 🚒',
+      bad: 'Đốt lửa trong rừng rất nguy hiểm nha!' },
+
+    { emoji: '🪧', text: 'Khắc tên mình lên đá ở khu di tích', good: false,
+      ok: 'Đúng rồi! Không khắc tên lên đá 🪨',
+      bad: 'Khắc lên đá làm hỏng di tích đó!' },
+
+    { emoji: '🍂', text: 'Hái hoa, bẻ cành ở Làng tre Phú An', good: false,
+      ok: 'Đúng rồi! Mình ngắm thôi không hái nha 💚',
+      bad: 'Không nên hái hoa bẻ cành đâu!' },
+
+    { emoji: '🗣️', text: 'Nói chuyện ồn ào trong khu di tích', good: false,
+      ok: 'Đúng rồi! Phải giữ trật tự nhé 🤫',
+      bad: 'Mình nên nói nhỏ trong di tích!' },
+
+    { emoji: '⚠️', text: 'Trèo lên tường rào khu di tích', good: false,
+      ok: 'Đúng rồi! Vừa nguy hiểm vừa làm hỏng 🚧',
+      bad: 'Trèo tường rất nguy hiểm đó!' },
+];
+
+let scenarios = [];
+
+// ============ STATE ============
+let score = 0;
+let selectedItemIdx = null;
+let remainingItems = [];
+let scenarioIdx = 0;
+
+const scoreVal = document.getElementById('scoreVal');
+const roundPill = document.getElementById('roundPill');
+
+// ============ HELPERS ============
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function updateScore(delta) {
+    score += delta;
+    if (score < 0) score = 0;
+    scoreVal.textContent = score;
+}
+
+function confetti(count = 40) {
+    const colors = ['#f59e0b', '#dc2626', '#22c55e', '#3b82f6', '#a855f7', '#fde68a'];
+    for (let i = 0; i < count; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDelay = (Math.random() * 0.5) + 's';
+        c.style.animationDuration = (2 + Math.random() * 2) + 's';
+        c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+    }
+}
+
+// ============ FLOW ============
+function startGame() {
+    score = 0;
+    updateScore(0);
+    roundPill.textContent = '🎯 Vòng 1/2';
+    remainingItems = shuffle(heritages).map((h, i) => ({ ...h, id: i }));
+    renderPool();
+    renderBaskets();
+    showScreen('screen-round1');
+}
+
+function renderPool() {
+    const pool = document.getElementById('itemsPool');
+    pool.innerHTML = '';
+    remainingItems.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'heritage-card';
+        card.dataset.id = item.id;
+        card.innerHTML = `<span class="ico">${item.icon}</span> ${item.name}`;
+        card.onclick = () => selectItem(item.id);
+        pool.appendChild(card);
+    });
+}
+
+function renderBaskets() {
+    ['lichsu', 'vanhoa', 'thiennhien'].forEach(c => {
+        document.getElementById('basket-' + c).innerHTML = '';
+    });
+}
+
+function selectItem(id) {
+    selectedItemIdx = id;
+    document.querySelectorAll('.heritage-card').forEach(c => {
+        c.classList.toggle('selected', parseInt(c.dataset.id) === id);
+    });
+}
+
+function dropToBasket(category) {
+    if (selectedItemIdx === null) {
+        const pool = document.getElementById('itemsPool');
+        pool.style.animation = 'none';
+        setTimeout(() => { pool.style.animation = 'shake 0.4s'; }, 10);
+        return;
+    }
+    const item = remainingItems.find(i => i.id === selectedItemIdx);
+    if (!item) return;
+
+    const correct = item.cat === category;
+    const basket = document.getElementById('basket-' + category);
+    const placed = document.createElement('div');
+    placed.className = 'placed-card ' + (correct ? 'correct' : 'wrong');
+    placed.innerHTML = `${item.icon} ${item.name}`;
+    basket.appendChild(placed);
+
+    // Highlight basket briefly
+    const basketEl = document.querySelector(`.basket[data-cat="${category}"]`);
+    basketEl.classList.add('hover-active');
+    setTimeout(() => basketEl.classList.remove('hover-active'), 250);
+
+    if (correct) {
+        updateScore(10);
+        confetti(15);
+    } else {
+        updateScore(-2);
+    }
+
+    // Remove from pool
+    remainingItems = remainingItems.filter(i => i.id !== selectedItemIdx);
+    selectedItemIdx = null;
+    renderPool();
+
+    if (remainingItems.length === 0) {
+        setTimeout(() => startRound2(), 800);
+    }
+}
+
+// ============ ROUND 2 ============
+function startRound2() {
+    roundPill.textContent = '🎯 Vòng 2/2';
+    scenarios = shuffle(allScenarios).slice(0, 5);
+    scenarioIdx = 0;
+    renderDots();
+    showScreen('screen-round2');
+    showScenario();
+}
+
+function renderDots() {
+    const dots = document.getElementById('scDots');
+    dots.innerHTML = '';
+    scenarios.forEach((_, i) => {
+        const d = document.createElement('div');
+        d.className = 'dot';
+        if (i === scenarioIdx) d.classList.add('active');
+        dots.appendChild(d);
+    });
+}
+
+function showScenario() {
+    if (scenarioIdx >= scenarios.length) {
+        endGame();
+        return;
+    }
+    const s = scenarios[scenarioIdx];
+    document.getElementById('scEmoji').textContent = s.emoji;
+    document.getElementById('scText').textContent = s.text;
+    document.getElementById('scFeedback').classList.remove('show', 'correct', 'wrong');
+    document.getElementById('btnYes').disabled = false;
+    document.getElementById('btnNo').disabled = false;
+    renderDots();
+}
+
+function answerScenario(userSaysGood) {
+    const s = scenarios[scenarioIdx];
+    const correct = userSaysGood === s.good;
+    const fb = document.getElementById('scFeedback');
+
+    if (correct) {
+        fb.textContent = s.ok;
+        fb.classList.add('show', 'correct');
+        updateScore(10);
+        confetti(20);
+    } else {
+        fb.textContent = s.bad;
+        fb.classList.add('show', 'wrong');
+        updateScore(-3);
+    }
+
+    document.getElementById('btnYes').disabled = true;
+    document.getElementById('btnNo').disabled = true;
+
+    const dots = document.querySelectorAll('#scDots .dot');
+    if (dots[scenarioIdx]) {
+        dots[scenarioIdx].classList.remove('active');
+        dots[scenarioIdx].classList.add('done', correct ? 'correct' : 'wrong');
+    }
+
+    setTimeout(() => {
+        scenarioIdx++;
+        showScenario();
+    }, 1600);
+}
+
+// ============ FINAL ============
+function endGame() {
+    document.getElementById('finalScore').textContent = score;
+    const title = document.getElementById('finalTitle');
+    if (score >= 140) title.textContent = '🌟 Em giỏi quá!';
+    else if (score >= 90) title.textContent = '👏 Em làm tốt lắm!';
+    else if (score >= 40) title.textContent = '😊 Em đã hoàn thành!';
+    else title.textContent = '💪 Cố lên em nhé!';
+
+    showScreen('screen-final');
+    confetti(80);
+}
+
+function restart() {
+    startGame();
+}
+
+// shake animation injected
+const style = document.createElement('style');
+style.textContent = `@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}`;
+document.head.appendChild(style);
+</script>
+
+</body>
+</html>

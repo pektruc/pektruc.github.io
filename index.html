@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Học Tập</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+            background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;padding:40px 20px;color:#fff;
+            display:flex;flex-direction:column;align-items:center;justify-content:center}
+        h1{text-align:center;font-size:2.5rem;margin-bottom:10px;
+            background:linear-gradient(90deg,#00d4ff,#7c3aed);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+        .subtitle{text-align:center;color:#94a3b8;margin-bottom:50px}
+        .cards{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;max-width:900px}
+        .card{background:rgba(255,255,255,.1);border-radius:20px;padding:40px 30px;width:260px;text-align:center;
+            text-decoration:none;color:#fff;transition:transform .3s,box-shadow .3s;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1)}
+        .card:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(0,0,0,.3)}
+        .card-icon{font-size:80px;margin-bottom:20px;display:block}
+        .card-title{font-size:1.5rem;font-weight:700;margin-bottom:10px;color:#00d4ff}
+        .card-desc{font-size:14px;color:#94a3b8;line-height:1.5}
+        .card-badge{display:inline-block;background:linear-gradient(90deg,#00d4ff,#7c3aed);padding:5px 15px;border-radius:20px;font-size:12px;margin-top:15px;font-weight:500}
+        .card.c1 .card-title{color:#34d399}.card.c1 .card-badge{background:linear-gradient(90deg,#10b981,#059669)}
+        .card.c2 .card-title{color:#38bdf8}.card.c2 .card-badge{background:linear-gradient(90deg,#00d4ff,#0ea5e9)}
+        .card.c3 .card-title{color:#a78bfa}.card.c3 .card-badge{background:linear-gradient(90deg,#7c3aed,#a78bfa)}
+        .card.c4 .card-title{color:#fbbf24}.card.c4 .card-badge{background:linear-gradient(90deg,#f59e0b,#f97316)}
+        .card.c5 .card-title{color:#f472b6}.card.c5 .card-badge{background:linear-gradient(90deg,#ec4899,#db2777)}
+        .card.c6 .card-title{color:#2dd4bf}.card.c6 .card-badge{background:linear-gradient(90deg,#14b8a6,#0d9488)}
+        .footer{margin-top:60px;text-align:center;color:#64748b;font-size:14px}
+        .footer p{margin:5px 0}.footer strong{color:#94a3b8}
+        @media(max-width:600px){h1{font-size:1.8rem}.cards{gap:20px}.card{width:100%;max-width:300px;padding:30px 20px}.card-icon{font-size:60px}}
+    </style>
+</head>
+<body>
+    <h1>Trò Chơi Học Tập</h1>
+    <p class="subtitle">Chọn khối lớp của con</p>
+
+    <div class="cards">
+        <a href="lop-1/" class="card c1">
+            <span class="card-icon">🎒</span>
+            <h2 class="card-title">Lớp 1</h2>
+            <p class="card-desc">Trò chơi học tập dành cho học sinh lớp 1</p>
+            <span class="card-badge">4 trò chơi</span>
+        </a>
+
+        <a href="lop-2/" class="card c2">
+            <span class="card-icon">💻</span>
+            <h2 class="card-title">Lớp 2</h2>
+            <p class="card-desc">Trò chơi học tập dành cho học sinh lớp 2</p>
+            <span class="card-badge">6 trò chơi</span>
+        </a>
+
+        <a href="lop-3/" class="card c3">
+            <span class="card-icon">🏛️</span>
+            <h2 class="card-title">Lớp 3</h2>
+            <p class="card-desc">Trò chơi học tập dành cho học sinh lớp 3</p>
+            <span class="card-badge">8 trò chơi</span>
+        </a>
+
+        <a href="lop-4/" class="card c4">
+            <span class="card-icon">🧩</span>
+            <h2 class="card-title">Lớp 4</h2>
+            <p class="card-desc">Trò chơi học tập dành cho học sinh lớp 4</p>
+            <span class="card-badge">1 trò chơi</span>
+        </a>
+
+        <a href="game-chung/" class="card c5">
+            <span class="card-icon">🎮</span>
+            <h2 class="card-title">Game chung</h2>
+            <p class="card-desc">Trò chơi ôn tập không theo khối lớp</p>
+            <span class="card-badge">3 trò chơi</span>
+        </a>
+
+        <a href="cong-cu/" class="card c6">
+            <span class="card-icon">🛠️</span>
+            <h2 class="card-title">Công cụ</h2>
+            <p class="card-desc">Các tiện ích hỗ trợ học tập</p>
+            <span class="card-badge">1 tiện ích</span>
+        </a>
+    </div>
+
+    <footer class="footer">
+        <p>Thiết kế bởi <strong>Bùi Thị Phương Trúc</strong></p>
+        <p>Trường Trung-Tiểu học Pétrus Ký</p>
+    </footer>
+</body>
+</html>

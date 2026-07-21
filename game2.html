@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Gõ Telex - Học Tiếng Việt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 15px 25px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+            font-weight: 700;
+            min-width: 120px;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+            animation: popIn 0.5s ease-out;
+        }
+
+        .stat-box.xp {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .stat-box.pokemon {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            box-shadow: 0 4px 15px rgba(250, 112, 154, 0.3);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            opacity: 0.9;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+        }
+
+        .game-area {
+            background: linear-gradient(to bottom, #f0f4ff 0%, #fff9e6 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 3px solid #667eea;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-area::before {
+            content: '✨';
+            position: absolute;
+            font-size: 3em;
+            opacity: 0.1;
+            top: -20px;
+            right: -20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .question-container {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .question-label {
+            color: #764ba2;
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-word {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.5em;
+            font-weight: 800;
+            color: #667eea;
+            margin: 20px 0;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #764ba2;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.3em;
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .input-box:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        .input-box.correct {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .input-box.incorrect {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .hint {
+            background: #fffbeb;
+            border-left: 4px solid #fbbf24;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #92400e;
+        }
+
+        .hint strong {
+            color: #d97706;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Fredoka', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            min-width: 150px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-submit:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-skip {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-skip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-align: center;
+            min-height: 25px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback.success {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 2px solid #10b981;
+        }
+
+        .feedback.error {
+            background: #fef2f2;
+            color: #7f1d1d;
+            border: 2px solid #ef4444;
+        }
+
+        .pokemon-reward {
+            text-align: center;
+            margin-top: 20px;
+            animation: bounce 0.6s ease-out;
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pokemon-sprite {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .pokemon-name {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.3em;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            max-width: 500px;
+            animation: zoomIn 0.4s ease;
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-emoji {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.2em;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .modal-text {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .modal-stats {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .modal-stat-item {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            margin: 8px 0;
+            font-size: 1.1em;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            min-width: 200px;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .difficulty-select {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .difficulty-btn:hover {
+            border-color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .title {
+                font-size: 1.8em;
+            }
+
+            .question-word {
+                font-size: 1.8em;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat-box {
+                flex: 1;
+                min-width: 100px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎮 Pokémon Telex</h1>
+            <p class="subtitle">Luyện gõ tiếng Việt cùng Pokémon</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box xp">
+                <span class="stat-label">EXP</span>
+                <span class="stat-value" id="expDisplay">0</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Câu Đúng</span>
+                <span class="stat-value" id="correctDisplay">0</span>
+            </div>
+            <div class="stat-box pokemon">
+                <span class="stat-label">Pokémon Bắt</span>
+                <span class="stat-value" id="pokemonDisplay">0</span>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="question-container">
+                <div class="question-label">Gõ đúng từ này bằng Telex:</div>
+                <div class="question-word" id="questionWord">Đang tải...</div>
+            </div>
+
+            <div class="hint" id="hintBox"></div>
+
+            <div class="input-container">
+                <label class="input-label">Câu trả lời của bạn:</label>
+                <input type="text" id="userInput" class="input-box" placeholder="Gõ từ đây..." autocomplete="off">
+            </div>
+
+            <div class="difficulty-select">
+                <button class="difficulty-btn active" onclick="setDifficulty('easy')">⭐ Dễ</button>
+                <button class="difficulty-btn" onclick="setDifficulty('normal')">⭐⭐ Bình thường</button>
+                <button class="difficulty-btn" onclick="setDifficulty('hard')">⭐⭐⭐ Khó</button>
+            </div>
+
+            <div class="buttons">
+                <button class="btn-submit" id="submitBtn" onclick="checkAnswer()">Kiểm tra</button>
+                <button class="btn-skip" onclick="skipQuestion()">Bỏ qua</button>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+            <div class="pokemon-reward" id="rewardBox"></div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="endModal">
+        <div class="modal-content">
+            <div class="modal-emoji" id="modalEmoji">🎉</div>
+            <div class="modal-title" id="modalTitle">Hoàn thành!</div>
+            <div class="modal-text" id="modalText">Bạn đã hoàn thành tất cả câu hỏi!</div>
+            <div class="modal-stats">
+                <div class="modal-stat-item">
+                    <span>Tổng Câu Đúng:</span>
+                    <span id="finalCorrect">0</span>
+                </div>
+                <div class="modal-stat-item">
+                    <span>Tổng EXP:</span>
+                    <span id="finalExp">0</span>
+                </div>
+                <div class="modal-stat-item">
+                    <span>Pokémon Bắt:</span>
+                    <span id="finalPokemon">0</span>
+                </div>
+            </div>
+            <button class="btn-restart" onclick="restartGame()">Chơi Lại</button>
+        </div>
+    </div>
+
+    <script>
+        const telex_words = {
+            easy: [
+                { word: 'Xin chào', telex: 'Xin chao', hint: 'Lời chào thông thường' },
+                { word: 'Cảm ơn', telex: 'Cam on', hint: 'Nói khi nhận được gì đó' },
+                { word: 'Tạm biệt', telex: 'Tam biet', hint: 'Nói lúc chia tay' },
+                { word: 'Ơi', telex: 'Oi', hint: 'Gọi ai đó' },
+                { word: 'Làm', telex: 'Lam', hint: 'Hành động công việc' },
+                { word: 'Tôi', telex: 'Toi', hint: 'Đại từ nhân xưng' },
+                { word: 'Anh', telex: 'Anh', hint: 'Anh trai hoặc anh chàng' },
+                { word: 'Em', telex: 'Em', hint: 'Em gái hoặc em bé' },
+                { word: 'Mẹ', telex: 'Me', hint: 'Người mẹ' },
+                { word: 'Bố', telex: 'Bo', hint: 'Người bố' },
+            ],
+            normal: [
+                { word: 'Học bài', telex: 'Hoc bai', hint: 'Ôn tập kiến thức' },
+                { word: 'Chơi trò chơi', telex: 'Choi tro choi', hint: 'Hoạt động giải trí' },
+                { word: 'Ăn cơm', telex: 'An com', hint: 'Nuôi dạy bé ăn' },
+                { word: 'Ngủ dậy', telex: 'Ngu day', hint: 'Thức dậy buổi sáng' },
+                { word: 'Đi học', telex: 'Di hoc', hint: 'Tới trường' },
+                { word: 'Bạn thân', telex: 'Ban than', hint: 'Người bạn thân thiết' },
+                { word: 'Nhà tôi', telex: 'Nha toi', hint: 'Nơi ở của mình' },
+                { word: 'Trường học', telex: 'Truong hoc', hint: 'Nơi học tập' },
+                { word: 'Sách vở', telex: 'Sach vo', hint: 'Dụng cụ học tập' },
+                { word: 'Bút chì', telex: 'But chi', hint: 'Dùng để viết' },
+            ],
+            hard: [
+                { word: 'Cộng Hòa Xã Hội Chủ Nghĩa', telex: 'Cong Hoa Xa Hoi Chu Nghia', hint: 'Tên nước' },
+                { word: 'Trí tuệ nhân tạo', telex: 'Tri tue nhan tao', hint: 'Công nghệ hiện đại' },
+                { word: 'Kinh tế kỹ thuật', telex: 'Kinh te ky thuat', hint: 'Lĩnh vực phát triển' },
+                { word: 'Phát triển bền vững', telex: 'Phat trien ben vung', hint: 'Mục tiêu toàn cầu' },
+                { word: 'Thương mại điện tử', telex: 'Thuong mai dien tu', hint: 'Kinh doanh trực tuyến' },
+                { word: 'Hợp tác quốc tế', telex: 'Hop tac quoc te', hint: 'Liên kết giữa các nước' },
+                { word: 'Quyền lợi người lao động', telex: 'Quyen loi nguoi lao dong', hint: 'Bảo vệ công nhân' },
+                { word: 'Khí hậu toàn cầu', telex: 'Khi hau toan cau', hint: 'Vấn đề môi trường' },
+                { word: 'Năng lượng tái tạo', telex: 'Nang luong tai tao', hint: 'Nguồn năng lượng sạch' },
+                { word: 'Chuyển đổi số', telex: 'Chuyen doi so', hint: 'Quá trình hiện đại hóa' },
+            ]
+        };
+
+        const pokemonList = [
+            '🟢 Bulbasaur', '🔥 Charmander', '💧 Squirtle', '🦋 Caterpie', 
+            '⚡ Pikachu', '🐦 Pidgeot', '🌿 Bellsprout', '🐭 Rattata',
+            '🐱 Meowth', '🐢 Shellfish', '🕷️ Spinarak', '🪳 Scyther'
+        ];
+
+        let gameState = {
+            currentQuestion: 0,
+            correct: 0,
+            total: 0,
+            exp: 0,
+            pokemon: 0,
+            difficulty: 'easy',
+            questionsAnswered: 0,
+            totalQuestions: 10
+        };
+
+        let currentWordList = [];
+        let questionAnswered = false;
+
+        function setDifficulty(level) {
+            gameState.difficulty = level;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            resetGame();
+            loadQuestion();
+        }
+
+        function initGame() {
+            currentWordList = [...telex_words[gameState.difficulty]];
+            shuffleArray(currentWordList);
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (gameState.questionsAnswered >= gameState.totalQuestions) {
+                endGame();
+                return;
+            }
+
+            const question = currentWordList[gameState.questionsAnswered];
+            document.getElementById('questionWord').textContent = question.word;
+            document.getElementById('hintBox').innerHTML = `<strong>💡 Gợi ý:</strong> ${question.hint}`;
+            document.getElementById('userInput').value = '';
+            document.getElementById('userInput').classList.remove('correct', 'incorrect');
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').classList.remove('success', 'error');
+            document.getElementById('rewardBox').innerHTML = '';
+            document.getElementById('userInput').focus();
+            questionAnswered = false;
+            updateProgress();
+        }
+
+        function checkAnswer() {
+            if (questionAnswered) return;
+
+            const userAnswer = document.getElementById('userInput').value.trim().toLowerCase();
+            const correctAnswer = currentWordList[gameState.questionsAnswered].telex.toLowerCase();
+
+            const inputBox = document.getElementById('userInput');
+
+            if (userAnswer === correctAnswer) {
+                gameState.correct++;
+                gameState.exp += gameState.difficulty === 'easy' ? 10 : gameState.difficulty === 'normal' ? 20 : 30;
+                
+                if (gameState.correct % 3 === 0) {
+                    gameState.pokemon++;
+                    showReward(pokemonList[Math.floor(Math.random() * pokemonList.length)]);
+                }
+
+                inputBox.classList.add('correct');
+                document.getElementById('feedback').textContent = '✅ Chính xác!';
+                document.getElementById('feedback').classList.add('success');
+                playSound('success');
+            } else {
+                inputBox.classList.add('incorrect');
+                document.getElementById('feedback').innerHTML = `❌ Sai rồi! Đáp án đúng: <strong>${currentWordList[gameState.questionsAnswered].telex}</strong>`;
+                document.getElementById('feedback').classList.add('error');
+                playSound('error');
+            }
+
+            questionAnswered = true;
+            updateStats();
+            gameState.questionsAnswered++;
+            gameState.total++;
+
+            setTimeout(() => {
+                loadQuestion();
+            }, 2000);
+        }
+
+        function skipQuestion() {
+            if (!questionAnswered) {
+                gameState.questionsAnswered++;
+                gameState.total++;
+                loadQuestion();
+            }
+        }
+
+        function showReward(pokemon) {
+            const rewardBox = document.getElementById('rewardBox');
+            rewardBox.innerHTML = `
+                <div class="pokemon-reward">
+                    <div class="pokemon-sprite">${pokemon}</div>
+                    <div class="pokemon-name">Bắt được! 🎉</div>
+                </div>
+            `;
+            playSound('catch');
+        }
+
+        function updateStats() {
+            document.getElementById('correctDisplay').textContent = gameState.correct;
+            document.getElementById('expDisplay').textContent = gameState.exp;
+            document.getElementById('pokemonDisplay').textContent = gameState.pokemon;
+        }
+
+        function updateProgress() {
+            const progress = (gameState.questionsAnswered / gameState.totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function playSound(type) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const now = audioContext.currentTime;
+
+                if (type === 'success') {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.setValueAtTime(1000, now + 0.1);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.setValueAtTime(0, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'error') {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.setValueAtTime(300, now + 0.1);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.setValueAtTime(0, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'catch') {
+                    for (let i = 0; i < 2; i++) {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.frequency.setValueAtTime(600 + i * 200, now + i * 0.1);
+                        gain.gain.setValueAtTime(0.2, now + i * 0.1);
+                        gain.gain.setValueAtTime(0, now + i * 0.1 + 0.15);
+                        osc.start(now + i * 0.1);
+                        osc.stop(now + i * 0.1 + 0.15);
+                    }
+                }
+            } catch (e) {
+                console.log('Audio context error:', e);
+            }
+        }
+
+        function endGame() {
+            const accuracy = Math.round((gameState.correct / gameState.total) * 100) || 0;
+            const modal = document.getElementById('endModal');
+            
+            let emoji = '🎉';
+            let title = 'Hoàn thành!';
+            if (accuracy >= 80) {
+                emoji = '🏆';
+                title = 'Tuyệt vời!';
+            } else if (accuracy >= 60) {
+                emoji = '🎖️';
+                title = 'Rất tốt!';
+            } else if (accuracy >= 40) {
+                emoji = '👍';
+                title = 'Cố lên!';
+            } else {
+                emoji = '💪';
+                title = 'Tiếp tục cố gắng!';
+            }
+
+            document.getElementById('modalEmoji').textContent = emoji;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalText').innerHTML = `
+                Độ chính xác: <strong>${accuracy}%</strong><br>
+                Bạn làm rất tốt!
+            `;
+            document.getElementById('finalCorrect').textContent = gameState.correct + '/' + gameState.total;
+            document.getElementById('finalExp').textContent = gameState.exp;
+            document.getElementById('finalPokemon').textContent = gameState.pokemon;
+            
+            modal.classList.add('show');
+        }
+
+        function restartGame() {
+            gameState = {
+                currentQuestion: 0,
+                correct: 0,
+                total: 0,
+                exp: 0,
+                pokemon: 0,
+                difficulty: gameState.difficulty,
+                questionsAnswered: 0,
+                totalQuestions: 10
+            };
+            document.getElementById('endModal').classList.remove('show');
+            initGame();
+        }
+
+        function resetGame() {
+            gameState = {
+                currentQuestion: 0,
+                correct: 0,
+                total: 0,
+                exp: 0,
+                pokemon: 0,
+                difficulty: gameState.difficulty,
+                questionsAnswered: 0,
+                totalQuestions: 10
+            };
+            updateStats();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        document.getElementById('userInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        initGame();
+    </script>
+</body>
+</html>

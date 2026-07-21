@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lớp 3 - Trò Chơi Học Tập</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+            background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;padding:70px 20px 40px;color:#fff;
+            display:flex;flex-direction:column;align-items:center;justify-content:center}
+        .back-home{position:fixed;top:16px;left:16px;color:#cbd5e1;text-decoration:none;font-size:14px;font-weight:600;
+            background:rgba(255,255,255,.08);padding:9px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.14)}
+        .back-home:hover{color:#fff;background:rgba(255,255,255,.16)}
+        h1{text-align:center;font-size:2.4rem;margin-bottom:10px;
+            background:linear-gradient(90deg,#a78bfa,#7c3aed);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+        .subtitle{text-align:center;color:#94a3b8;margin-bottom:46px}
+        .cards{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;max-width:900px}
+        .card{background:rgba(255,255,255,.1);border-radius:20px;padding:40px 30px;width:270px;text-align:center;
+            text-decoration:none;color:#fff;transition:transform .3s,box-shadow .3s;backdrop-filter:blur(10px);
+            border:1px solid rgba(167,139,250,.25)}
+        .card:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(124,58,237,.2)}
+        .card-icon{font-size:80px;margin-bottom:20px;display:block}
+        .card-title{font-size:1.3rem;font-weight:700;margin-bottom:10px;color:#a78bfa}
+        .card-desc{font-size:14px;color:#94a3b8;line-height:1.5}
+        .card-badge{display:inline-block;background:linear-gradient(90deg,#7c3aed,#a78bfa);padding:5px 15px;border-radius:20px;font-size:12px;margin-top:15px;font-weight:500}
+        .footer{margin-top:60px;text-align:center;color:#64748b;font-size:14px}
+        .footer p{margin:5px 0}.footer strong{color:#94a3b8}
+        @media(max-width:600px){h1{font-size:1.8rem}.card{width:100%;max-width:300px;padding:30px 20px}.card-icon{font-size:60px}}
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-home">← Trang chủ</a>
+    <h1>🏛️ Lớp 3</h1>
+    <p class="subtitle">Trò chơi học tập dành cho học sinh lớp 3</p>
+
+    <div class="cards">
+        <a href="game-bao-ve-di-san/" class="card">
+            <span class="card-icon">🏛️</span>
+            <h2 class="card-title">Sứ Giả Di Sản Bình Dương</h2>
+            <p class="card-desc">Phân loại di sản và chọn hành vi đúng để bảo vệ di tích, văn hóa, thiên nhiên quê Bình Dương</p>
+            <span class="card-badge">Mỹ thuật</span>
+        </a>
+
+        <a href="../game-chung/noi-quy-phong-tin-hoc/" class="card">
+            <span class="card-icon">📋</span>
+            <h2 class="card-title">Nội Quy Phòng Tin Học</h2>
+            <p class="card-desc">Chọn NÊN hay KHÔNG NÊN để ghi nhớ 10 nội quy phòng máy tính</p>
+            <span class="card-badge">Nội quy</span>
+        </a>
+
+        <a href="bai1-thong-tin-quyet-dinh/" class="card">
+            <span class="card-icon">🤔</span>
+            <h2 class="card-title">Thông tin hay Quyết định?</h2>
+            <p class="card-desc">Tin học 3 · Bài 1 · HĐ1 — Xếp mỗi câu vào nhóm Thông tin hoặc Quyết định</p>
+            <span class="card-badge">Tin học · HĐ1</span>
+        </a>
+
+        <a href="bai1-vai-tro-thong-tin/" class="card">
+            <span class="card-icon">🔗</span>
+            <h2 class="card-title">Nối Thông tin với Quyết định</h2>
+            <p class="card-desc">Tin học 3 · Bài 1 · HĐ2 — Nối mỗi thông tin với quyết định phù hợp</p>
+            <span class="card-badge">Tin học · HĐ2</span>
+        </a>
+
+        <a href="bai1-ba-dang-thong-tin/" class="card">
+            <span class="card-icon">🗂️</span>
+            <h2 class="card-title">Ba dạng thông tin</h2>
+            <p class="card-desc">Tin học 3 · Bài 1 · HĐ3 — Phân loại ví dụ vào Chữ, Hình ảnh, Âm thanh</p>
+            <span class="card-badge">Tin học · HĐ3</span>
+        </a>
+
+        <a href="bai1-game-di-canh/" class="card">
+            <span class="card-icon">🐰</span>
+            <h2 class="card-title">Minh Chạy Vượt Cổng</h2>
+            <p class="card-desc">Game đi cảnh: chạy nhảy né chướng ngại, ăn sao — trả lời "Thông tin hay Quyết định?" để qua màn</p>
+            <span class="card-badge">Game · Bài 1</span>
+        </a>
+
+        <a href="bai1-game-hoi-sinh/" class="card">
+            <span class="card-icon">🐱</span>
+            <h2 class="card-title">Né Bom, Hồi Sinh Kiến Thức</h2>
+            <p class="card-desc">Bắt sao tránh bom; hết mạng phải nối đúng Thông tin → Quyết định mới hồi sinh</p>
+            <span class="card-badge">Game · Bài 1</span>
+        </a>
+
+        <a href="bai1-game-thuong-x2/" class="card">
+            <span class="card-icon">💎</span>
+            <h2 class="card-title">Săn Kho Báu · Thưởng x2</h2>
+            <p class="card-desc">Đào kho báu qua màn; muốn nhận thưởng x2 phải phân loại đúng 3 dạng thông tin</p>
+            <span class="card-badge">Game · Bài 1</span>
+        </a>
+    </div>
+
+    <footer class="footer">
+        <p>Thiết kế bởi <strong>Bùi Thị Phương Trúc</strong></p>
+        <p>Trường Trung-Tiểu học Pétrus Ký</p>
+    </footer>
+</body>
+</html>

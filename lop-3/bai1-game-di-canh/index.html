@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Minh Chạy Vượt Cổng - Tin học 3 Bài 1</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Nunito',sans-serif;
+    background:linear-gradient(160deg,#bfe9ff,#eaf7ff);color:#2b3a55;min-height:100vh;
+    user-select:none;-webkit-user-select:none;touch-action:manipulation;padding:10px;display:flex;flex-direction:column;align-items:center}
+  .top{width:100%;max-width:860px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .back{color:#3d5273;text-decoration:none;font-weight:700;font-size:.9rem;background:#fff;padding:7px 12px;border-radius:14px;box-shadow:0 3px 8px rgba(43,58,85,.1)}
+  .pill{font-weight:800;background:#fff;border-radius:12px;padding:6px 12px;box-shadow:0 3px 8px rgba(43,58,85,.1);font-size:.95rem}
+  .pill.lv{margin-left:auto}
+  #sound{border:none;background:#fff;font-size:1.1rem;width:40px;height:40px;border-radius:12px;cursor:pointer;box-shadow:0 3px 8px rgba(43,58,85,.1)}
+  .stage{position:relative;width:100%;max-width:860px}
+  canvas{width:100%;display:block;border-radius:18px;box-shadow:0 10px 26px rgba(43,58,85,.18);background:#cdeafe;touch-action:none}
+
+  .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;border-radius:18px;
+    background:rgba(20,30,50,.55);backdrop-filter:blur(2px)}
+  .panel{background:#fff;border-radius:22px;padding:22px 20px;max-width:520px;width:100%;text-align:center;box-shadow:0 16px 40px rgba(0,0,0,.3);animation:pop .3s}
+  @keyframes pop{0%{transform:scale(.85)}70%{transform:scale(1.03)}100%{transform:scale(1)}}
+  .panel h2{font-size:clamp(1.3rem,5vw,1.9rem);margin-bottom:6px;color:#2563eb}
+  .panel .sub{color:#475569;font-weight:700;margin-bottom:12px}
+  .qtag{display:inline-block;background:#dbeafe;color:#1d4ed8;font-weight:800;font-size:.8rem;padding:4px 12px;border-radius:12px;margin-bottom:10px}
+  .qtext{font-size:clamp(1.1rem,4.2vw,1.5rem);font-weight:900;margin:6px 0 16px;color:#2b3a55}
+  .choices{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .ch{border:none;cursor:pointer;color:#fff;font-weight:900;font-size:clamp(1rem,3.6vw,1.3rem);padding:16px 22px;border-radius:18px;min-width:150px}
+  .ch.tt{background:linear-gradient(180deg,#60a5fa,#2563eb);box-shadow:0 6px 0 #1e40af}
+  .ch.qd{background:linear-gradient(180deg,#86efac,#22c55e);box-shadow:0 6px 0 #15803d}
+  .ch:active{transform:translateY(4px)}
+  .btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:1.15rem;padding:14px 30px;border-radius:18px;margin-top:8px;
+    background:linear-gradient(180deg,#ffb347,#ff8c00);box-shadow:0 7px 0 #d97400}
+  .btn:active{transform:translateY(4px);box-shadow:0 3px 0 #d97400}
+  .btn.green{background:linear-gradient(180deg,#67e28c,#25c15c);box-shadow:0 7px 0 #189745}
+  .fb{font-weight:900;margin-top:12px;min-height:1.4em}
+  .fb.ok{color:#16a34a}.fb.no{color:#dc2626}
+  .hint{color:#64748b;font-weight:700;font-size:.92rem;margin-top:8px}
+  .big{font-size:3rem}
+</style>
+</head>
+<body>
+  <div class="top">
+    <a class="back" href="../index.html">← Lớp 3</a>
+    <span class="pill">⭐ <span id="score">0</span></span>
+    <span class="pill">❤️ <span id="lives">3</span></span>
+    <span class="pill lv">Màn <span id="level">1</span>/5</span>
+    <button id="sound" title="Bật/tắt âm thanh">🔊</button>
+  </div>
+
+  <div class="stage">
+    <canvas id="cv" width="860" height="360"></canvas>
+
+    <!-- START -->
+    <div class="overlay" id="ovStart">
+      <div class="panel">
+        <div class="big">🐰➡️🚪</div>
+        <h2>Minh Chạy Vượt Cổng</h2>
+        <p class="sub">Chạm màn hình / bấm / phím Space để <b>NHẢY</b> né chướng ngại và ăn ⭐.<br>Ăn đủ sao sẽ tới <b>Cổng kiến thức</b> — trả lời đúng mới qua màn!</p>
+        <button class="btn" id="btnStart">▶ Bắt đầu</button>
+      </div>
+    </div>
+
+    <!-- QUESTION -->
+    <div class="overlay" id="ovQ" hidden>
+      <div class="panel">
+        <div class="qtag">🚪 CỔNG KIẾN THỨC</div>
+        <div class="sub">Câu này là Thông tin hay Quyết định?</div>
+        <div class="qtext" id="qText"></div>
+        <div class="choices">
+          <button class="ch tt" data-a="tt">📥 THÔNG TIN</button>
+          <button class="ch qd" data-a="qd">✅ QUYẾT ĐỊNH</button>
+        </div>
+        <div class="fb" id="qFb"></div>
+      </div>
+    </div>
+
+    <!-- GAMEOVER -->
+    <div class="overlay" id="ovOver" hidden>
+      <div class="panel">
+        <div class="big">😵</div>
+        <h2 style="color:#dc2626">Hết mạng rồi!</h2>
+        <p class="sub" id="overStats"></p>
+        <button class="btn" id="btnRetry">🔄 Chơi lại</button>
+      </div>
+    </div>
+
+    <!-- WIN -->
+    <div class="overlay" id="ovWin" hidden>
+      <div class="panel">
+        <div class="big">🏆</div>
+        <h2 style="color:#16a34a">Chiến thắng!</h2>
+        <p class="sub" id="winStats"></p>
+        <button class="btn green" id="btnAgain">🔄 Chơi lại</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ===== Phần 1: Thông tin (tt) vs Quyết định (qd) ===== */
+const P1=[
+  {t:'Tiếng chuông báo thức reo lên.', a:'tt'},
+  {t:'Minh thức dậy, rời khỏi giường.', a:'qd'},
+  {t:'Minh thấy An cởi mở, dễ nói chuyện.', a:'tt'},
+  {t:'Minh muốn kết bạn với An.', a:'qd'},
+  {t:'Khoa thấy trời mưa.', a:'tt'},
+  {t:'Khoa đưa áo mưa cho mẹ.', a:'qd'},
+  {t:'Xem trước bài giúp hiểu bài tốt hơn.', a:'tt'},
+  {t:'An xem trước bài cho hôm sau.', a:'qd'},
+];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ===== Âm thanh ===== */
+let soundOn=true,actx=null;
+function ensa(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}}
+function tone(k){if(!soundOn)return;ensa();if(!actx)return;const n=actx.currentTime;
+  const F={good:[660,880,1180],win:[660,880,1100,1320,1560],bad:[200,150],jump:[520,700],star:[880,1320]}[k]||[520];
+  F.forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type=k==='bad'?'sawtooth':'triangle';o.frequency.value=f;
+    const t=n+i*0.07;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.22,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.13);
+    o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.15);});}
+let viVoice=null;function pv(){const vs=window.speechSynthesis?speechSynthesis.getVoices():[];viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||null;}
+if(window.speechSynthesis){pv();speechSynthesis.onvoiceschanged=pv;}
+function speak(t){if(!soundOn||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=.98;u.pitch=1.1;speechSynthesis.speak(u);}catch(e){}}
+
+/* ===== Game ===== */
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height, groundY=H-46;
+let state='start';               // start | play | question | over | win
+let score,lives,level,starsThisLevel,speed,frame,invuln,qDeck,qCur;
+const player={x:96,y:0,vy:0,size:40,onGround:true};
+let obstacles=[], stars=[], clouds=[];
+
+function reset(){
+  score=0;lives=3;level=1;starsThisLevel=0;speed=5;frame=0;invuln=0;
+  player.y=groundY-player.size/2;player.vy=0;player.onGround=true;
+  obstacles=[];stars=[];clouds=[{x:150,y:70},{x:500,y:50},{x:760,y:90}];
+  qDeck=shuffle(P1);qCur=0;
+  updHUD();
+}
+function updHUD(){document.getElementById('score').textContent=score;document.getElementById('lives').textContent=lives;document.getElementById('level').textContent=level;}
+
+function jump(){ if(state!=='play')return; if(player.onGround){player.vy=-15;player.onGround=false;tone('jump');} }
+
+function spawn(){
+  // chướng ngại
+  if(frame% Math.max(64, 120-level*8) ===0 && Math.random()<0.9){
+    const sz=30+Math.random()*10; obstacles.push({x:W+40,size:sz,cy:groundY-sz/2, emo: Math.random()<.5?'🌵':'🪨'});
+  }
+  // sao (ở tầm nhảy tới)
+  if(frame%78===0){ stars.push({x:W+30,cy:groundY-96-Math.random()*30,got:false}); }
+  // mây
+  if(frame%200===0){ clouds.push({x:W+60,y:40+Math.random()*60}); }
+}
+function overlap(ax,ay,ar,bx,by,br){return Math.abs(ax-bx)<(ar+br)*0.7 && Math.abs(ay-by)<(ar+br)*0.7;}
+
+function update(){
+  frame++;
+  // physics
+  player.vy+=0.9; player.y+=player.vy;
+  const rest=groundY-player.size/2;
+  if(player.y>=rest){player.y=rest;player.vy=0;player.onGround=true;}
+  if(invuln>0)invuln--;
+  spawn();
+  obstacles.forEach(o=>o.x-=speed); stars.forEach(s=>s.x-=speed); clouds.forEach(c=>c.x-=speed*0.3);
+  obstacles=obstacles.filter(o=>o.x>-50); stars=stars.filter(s=>s.x>-40); clouds=clouds.filter(c=>c.x>-80);
+  // ăn sao
+  stars.forEach(s=>{ if(!s.got && overlap(player.x,player.y,player.size/2,s.x,s.cy,16)){s.got=true;score++;starsThisLevel++;tone('star');updHUD();
+      if(starsThisLevel>=4){ openGate(); } } });
+  stars=stars.filter(s=>!s.got);
+  // đụng chướng ngại
+  if(invuln<=0){ for(const o of obstacles){ if(overlap(player.x,player.y,player.size/2-4,o.x,o.cy,o.size/2-4)){ hit(); break; } } }
+}
+function hit(){ lives--; invuln=70; tone('bad'); updHUD(); if(lives<=0){ state='over'; document.getElementById('overStats').textContent='Em được '+score+' ⭐, tới màn '+level+'.'; show('ovOver'); } }
+
+function openGate(){
+  starsThisLevel=0; state='question';
+  const q=qDeck[qCur%qDeck.length]; qCur++;
+  document.getElementById('qText').textContent='"'+q.t+'"';
+  document.getElementById('qFb').textContent=''; document.getElementById('qFb').className='fb';
+  document.querySelectorAll('#ovQ .ch').forEach(b=>b.disabled=false);
+  window._answer=q.a;
+  show('ovQ'); speak(q.t+'. Thông tin hay quyết định?');
+}
+function answer(a){
+  const fb=document.getElementById('qFb');
+  document.querySelectorAll('#ovQ .ch').forEach(b=>b.disabled=true);
+  if(a===window._answer){
+    score+=5; tone('good'); fb.textContent='Đúng! Qua màn! 🎉'; fb.className='fb ok'; updHUD();
+    setTimeout(()=>{ level++; if(level>5){ state='win'; document.getElementById('winStats').textContent='Tổng điểm: '+score+' ⭐. Em thuộc bài rồi!'; show('ovWin'); tone('win'); }
+      else { speed+=0.6; hide('ovQ'); state='play'; } }, 900);
+  } else {
+    lives--; tone('bad'); fb.textContent='Chưa đúng — mất 1 ❤️. Thử tiếp nhé!'; fb.className='fb no'; updHUD();
+    setTimeout(()=>{ if(lives<=0){ state='over'; document.getElementById('overStats').textContent='Em được '+score+' ⭐, tới màn '+level+'.'; hide('ovQ'); show('ovOver'); }
+      else { hide('ovQ'); state='play'; } }, 1100);
+  }
+}
+
+function draw(){
+  // trời
+  ctx.fillStyle='#bfe9ff';ctx.fillRect(0,0,W,groundY);
+  ctx.font='30px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  clouds.forEach(c=>ctx.fillText('☁️',c.x,c.y));
+  // đất
+  ctx.fillStyle='#7bd88f';ctx.fillRect(0,groundY,W,H-groundY);
+  ctx.fillStyle='#5cb874';ctx.fillRect(0,groundY,W,6);
+  // sao
+  ctx.font='30px serif';stars.forEach(s=>ctx.fillText('⭐',s.x,s.cy));
+  // chướng ngại
+  obstacles.forEach(o=>{ctx.font=o.size+'px serif';ctx.fillText(o.emo,o.x,o.cy);});
+  // nhân vật (nhấp nháy khi invuln)
+  if(!(invuln>0 && Math.floor(frame/5)%2===0)){ ctx.font=player.size+'px serif';ctx.fillText('🐰',player.x,player.y); }
+}
+function loop(){ if(state==='play'){ update(); } if(state==='play'||state==='question'){ draw(); } requestAnimationFrame(loop); }
+
+/* overlay helpers */
+function show(id){document.getElementById(id).hidden=false;}
+function hide(id){document.getElementById(id).hidden=true;}
+
+/* input */
+function doJump(e){ if(e && e.type==='keydown' && e.code!=='Space') return; if(e&&e.preventDefault)e.preventDefault(); jump(); }
+cv.addEventListener('pointerdown',doJump);
+window.addEventListener('keydown',doJump);
+
+document.getElementById('btnStart').addEventListener('click',()=>{ ensa();reset();hide('ovStart');state='play'; });
+document.getElementById('btnRetry').addEventListener('click',()=>{ reset();hide('ovOver');state='play'; });
+document.getElementById('btnAgain').addEventListener('click',()=>{ reset();hide('ovWin');state='play'; });
+document.querySelectorAll('#ovQ .ch').forEach(b=>b.addEventListener('click',()=>answer(b.dataset.a)));
+document.getElementById('sound').addEventListener('click',()=>{soundOn=!soundOn;document.getElementById('sound').textContent=soundOn?'🔊':'🔇';if(!soundOn&&window.speechSynthesis)speechSynthesis.cancel();});
+
+reset(); draw(); loop();
+</script>
+</body>
+</html>

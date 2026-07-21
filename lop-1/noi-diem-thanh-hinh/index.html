@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nối Điểm Thành Hình - Lớp 1</title>
+<style>
+  :root{ --ink:#2b3a55; --green:#25c15c; --red:#ff6b6b; --amber:#f4b860; --blue:#3fa9ff; }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Nunito',sans-serif;
+    background:linear-gradient(160deg,#c6ecff,#eaf8ff 55%,#fff);color:var(--ink);min-height:100vh;
+    overflow-x:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+  #app{max-width:720px;margin:0 auto;padding:12px;min-height:100vh;display:flex;flex-direction:column}
+  .back-home{position:fixed;top:12px;left:12px;z-index:50;color:#385a86;text-decoration:none;font-size:.9rem;font-weight:800;
+    background:rgba(255,255,255,.75);padding:8px 14px;border-radius:20px;box-shadow:0 4px 12px rgba(43,58,85,.14)}
+  .back-home:active{transform:scale(.94)}
+
+  /* HUD */
+  #hud{display:flex;align-items:center;gap:8px;background:#fff;border-radius:18px;padding:8px 12px;
+    box-shadow:0 6px 18px rgba(43,58,85,.12);margin:44px 0 12px;flex-wrap:wrap}
+  #hud .pill{font-weight:800;font-size:.98rem;background:#f1f7ff;border-radius:14px;padding:6px 12px;white-space:nowrap}
+  .progress{flex:1;height:16px;background:#e6eefc;border-radius:12px;overflow:hidden;min-width:60px}
+  #progressFill{height:100%;width:0;border-radius:12px;background:linear-gradient(90deg,#7bd88f,#3fc46a);transition:width .35s}
+  .hud-score{color:#e8890b}
+  .iconbtn{border:none;background:#f1f7ff;font-size:1.2rem;width:44px;height:44px;border-radius:14px;cursor:pointer}
+  .iconbtn:active{transform:scale(.92)}
+  .pill.bump{animation:bump .45s}
+  @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+  .screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  #gameScreen{justify-content:flex-start}
+  h1{font-size:clamp(2rem,7.5vw,3.1rem);line-height:1.1;
+    background:linear-gradient(90deg,#ff7eb3,#7c4dff,#00b4d8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 3px 0 rgba(255,255,255,.6))}
+  .sub{font-size:clamp(1rem,3.6vw,1.3rem);color:#4a5b78;margin:12px 0 4px;font-weight:700}
+  .hint{color:#5a6b88;font-size:1.02rem;margin-top:12px;font-weight:700}
+  .hint b{color:#e8890b}
+  .big-btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:clamp(1.2rem,4.4vw,1.6rem);padding:16px 36px;border-radius:22px;margin-top:22px;
+    background:linear-gradient(180deg,#ffb347,#ff8c00);box-shadow:0 8px 0 #d97400,0 12px 22px rgba(217,116,0,.4);transition:transform .08s,box-shadow .08s}
+  .big-btn:active{transform:translateY(6px);box-shadow:0 2px 0 #d97400,0 6px 12px rgba(217,116,0,.4)}
+  .big-btn.green{background:linear-gradient(180deg,#67e28c,#25c15c);box-shadow:0 8px 0 #189745,0 12px 22px rgba(24,151,69,.4)}
+  .big-btn.blue{background:linear-gradient(180deg,#6fc0ff,#2f97ff);box-shadow:0 8px 0 #1c6fd0,0 12px 22px rgba(28,111,208,.4)}
+
+  .preview{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px;max-width:520px}
+  .preview .p{width:74px;height:74px;background:#fff;border-radius:16px;box-shadow:0 4px 10px rgba(43,58,85,.12);
+    display:flex;align-items:center;justify-content:center;font-size:40px;animation:bob 2.6s ease-in-out infinite}
+  .preview .p:nth-child(2n){animation-delay:.3s}.preview .p:nth-child(3n){animation-delay:.6s}.preview .p:nth-child(4n){animation-delay:.9s}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+
+  /* Instruction bar */
+  .task{display:flex;align-items:center;gap:10px;background:#fff;border-radius:18px;padding:10px 14px;width:100%;
+    box-shadow:0 6px 16px rgba(43,58,85,.1);margin-bottom:10px}
+  .task .emoji{font-size:2rem;line-height:1}
+  .task .txt{text-align:left;font-weight:800;font-size:clamp(1rem,3.8vw,1.25rem)}
+  .task .txt small{display:block;font-weight:700;color:#6b7c99;font-size:.82rem;margin-top:2px}
+
+  /* Board */
+  #board{width:100%;max-width:520px;aspect-ratio:1/1;margin:0 auto;position:relative;
+    background:radial-gradient(circle at 50% 40%,#ffffff,#eef6ff);border-radius:26px;
+    box-shadow:0 10px 30px rgba(43,58,85,.14);overflow:hidden}
+  #board svg{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  .guide{fill:none;stroke:#cdd9ee;stroke-width:1.1;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:2.2 2.6}
+  .fillShape{opacity:0;transition:opacity .5s}
+  .drawn{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+  .rubber{fill:none;stroke-width:2;stroke-linecap:round;stroke-dasharray:2.4 2.6;opacity:.7}
+  .dot{cursor:pointer}
+  .dot .ring{fill:#fff;stroke:#b9c8e2;stroke-width:.9}
+  .dot .core{fill:#9db4d4}
+  .dot .num{font-weight:900;fill:#41597f;font-size:3.1px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+  .dot.done .ring{stroke:var(--green)}
+  .dot.done .core{fill:var(--green)}
+  .dot.done .num{fill:#fff}
+  .dot.next .ring{stroke:#ff8c00}
+  .dot.next .core{fill:#ff8c00}
+  .dot.next .num{fill:#fff}
+  .dot.next .halo{fill:none;stroke:#ffb347;stroke-width:1.2;opacity:.9;transform-origin:center;transform-box:fill-box;animation:pulse 1.15s ease-in-out infinite}
+  @keyframes pulse{0%{transform:scale(1);opacity:.9}70%{transform:scale(1.9);opacity:0}100%{opacity:0}}
+  .dot.wrong{animation:nudge .4s}
+  @keyframes nudge{0%,100%{transform:translate(0,0)}25%{transform:translate(-1.4px,0)}75%{transform:translate(1.4px,0)}}
+  .emojiPop{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(0);font-size:120px;
+    filter:drop-shadow(0 8px 14px rgba(0,0,0,.2));pointer-events:none}
+  .emojiPop.show{animation:popEmoji .8s cubic-bezier(.2,1.4,.4,1) forwards}
+  @keyframes popEmoji{0%{transform:translate(-50%,-50%) scale(0) rotate(-25deg)}60%{transform:translate(-50%,-50%) scale(1.18) rotate(6deg)}100%{transform:translate(-50%,-50%) scale(1) rotate(0)}}
+
+  #starRow{display:flex;gap:6px;justify-content:center;margin-top:12px;min-height:34px}
+  #starRow span{font-size:28px;filter:grayscale(1);opacity:.35;transition:transform .3s,filter .3s,opacity .3s}
+  #starRow span.on{filter:none;opacity:1;transform:scale(1.15)}
+
+  .confetti{position:fixed;top:-14px;width:11px;height:15px;z-index:60;border-radius:2px;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(600deg)}}
+
+  .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(120%);background:#2b3a55;color:#fff;
+    font-weight:800;padding:12px 22px;border-radius:18px;box-shadow:0 10px 24px rgba(0,0,0,.25);z-index:70;transition:transform .35s;font-size:1.05rem}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .footer{margin-top:auto;text-align:center;color:#8598b6;font-size:.8rem;padding:14px 0 6px}
+</style>
+</head>
+<body>
+<a href="../" class="back-home" id="backLink">← Lớp 1</a>
+<script>
+  // Nút quay lại hiểu đúng ngữ cảnh: game dùng chung cho Lớp 1 và Lớp 2
+  (function(){ var f=new URLSearchParams(location.search).get("from");
+    if(f==="lop-2"){ var b=document.getElementById("backLink"); b.href="../../lop-2/"; b.textContent="← Lớp 2"; } })();
+</script>
+<div id="app">
+
+  <!-- START -->
+  <section id="startScreen" class="screen">
+    <h1>Nối Điểm Thành Hình</h1>
+    <p class="sub">Dùng chuột nối các điểm theo số thứ tự để tạo thành hình nhé!</p>
+    <div class="preview">
+      <div class="p">🔺</div><div class="p">🟦</div><div class="p">🔶</div><div class="p">🏠</div><div class="p">⭐</div>
+      <div class="p">🐟</div><div class="p">🚀</div><div class="p">❤️</div><div class="p">🎄</div><div class="p">👑</div>
+    </div>
+    <p class="hint">Bấm chuột vào điểm <b>số 1</b>, rồi lần lượt nối tới <b>2, 3, 4…</b> đến hết. Có <b>18 hình</b> từ dễ đến khó!</p>
+    <button class="big-btn green" id="startBtn">▶ Bắt đầu chơi</button>
+  </section>
+
+  <!-- GAME -->
+  <section id="gameScreen" class="screen" hidden>
+    <div id="hud">
+      <span class="pill" id="levelPill">Hình 1/6</span>
+      <div class="progress"><div id="progressFill"></div></div>
+      <span class="pill hud-score" id="scorePill">⭐ 0</span>
+      <button class="iconbtn" id="soundBtn" title="Bật/tắt âm thanh">🔊</button>
+    </div>
+
+    <div class="task">
+      <span class="emoji" id="taskEmoji">🔺</span>
+      <div class="txt"><span id="taskName">Hình tam giác</span>
+        <small id="taskTip">Nối 3 điểm lại với nhau</small></div>
+    </div>
+
+    <div id="board">
+      <svg id="svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="emojiPop" id="emojiPop"></div>
+    </div>
+
+    <div id="starRow"><span>⭐</span><span>⭐</span><span>⭐</span></div>
+
+    <div class="row">
+      <button class="iconbtn" id="redoBtn" title="Làm lại" style="width:auto;padding:0 16px;font-weight:800">↺ Làm lại</button>
+      <button class="big-btn blue" id="nextBtn" hidden style="margin-top:0;padding:12px 26px">Hình tiếp ➜</button>
+    </div>
+  </section>
+
+  <!-- WIN -->
+  <section id="winScreen" class="screen" hidden>
+    <h1>Giỏi quá! 🎉</h1>
+    <p class="sub">Con đã nối xong cả <b id="winCount">18</b> hình!</p>
+    <div class="preview">
+      <div class="p">🔺</div><div class="p">🟦</div><div class="p">🔶</div><div class="p">🏠</div><div class="p">⭐</div>
+      <div class="p">🐟</div><div class="p">🚀</div><div class="p">❤️</div><div class="p">🎄</div><div class="p">👑</div>
+    </div>
+    <p class="hint">Con được <b id="finalStars">0</b> ngôi sao ⭐</p>
+    <button class="big-btn green" id="playAgainBtn">🔄 Chơi lại</button>
+  </section>
+
+  <p class="footer">Thiết kế bởi Bùi Thị Phương Trúc · Trường Trung-Tiểu học Pétrus Ký</p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  const $ = s => document.querySelector(s);
+  const svg = $("#svg"), SVGNS = "http://www.w3.org/2000/svg";
+
+  /* ---------- Shapes (toạ độ chuẩn hoá 0..100, theo thứ tự nối) ---------- */
+  const SHAPES = [
+    // — Đa giác cơ bản —
+    { name:"Hình tam giác", emoji:"🔺", reveal:"⛰️", color:"#37c26a", tip:"Nối 3 điểm lại với nhau",
+      pts:[[50,14],[86,82],[14,82]] },
+    { name:"Hình vuông", emoji:"🟦", reveal:"🎁", color:"#3fa9ff", tip:"4 cạnh bằng nhau",
+      pts:[[20,20],[80,20],[80,80],[20,80]] },
+    { name:"Hình chữ nhật", emoji:"🟧", reveal:"📺", color:"#ff9f2e", tip:"2 cạnh dài, 2 cạnh ngắn",
+      pts:[[10,30],[90,30],[90,70],[10,70]] },
+    { name:"Hình thoi", emoji:"🔶", reveal:"💎", color:"#c06bff", tip:"Hình vuông xoay nghiêng",
+      pts:[[50,8],[92,50],[50,92],[8,50]] },
+    { name:"Hình thang", emoji:"📐", reveal:"🧺", color:"#14b8a6", tip:"Hình thang có 4 cạnh",
+      pts:[[28,22],[72,22],[90,82],[10,82]] },
+    { name:"Ngũ giác", emoji:"⬟", reveal:"⚽", color:"#ef4444", tip:"Hình 5 cạnh bằng nhau",
+      pts:poly(50,52,42,5) },
+    // — Bắt đầu khó hơn —
+    { name:"Ngôi nhà", emoji:"🏠", reveal:"🏠", color:"#f97316", tip:"Ngôi nhà xinh xắn",
+      pts:[[50,12],[84,42],[84,86],[16,86],[16,42]] },
+    { name:"Lục giác", emoji:"⬡", reveal:"🍯", color:"#f59e0b", tip:"Hình 6 cạnh như tổ ong",
+      pts:poly(50,50,42,6) },
+    { name:"Mũi tên", emoji:"➡️", reveal:"🎯", color:"#0ea5e9", tip:"Mũi tên chỉ đường",
+      pts:[[10,38],[58,38],[58,22],[90,50],[58,78],[58,62],[10,62]] },
+    { name:"Bát giác", emoji:"🛑", reveal:"🛑", color:"#dc2626", tip:"Hình 8 cạnh như biển báo",
+      pts:poly(50,50,42,8) },
+    { name:"Con cá", emoji:"🐟", reveal:"🐟", color:"#38bdf8", tip:"Chú cá bơi tung tăng",
+      pts:[[12,50],[40,28],[72,34],[92,18],[78,50],[92,82],[72,66],[40,72]] },
+    { name:"Vương miện", emoji:"👑", reveal:"👑", color:"#8b5cf6", tip:"Vương miện của nhà vua",
+      pts:[[14,82],[14,44],[24,14],[38,40],[50,8],[62,40],[76,14],[86,44],[86,82]] },
+    { name:"Ngôi sao", emoji:"⭐", reveal:"🌟", color:"#ffb800", tip:"Ngôi sao 5 cánh lấp lánh",
+      pts:starPoints(50,52,44,18,5) },
+    // — Hình phức tạp —
+    { name:"Cây thông", emoji:"🎄", reveal:"🎄", color:"#22a06b", tip:"Cây thông Nô-en",
+      pts:[[46,92],[46,80],[22,80],[34,54],[28,54],[50,22],[72,54],[66,54],[78,80],[54,80],[54,92]] },
+    { name:"Tên lửa", emoji:"🚀", reveal:"🚀", color:"#ef5350", tip:"Tên lửa bay lên trời",
+      pts:[[50,10],[64,34],[64,66],[80,84],[58,74],[58,88],[42,88],[42,74],[20,84],[36,66],[36,34]] },
+    { name:"Trái tim", emoji:"❤️", reveal:"❤️", color:"#ff5a7a", tip:"Trái tim yêu thương",
+      pts:[[50,88],[78,64],[92,42],[86,24],[72,16],[58,22],[50,32],[42,22],[28,16],[14,24],[8,42],[22,64]] },
+    { name:"Ngôi sao 6 cánh", emoji:"❄️", reveal:"❄️", color:"#60a5fa", tip:"Ngôi sao 6 cánh lấp lánh",
+      pts:starPoints(50,50,44,20,6) },
+    { name:"Mặt trời", emoji:"🌞", reveal:"🌞", color:"#ffab00", tip:"Mặt trời rực rỡ",
+      pts:starPoints(50,50,46,26,10) },
+  ];
+  function starPoints(cx,cy,R,r,n){
+    const p=[]; for(let i=0;i<n*2;i++){ const rad=(i%2?r:R);
+      const a=-Math.PI/2 + i*Math.PI/n; p.push([+(cx+rad*Math.cos(a)).toFixed(2),+(cy+rad*Math.sin(a)).toFixed(2)]); }
+    return p;
+  }
+  function poly(cx,cy,R,n){ // đa giác đều n cạnh, đỉnh hướng lên
+    const p=[]; for(let i=0;i<n;i++){ const a=-Math.PI/2 + i*2*Math.PI/n;
+      p.push([+(cx+R*Math.cos(a)).toFixed(2),+(cy+R*Math.sin(a)).toFixed(2)]); }
+    return p;
+  }
+
+  /* ---------- State ---------- */
+  let level=0, progress=0, seq=[], stars=0, levelStars=0, mistakes=0, locked=false, sound=true;
+  const HIT_R = 9;           // bán kính bắt điểm (rộng, dễ cho bé)
+  let dotEls=[], drawnPath=null, rubber=null;
+
+  /* ---------- Audio ---------- */
+  let AC=null;
+  function beep(freq,dur=0.12,type="sine",vol=0.16){
+    if(!sound) return;
+    try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+      const o=AC.createOscillator(), g=AC.createGain();
+      o.type=type; o.frequency.value=freq; o.connect(g); g.connect(AC.destination);
+      g.gain.setValueAtTime(vol,AC.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+dur);
+      o.start(); o.stop(AC.currentTime+dur);
+    }catch(e){}
+  }
+  const sConnect=n=>beep(520+n*40,0.11,"triangle",0.18);
+  const sWrong=()=>{beep(200,0.16,"sawtooth",0.12);};
+  function sWin(){ if(!sound)return; [523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,0.16,"triangle",0.2),i*120)); }
+
+  /* ---------- SVG helpers ---------- */
+  function el(tag,attrs){ const n=document.createElementNS(SVGNS,tag);
+    for(const k in attrs) n.setAttribute(k,attrs[k]); return n; }
+  function pointStr(pts){ return pts.map(p=>p.join(",")).join(" "); }
+
+  /* ---------- Build a level ---------- */
+  function loadLevel(i){
+    level=i; const S=SHAPES[i];
+    progress=0; levelStars=0; mistakes=0; locked=false;
+    seq=[]; for(let k=0;k<S.pts.length;k++) seq.push(k); seq.push(0); // đóng hình về điểm 1
+
+    // HUD + task
+    $("#levelPill").textContent=`Hình ${i+1}/${SHAPES.length}`;
+    $("#taskEmoji").textContent=S.emoji;
+    $("#taskName").textContent=S.name;
+    $("#taskTip").textContent=S.tip;
+    $("#nextBtn").hidden=true;
+    setStarRow(0);
+    const pop=$("#emojiPop"); pop.className="emojiPop"; pop.textContent="";
+
+    // clear svg
+    svg.innerHTML="";
+
+    // guide outline (mờ) + filled shape (ẩn)
+    const closed=S.pts.concat([S.pts[0]]);
+    svg.appendChild(el("polyline",{class:"guide",points:pointStr(closed)}));
+    const fill=el("polygon",{class:"fillShape",points:pointStr(S.pts),fill:S.color,id:"fillShape"});
+    svg.appendChild(fill);
+
+    // drawn path (nét bé nối) + rubber band
+    drawnPath=el("polyline",{class:"drawn",points:"",stroke:S.color}); svg.appendChild(drawnPath);
+    rubber=el("line",{class:"rubber",stroke:S.color,x1:0,y1:0,x2:0,y2:0,visibility:"hidden"}); svg.appendChild(rubber);
+
+    // dots
+    dotEls=[];
+    S.pts.forEach((p,idx)=>{
+      const g=el("g",{class:"dot","data-i":idx,transform:`translate(${p[0]} ${p[1]})`});
+      g.appendChild(el("circle",{class:"halo",r:3.4}));
+      g.appendChild(el("circle",{class:"ring",r:3.4}));
+      g.appendChild(el("circle",{class:"core",r:2.1}));
+      const t=el("text",{class:"num",y:0.15}); t.textContent=(idx+1); g.appendChild(t);
+      svg.appendChild(g); dotEls[idx]=g;
+    });
+    updateDotStates();
+    updateProgressBar();
+  }
+
+  function updateDotStates(){
+    const nextIdx=seq[progress+1];
+    dotEls.forEach((g,idx)=>{
+      g.classList.remove("next");
+      // "done" nếu điểm này đã được nối tới trong seq[0..progress]
+      const done = seq.slice(0,progress+1).includes(idx);
+      g.classList.toggle("done", done && idx!==nextIdx);
+    });
+    if(nextIdx!=null && !locked) dotEls[nextIdx].classList.add("next");
+  }
+
+  function drawnPoints(){ // các điểm đã nối theo seq[0..progress]
+    return seq.slice(0,progress+1).map(i=>SHAPES[level].pts[i]);
+  }
+  function refreshDrawn(){ drawnPath.setAttribute("points", pointStr(drawnPoints())); }
+
+  function updateProgressBar(){
+    const total=seq.length-1;
+    $("#progressFill").style.width=(progress/total*100)+"%";
+  }
+
+  /* ---------- Interaction ---------- */
+  function svgPoint(evt){
+    const r=svg.getBoundingClientRect();
+    const cx = evt.touches? evt.touches[0].clientX : evt.clientX;
+    const cy = evt.touches? evt.touches[0].clientY : evt.clientY;
+    return [ (cx-r.left)/r.width*100, (cy-r.top)/r.height*100 ];
+  }
+  function dist(a,b){ return Math.hypot(a[0]-b[0],a[1]-b[1]); }
+
+  function onMove(evt){
+    if(locked) return;
+    const p=svgPoint(evt);
+    const from=SHAPES[level].pts[seq[progress]];
+    rubber.setAttribute("visibility","visible");
+    rubber.setAttribute("x1",from[0]); rubber.setAttribute("y1",from[1]);
+    rubber.setAttribute("x2",p[0]);    rubber.setAttribute("y2",p[1]);
+  }
+
+  function tryConnect(evt){
+    if(locked) return;
+    const p=svgPoint(evt);
+    const nextIdx=seq[progress+1];
+    const target=SHAPES[level].pts[nextIdx];
+    if(dist(p,target)<=HIT_R){
+      // đúng điểm tiếp theo
+      progress++;
+      sConnect(progress);
+      refreshDrawn();
+      updateProgressBar();
+      if("vibrate" in navigator) navigator.vibrate(15);
+      dotEls[nextIdx].classList.add("done");
+      if(progress===seq.length-1){ completeShape(); }
+      else updateDotStates();
+    } else {
+      // xem có bấm nhầm điểm khác không → lắc nhẹ
+      let wrong=null,best=HIT_R;
+      SHAPES[level].pts.forEach((pt,idx)=>{ const d=dist(p,pt); if(d<best){best=d;wrong=idx;} });
+      if(wrong!=null && wrong!==nextIdx){
+        mistakes++;
+        const w=dotEls[wrong]; w.classList.add("wrong");
+        setTimeout(()=>w.classList.remove("wrong"),400);
+        sWrong();
+        toast("Nối theo đúng số nhé! Điểm tiếp theo là số "+(nextIdx+1));
+      }
+    }
+  }
+
+  function completeShape(){
+    locked=true;
+    rubber.setAttribute("visibility","hidden");
+    dotEls.forEach(g=>g.classList.remove("next"));
+    // tô màu hình
+    $("#fillShape").style.opacity=".9";
+    // emoji bung ra
+    const pop=$("#emojiPop"); pop.textContent=SHAPES[level].reveal;
+    void pop.offsetWidth; pop.classList.add("show");
+    // sao theo số lỗi
+    levelStars = mistakes===0?3 : mistakes<=2?2 : 1;
+    stars += levelStars;
+    $("#scorePill").textContent="⭐ "+stars;
+    const sp=$("#scorePill"); sp.classList.remove("bump"); void sp.offsetWidth; sp.classList.add("bump");
+    setStarRow(levelStars);
+    sWin(); confetti();
+    if("vibrate" in navigator) navigator.vibrate([20,40,20]);
+    $("#nextBtn").hidden=false;
+    $("#nextBtn").textContent = level<SHAPES.length-1 ? "Hình tiếp ➜" : "Xem kết quả 🎉";
+  }
+
+  function setStarRow(n){
+    document.querySelectorAll("#starRow span").forEach((s,i)=>s.classList.toggle("on",i<n));
+  }
+
+  /* ---------- Confetti / Toast ---------- */
+  const CC=["#ff7eb3","#7c4dff","#00b4d8","#ffb800","#37c26a","#ff9f2e"];
+  function confetti(){
+    for(let i=0;i<70;i++){
+      const c=document.createElement("div"); c.className="confetti";
+      c.style.left=Math.random()*100+"vw";
+      c.style.background=CC[i%CC.length];
+      c.style.animationDuration=(1.4+Math.random()*1.4)+"s";
+      c.style.animationDelay=(Math.random()*.3)+"s";
+      c.style.transform="rotate("+(Math.random()*360)+"deg)";
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(),3200);
+    }
+  }
+  let toastT=null;
+  function toast(msg){
+    const t=$("#toast"); t.textContent=msg; t.classList.add("show");
+    clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),1800);
+  }
+
+  /* ---------- Screens ---------- */
+  function show(id){ ["startScreen","gameScreen","winScreen"].forEach(s=>$("#"+s).hidden=(s!==id)); }
+  function startGame(){ level=0; stars=0; $("#scorePill").textContent="⭐ 0"; show("gameScreen"); loadLevel(0); }
+  function nextLevel(){
+    if(level<SHAPES.length-1){ loadLevel(level+1); }
+    else { $("#finalStars").textContent=stars; $("#winCount").textContent=SHAPES.length; show("winScreen"); sWin(); confetti(); }
+  }
+
+  /* ---------- Events ---------- */
+  svg.addEventListener("pointermove", onMove);
+  svg.addEventListener("pointerdown", tryConnect);
+  svg.addEventListener("pointerleave", ()=>rubber&&rubber.setAttribute("visibility","hidden"));
+
+  $("#startBtn").onclick=startGame;
+  $("#playAgainBtn").onclick=startGame;
+  $("#nextBtn").onclick=nextLevel;
+  $("#redoBtn").onclick=()=>loadLevel(level);
+  $("#soundBtn").onclick=function(){ sound=!sound; this.textContent=sound?"🔊":"🔇"; if(sound) beep(660,0.1); };
+
+  show("startScreen");
+})();
+</script>
+</body>
+</html>
