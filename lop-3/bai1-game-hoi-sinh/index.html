@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Né Bom - Hồi Sinh Kiến Thức - Tin học 3 Bài 1</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Nunito',sans-serif;
+    background:linear-gradient(160deg,#ffe3ec,#fff0f5);color:#2b3a55;min-height:100vh;
+    user-select:none;-webkit-user-select:none;touch-action:manipulation;padding:10px;display:flex;flex-direction:column;align-items:center}
+  .top{width:100%;max-width:720px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .back{color:#3d5273;text-decoration:none;font-weight:700;font-size:.9rem;background:#fff;padding:7px 12px;border-radius:14px;box-shadow:0 3px 8px rgba(43,58,85,.1)}
+  .pill{font-weight:800;background:#fff;border-radius:12px;padding:6px 12px;box-shadow:0 3px 8px rgba(43,58,85,.1);font-size:.95rem}
+  .pill.goal{margin-left:auto}
+  #sound{border:none;background:#fff;font-size:1.1rem;width:40px;height:40px;border-radius:12px;cursor:pointer;box-shadow:0 3px 8px rgba(43,58,85,.1)}
+  .stage{position:relative;width:100%;max-width:720px}
+  canvas{width:100%;display:block;border-radius:18px;box-shadow:0 10px 26px rgba(43,58,85,.18);background:#fff5f9;touch-action:none}
+
+  .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;border-radius:18px;background:rgba(30,20,40,.55)}
+  .panel{background:#fff;border-radius:22px;padding:22px 20px;max-width:520px;width:100%;text-align:center;box-shadow:0 16px 40px rgba(0,0,0,.3);animation:pop .3s}
+  @keyframes pop{0%{transform:scale(.85)}70%{transform:scale(1.03)}100%{transform:scale(1)}}
+  .panel h2{font-size:clamp(1.3rem,5vw,1.9rem);margin-bottom:6px;color:#db2777}
+  .panel .sub{color:#475569;font-weight:700;margin-bottom:12px}
+  .qtag{display:inline-block;background:#fce7f3;color:#be185d;font-weight:800;font-size:.8rem;padding:4px 12px;border-radius:12px;margin-bottom:8px}
+  .info{background:#e0f2fe;color:#0369a1;font-weight:800;border-radius:14px;padding:10px 14px;margin:6px 0 14px;font-size:clamp(1rem,4vw,1.3rem)}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{border:none;cursor:pointer;background:linear-gradient(180deg,#fff7ed,#ffedd5);color:#9a3412;font-weight:800;font-size:clamp(.95rem,3.6vw,1.15rem);
+    padding:14px 16px;border-radius:16px;box-shadow:0 5px 0 #fdba74}
+  .opt:active{transform:translateY(3px);box-shadow:0 2px 0 #fdba74}
+  .opt.ok{background:linear-gradient(180deg,#86efac,#22c55e);color:#fff;box-shadow:0 5px 0 #15803d}
+  .opt.no{background:linear-gradient(180deg,#fca5a5,#ef4444);color:#fff;box-shadow:0 5px 0 #b91c1c}
+  .btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:1.15rem;padding:14px 30px;border-radius:18px;margin-top:8px;
+    background:linear-gradient(180deg,#f472b6,#db2777);box-shadow:0 7px 0 #9d174d}
+  .btn:active{transform:translateY(4px);box-shadow:0 3px 0 #9d174d}
+  .btn.green{background:linear-gradient(180deg,#67e28c,#25c15c);box-shadow:0 7px 0 #189745}
+  .fb{font-weight:900;margin-top:12px;min-height:1.4em}
+  .fb.ok{color:#16a34a}.fb.no{color:#dc2626}
+  .big{font-size:3rem}
+</style>
+</head>
+<body>
+  <div class="top">
+    <a class="back" href="../index.html">← Lớp 3</a>
+    <span class="pill">⭐ <span id="score">0</span></span>
+    <span class="pill">❤️ <span id="lives">3</span></span>
+    <span class="pill goal">Mục tiêu: 20 ⭐</span>
+    <button id="sound" title="Bật/tắt âm thanh">🔊</button>
+  </div>
+
+  <div class="stage">
+    <canvas id="cv" width="720" height="440"></canvas>
+
+    <div class="overlay" id="ovStart">
+      <div class="panel">
+        <div class="big">🐱⭐💣</div>
+        <h2>Né Bom, Bắt Sao</h2>
+        <p class="sub">Kéo (hoặc dùng ← →) để di chuyển. <b>Bắt ⭐</b> để ghi điểm, <b>tránh 💣</b>!<br>Hết mạng thì phải trả lời đúng câu hỏi mới <b>hồi sinh</b>. Đủ 20 ⭐ là thắng!</p>
+        <button class="btn" id="btnStart">▶ Bắt đầu</button>
+      </div>
+    </div>
+
+    <!-- REVIVE (chết -> trả lời để chơi tiếp) -->
+    <div class="overlay" id="ovRev" hidden>
+      <div class="panel">
+        <div class="qtag">💀 HỒI SINH BẰNG KIẾN THỨC</div>
+        <div class="sub">Nhân vật hết mạng! Chọn <b>quyết định đúng</b> từ thông tin sau để chơi tiếp:</div>
+        <div class="info" id="rInfo"></div>
+        <div class="opts" id="rOpts"></div>
+        <div class="fb" id="rFb"></div>
+      </div>
+    </div>
+
+    <div class="overlay" id="ovOver" hidden>
+      <div class="panel">
+        <div class="big">😢</div>
+        <h2 style="color:#dc2626">Kết thúc</h2>
+        <p class="sub" id="overStats"></p>
+        <button class="btn" id="btnRetry">🔄 Chơi lại</button>
+      </div>
+    </div>
+
+    <div class="overlay" id="ovWin" hidden>
+      <div class="panel">
+        <div class="big">🏆</div>
+        <h2 style="color:#16a34a">Chiến thắng!</h2>
+        <p class="sub" id="winStats"></p>
+        <button class="btn green" id="btnAgain">🔄 Chơi lại</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ===== Phần 2: Thông tin -> Quyết định đúng ===== */
+const P2=[
+  {info:'Trời mưa khi mẹ chuẩn bị đi làm.', ok:'Đưa áo mưa cho mẹ.', no:['Mặc đồ thể thao.','Rủ bạn đi đá bóng.']},
+  {info:'Hôm nay có tiết Giáo dục thể chất.', ok:'Mang giày thể thao đi học.', no:['Mặc áo mưa đi học.','Ở nhà xem tivi.']},
+  {info:'Minh ra khỏi nhà để đi đá bóng.', ok:'Mặc đồ thể thao, đi giày yêu thích.', no:['Mặc đồng phục.','Mang theo cặp sách.']},
+  {info:'Minh ra khỏi nhà để đi học.', ok:'Mặc đồng phục.', no:['Mặc đồ ngủ.','Mặc đồ đá bóng.']},
+  {info:'Thư viện trường có quyển Truyện cổ tích Việt Nam.', ok:'Rủ bạn lên thư viện mượn đọc.', no:['Ở nhà đi ngủ.','Ra sân đá bóng.']},
+];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ===== Âm thanh ===== */
+let soundOn=true,actx=null;
+function ensa(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}}
+function tone(k){if(!soundOn)return;ensa();if(!actx)return;const n=actx.currentTime;
+  const F={good:[660,880,1180],win:[660,880,1100,1320,1560],bad:[200,150],star:[880,1320]}[k]||[520];
+  F.forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type=k==='bad'?'sawtooth':'triangle';o.frequency.value=f;
+    const t=n+i*0.07;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.22,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.13);
+    o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.15);});}
+let viVoice=null;function pv(){const vs=window.speechSynthesis?speechSynthesis.getVoices():[];viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||null;}
+if(window.speechSynthesis){pv();speechSynthesis.onvoiceschanged=pv;}
+function speak(t){if(!soundOn||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=.98;u.pitch=1.1;speechSynthesis.speak(u);}catch(e){}}
+
+/* ===== Game ===== */
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const W=cv.width,H=cv.height,GOAL=20;
+let state='start', score,lives,frame,items,px,ptarget,p2deck,p2cur;
+const P={y:H-42,size:44};
+
+function reset(){ score=0;lives=3;frame=0;items=[];px=W/2;ptarget=W/2;p2deck=shuffle(P2);p2cur=0;updHUD(); }
+function updHUD(){document.getElementById('score').textContent=score;document.getElementById('lives').textContent=lives;}
+
+function spawn(){
+  const rate=Math.max(28,55-Math.floor(score/2));
+  if(frame%rate===0){
+    const bomb=Math.random()< (0.32+Math.min(.25,score/100));
+    items.push({x:30+Math.random()*(W-60), y:-20, vy:3+score*0.05+Math.random()*1.2, bomb});
+  }
+}
+function update(){
+  frame++; spawn();
+  px+=(ptarget-px)*0.25;
+  for(const it of items){ it.y+=it.vy; }
+  // va chạm với nhân vật (vùng gần đáy)
+  for(const it of items){
+    if(!it.hit && it.y> P.y-34 && it.y< P.y+20 && Math.abs(it.x-px)<34){
+      it.hit=true;
+      if(it.bomb){ lives--; tone('bad'); updHUD(); if(lives<=0){ die(); } }
+      else { score++; tone('star'); updHUD(); if(score>=GOAL){ winGame(); } }
+    }
+  }
+  items=items.filter(it=>!it.hit && it.y<H+30);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#fff5f9';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#ffd6e7';ctx.fillRect(0,H-14,W,14);
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font='30px serif';
+  for(const it of items){ ctx.fillText(it.bomb?'💣':'⭐', it.x, it.y); }
+  ctx.font=P.size+'px serif';ctx.fillText('🐱', px, P.y);
+}
+function loop(){ if(state==='play'){update();draw();} requestAnimationFrame(loop); }
+
+function die(){
+  state='revive';
+  const q=p2deck[p2cur%p2deck.length]; p2cur++;
+  document.getElementById('rInfo').textContent='Thông tin: '+q.info;
+  const opts=shuffle([{t:q.ok,ok:true},{t:q.no[0],ok:false},{t:q.no[1],ok:false}]);
+  const box=document.getElementById('rOpts'); box.innerHTML='';
+  document.getElementById('rFb').textContent=''; document.getElementById('rFb').className='fb';
+  opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o.t;
+    b.addEventListener('click',()=>reviveAns(b,o.ok));box.appendChild(b);});
+  show('ovRev'); speak('Nhân vật hết mạng. '+q.info+'. Chọn quyết định đúng để chơi tiếp.');
+}
+function reviveAns(btn,ok){
+  document.querySelectorAll('#rOpts .opt').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('rFb');
+  if(ok){ btn.classList.add('ok'); tone('good'); fb.textContent='Đúng! Hồi sinh! 💖'; fb.className='fb ok';
+    setTimeout(()=>{ lives=2;updHUD();hide('ovRev');state='play'; },950);
+  } else { btn.classList.add('no'); tone('bad'); fb.textContent='Chưa đúng rồi...'; fb.className='fb no';
+    document.querySelectorAll('#rOpts .opt').forEach(b=>{ if(b.textContent===currentOk()) b.classList.add('ok'); });
+    setTimeout(()=>{ state='over';document.getElementById('overStats').textContent='Em bắt được '+score+' ⭐. Cố lên lần sau nhé!';hide('ovRev');show('ovOver'); },1400);
+  }
+}
+function currentOk(){ return p2deck[(p2cur-1)%p2deck.length].ok; }
+function winGame(){ state='win';document.getElementById('winStats').textContent='Em bắt đủ '+GOAL+' ⭐ và trả lời rất giỏi!';show('ovWin');tone('win'); }
+
+function show(id){document.getElementById(id).hidden=false;}
+function hide(id){document.getElementById(id).hidden=true;}
+
+/* ===== điều khiển ===== */
+function setTargetFromClient(clientX){ const r=cv.getBoundingClientRect(); let x=(clientX-r.left)*(W/r.width); ptarget=Math.max(P.size/2,Math.min(W-P.size/2,x)); }
+let pointing=false;
+cv.addEventListener('pointerdown',e=>{pointing=true;setTargetFromClient(e.clientX);e.preventDefault();});
+cv.addEventListener('pointermove',e=>{ if(pointing||e.pointerType==='mouse') setTargetFromClient(e.clientX); });
+window.addEventListener('pointerup',()=>pointing=false);
+window.addEventListener('keydown',e=>{ if(e.code==='ArrowLeft'){ptarget=Math.max(P.size/2,ptarget-40);} if(e.code==='ArrowRight'){ptarget=Math.min(W-P.size/2,ptarget+40);} });
+
+document.getElementById('btnStart').addEventListener('click',()=>{ensa();reset();hide('ovStart');state='play';});
+document.getElementById('btnRetry').addEventListener('click',()=>{reset();hide('ovOver');state='play';});
+document.getElementById('btnAgain').addEventListener('click',()=>{reset();hide('ovWin');state='play';});
+document.getElementById('sound').addEventListener('click',()=>{soundOn=!soundOn;document.getElementById('sound').textContent=soundOn?'🔊':'🔇';if(!soundOn&&window.speechSynthesis)speechSynthesis.cancel();});
+
+reset(); draw(); loop();
+</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lớp 4 - Trò Chơi Học Tập</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+            background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;padding:70px 20px 40px;color:#fff;
+            display:flex;flex-direction:column;align-items:center;justify-content:center}
+        .back-home{position:fixed;top:16px;left:16px;color:#cbd5e1;text-decoration:none;font-size:14px;font-weight:600;
+            background:rgba(255,255,255,.08);padding:9px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.14)}
+        .back-home:hover{color:#fff;background:rgba(255,255,255,.16)}
+        h1{text-align:center;font-size:2.4rem;margin-bottom:10px;
+            background:linear-gradient(90deg,#fbbf24,#f97316);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+        .subtitle{text-align:center;color:#94a3b8;margin-bottom:46px}
+        .cards{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;max-width:900px}
+        .card{background:rgba(255,255,255,.1);border-radius:20px;padding:40px 30px;width:270px;text-align:center;
+            text-decoration:none;color:#fff;transition:transform .3s,box-shadow .3s;backdrop-filter:blur(10px);
+            border:1px solid rgba(251,191,36,.25)}
+        .card:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(249,115,22,.2)}
+        .card-icon{font-size:80px;margin-bottom:20px;display:block}
+        .card-title{font-size:1.3rem;font-weight:700;margin-bottom:10px;color:#fbbf24}
+        .card-desc{font-size:14px;color:#94a3b8;line-height:1.5}
+        .card-badge{display:inline-block;background:linear-gradient(90deg,#f59e0b,#f97316);padding:5px 15px;border-radius:20px;font-size:12px;margin-top:15px;font-weight:500}
+        .footer{margin-top:60px;text-align:center;color:#64748b;font-size:14px}
+        .footer p{margin:5px 0}.footer strong{color:#94a3b8}
+        @media(max-width:600px){h1{font-size:1.8rem}.card{width:100%;max-width:300px;padding:30px 20px}.card-icon{font-size:60px}}
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-home">← Trang chủ</a>
+    <h1>🧩 Lớp 4</h1>
+    <p class="subtitle">Trò chơi học tập dành cho học sinh lớp 4</p>
+
+    <div class="cards">
+        <a href="phan-cung-phan-mem/" class="card">
+            <span class="card-icon">🔧</span>
+            <h2 class="card-title">Phần Cứng hay Phần Mềm?</h2>
+            <p class="card-desc">Xem lần lượt 25 thiết bị và ứng dụng, chọn đúng là Phần Cứng hay Phần Mềm để phân biệt hai nhóm</p>
+            <span class="card-badge">Phần cứng - Phần mềm</span>
+        </a>
+
+        <a href="robot-ve-nha/" class="card">
+            <span class="card-icon">🤖</span>
+            <h2 class="card-title">Tìm Đường Về Nhà Cho Rô-bốt</h2>
+            <p class="card-desc">Giúp rô-bốt vượt 20 cổng dễ đến khó: chọn đúng Phần Cứng hay Phần Mềm để mở cổng, tiến từng bước về nhà và gom sao</p>
+            <span class="card-badge">Mê cung</span>
+        </a>
+
+        <a href="lap-rap-may-tinh/" class="card">
+            <span class="card-icon">🧩</span>
+            <h2 class="card-title">Lắp Ráp Máy Tính</h2>
+            <p class="card-desc">Mở khóa từng bộ phận rồi ghép các khối gạch (chữ I, L, T, O, J...) xoay và thả vào khung viền; lắp xong hiện Thẻ Thông Tin cho biết bộ phận đó làm gì</p>
+            <span class="card-badge">Ghép hình</span>
+        </a>
+
+        <a href="ghep-cap-may-tinh/" class="card">
+            <span class="card-icon">🖥️</span>
+            <h2 class="card-title">Ai Nhanh Tay Hơn?</h2>
+            <p class="card-desc">Chia 2 đội thi lật thẻ tìm cặp bộ phận máy tính giống nhau — 8 cặp, đội nào ghép hết trước sẽ thắng</p>
+            <span class="card-badge">Ghép cặp</span>
+        </a>
+
+        <a href="../game-chung/lap-rap-ban-phim/" class="card">
+            <span class="card-icon">⌨️</span>
+            <h2 class="card-title">Lắp Ráp Bàn Phím</h2>
+            <p class="card-desc">Các phím bị tháo ra và xáo trộn — kéo từng phím từ khay lên đúng ô để lắp lại thành bàn phím hoàn chỉnh</p>
+            <span class="card-badge">Kéo thả</span>
+        </a>
+
+        <a href="../game-chung/lap-rap-robot/?lop=4" class="card">
+            <span class="card-icon"><svg width="76" height="76" viewBox="0 0 72 78" fill="none">
+              <line x1="36" y1="5" x2="36" y2="15" stroke="#8892a3" stroke-width="2.6" stroke-linecap="round"/>
+              <circle cx="36" cy="4.5" r="4" fill="#ff5a5a"/>
+              <rect x="19" y="14" width="34" height="24" rx="5" fill="#ffd23b" stroke="#c99f24" stroke-width="2"/>
+              <circle cx="29" cy="26" r="2.6" fill="#2b2f45"/><circle cx="43" cy="26" r="2.6" fill="#2b2f45"/>
+              <path d="M29 31 Q36 35 43 31" stroke="#2b2f45" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <rect x="17" y="40" width="38" height="26" rx="5" fill="#3b7dd8" stroke="#2a5aa0" stroke-width="2"/>
+              <polygon points="36,46 38.4,52 44.5,52 39.5,55.6 41.6,61.5 36,57.8 30.4,61.5 32.5,55.6 27.5,52 33.6,52" fill="#ffd23b" stroke="#c99f24" stroke-width="1.2" stroke-linejoin="round"/>
+              <rect x="7" y="42" width="8" height="19" rx="3" fill="#7dc242" stroke="#5c9a2e" stroke-width="1.6"/>
+              <rect x="57" y="42" width="8" height="19" rx="3" fill="#7dc242" stroke="#5c9a2e" stroke-width="1.6"/>
+              <rect x="26" y="66" width="8" height="10" rx="2" fill="#b7c0cc" stroke="#8f9aab" stroke-width="1.6"/>
+              <rect x="38" y="66" width="8" height="10" rx="2" fill="#b7c0cc" stroke="#8f9aab" stroke-width="1.6"/>
+            </svg></span>
+            <h2 class="card-title">Lắp Ráp Rô Bốt Hình Học</h2>
+            <p class="card-desc">Lắp rô bốt theo mẫu bằng cả lục giác và ngôi sao, có mảnh gây nhiễu; xong rồi tự sáng tạo rô bốt của em</p>
+            <span class="card-badge">Kéo thả · Hình học</span>
+        </a>
+
+        <a href="../game-chung/tham-tu-thiet-bi/?lop=4" class="card">
+            <span class="card-icon"><svg width="76" height="76" viewBox="0 0 72 72" fill="none">
+              <rect x="8" y="30" width="30" height="22" rx="4" fill="#3b7dd8" stroke="#26406e" stroke-width="2.6"/>
+              <rect x="12" y="34" width="22" height="14" fill="#cfe6ff"/>
+              <rect x="20" y="52" width="6" height="6" fill="#8892a3"/><rect x="14" y="58" width="18" height="4" rx="2" fill="#8892a3"/>
+              <circle cx="46" cy="30" r="15" fill="#eaf3ff" stroke="#7c5cff" stroke-width="5"/>
+              <line x1="57" y1="41" x2="68" y2="52" stroke="#7c5cff" stroke-width="7" stroke-linecap="round"/>
+              <path d="M40 30 l4 4 8-9" fill="none" stroke="#25c15c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg></span>
+            <h2 class="card-title">Thám Tử Thiết Bị Máy Tính</h2>
+            <p class="card-desc">Mỗi câu cho biết một công dụng, em làm thám tử tìm đúng thiết bị làm được việc đó. 20 câu cho 20 thiết bị, mức Lớp 4 nhiều lựa chọn và thiết bị khó hơn</p>
+            <span class="card-badge">Công dụng</span>
+        </a>
+    </div>
+
+    <footer class="footer">
+        <p>Thiết kế bởi <strong>Bùi Thị Phương Trúc</strong></p>
+        <p>Trường Trung-Tiểu học Pétrus Ký</p>
+    </footer>
+</body>
+</html>
