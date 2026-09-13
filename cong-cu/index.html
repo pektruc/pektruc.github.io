@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công cụ - Trò Chơi Học Tập</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+            background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;padding:70px 20px 40px;color:#fff;
+            display:flex;flex-direction:column;align-items:center;justify-content:center}
+        .back-home{position:fixed;top:16px;left:16px;color:#cbd5e1;text-decoration:none;font-size:14px;font-weight:600;
+            background:rgba(255,255,255,.08);padding:9px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.14)}
+        .back-home:hover{color:#fff;background:rgba(255,255,255,.16)}
+        h1{text-align:center;font-size:2.4rem;margin-bottom:10px;
+            background:linear-gradient(90deg,#f472b6,#db2777);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+        .subtitle{text-align:center;color:#94a3b8;margin-bottom:46px}
+        .cards{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;max-width:900px}
+        .card{background:rgba(255,255,255,.1);border-radius:20px;padding:40px 30px;width:270px;text-align:center;
+            text-decoration:none;color:#fff;transition:transform .3s,box-shadow .3s;backdrop-filter:blur(10px);
+            border:1px solid rgba(244,114,182,.25)}
+        .card:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(219,39,119,.2)}
+        .card-icon{font-size:80px;margin-bottom:20px;display:block}
+        .card-title{font-size:1.3rem;font-weight:700;margin-bottom:10px;color:#f472b6}
+        .card-desc{font-size:14px;color:#94a3b8;line-height:1.5}
+        .card-badge{display:inline-block;background:linear-gradient(90deg,#ec4899,#db2777);padding:5px 15px;border-radius:20px;font-size:12px;margin-top:15px;font-weight:500}
+        .footer{margin-top:60px;text-align:center;color:#64748b;font-size:14px}
+        .footer p{margin:5px 0}.footer strong{color:#94a3b8}
+        @media(max-width:600px){h1{font-size:1.8rem}.card{width:100%;max-width:300px;padding:30px 20px}.card-icon{font-size:60px}}
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-home">← Trang chủ</a>
+    <h1>🛠️ Công cụ</h1>
+    <p class="subtitle">Các tiện ích hỗ trợ học tập</p>
+
+    <div class="cards">
+        <a href="tao-hinh-ai/" class="card">
+            <span class="card-icon">🎨</span>
+            <h2 class="card-title">Tạo Hình AI</h2>
+            <p class="card-desc">Tạo hình ảnh từ mô tả văn bản bằng trí tuệ nhân tạo</p>
+            <span class="card-badge">AI Generator</span>
+        </a>
+    </div>
+
+    <footer class="footer">
+        <p>Thiết kế bởi <strong>Bùi Thị Phương Trúc</strong></p>
+        <p>Trường Trung-Tiểu học Pétrus Ký</p>
+    </footer>
+</body>
+</html>

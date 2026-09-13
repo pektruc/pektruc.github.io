@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gia Đình Hạnh Phúc</title>
+<style>
+  :root{--pink:#ff6fa5}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  .hide{display:none !important}
+  html,body{margin:0;padding:0;min-height:100%}
+  body{font-family:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#3f4a3a;
+    background:linear-gradient(160deg,#f2fbef,#e6f6e0 55%,#e9f4ff);min-height:100vh;user-select:none}
+  .back-home{position:fixed;top:12px;left:12px;z-index:40;color:#4f7a48;text-decoration:none;font-size:13px;font-weight:800;
+    background:rgba(255,255,255,.9);padding:8px 14px;border-radius:20px;box-shadow:0 4px 12px rgba(60,120,60,.16)}
+  .wrap{max-width:960px;margin:0 auto;padding:54px 12px 30px;display:flex;flex-direction:column;align-items:center;gap:10px}
+  h1{font-weight:900;font-size:1.9rem;margin:2px 0;text-align:center;
+    background:linear-gradient(90deg,#3fa34d,#7bc043,#2b8de0);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 0 #fff)}
+  .hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center}
+  .chip{background:#fff;border-radius:14px;padding:7px 14px;font-weight:800;font-size:.95rem;box-shadow:0 4px 12px rgba(60,120,60,.12)}
+  .chip b{color:#39a34d}.chip.time b{color:#2b8de0}
+  .sbtn{border:none;background:#fff;color:#4f7a48;width:40px;height:40px;border-radius:12px;cursor:pointer;box-shadow:0 4px 12px rgba(60,120,60,.12);display:flex;align-items:center;justify-content:center}
+
+  .boards{display:flex;gap:16px;width:100%;justify-content:center;flex-wrap:wrap;margin-top:4px}
+  .panel{background:#fff;border-radius:22px;padding:12px;box-shadow:0 12px 30px rgba(60,120,60,.14);flex:1 1 340px;max-width:440px;min-width:290px}
+  .panel h2{margin:2px 0 6px;text-align:center;font-size:1.05rem;color:#5f9a52}
+  .tree{position:relative;width:100%;aspect-ratio:1/1}
+  .treeimg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;border-radius:12px}
+  .stagewrap{display:flex;gap:14px;width:100%;justify-content:center;align-items:flex-start;flex-wrap:wrap;margin-top:4px}
+  #modelSide{background:#fff;border-radius:20px;padding:10px 10px 8px;box-shadow:0 10px 26px rgba(60,120,60,.16);cursor:pointer;flex:0 0 auto;width:clamp(210px,26vw,300px);text-align:center;position:sticky;top:56px;transition:transform .12s}
+  #modelSide:hover{transform:translateY(-2px)}
+  #modelSide h2{font-size:1rem;color:#5f9a52;margin:2px 0 6px}
+  #modelSide .msimg{width:100%;border-radius:12px;display:block}
+  #modelSide .cap{font-size:.74rem;font-weight:700;color:#8aa87c;margin-top:5px}
+  #playPanel{background:#fff;border-radius:24px;padding:12px 12px 6px;box-shadow:0 12px 30px rgba(60,120,60,.14);flex:1 1 420px;max-width:640px;min-width:280px}
+  #playPanel h2{margin:2px 0 4px;text-align:center;font-size:1.1rem;color:#5f9a52}
+  #playTree{width:100%}
+  .mcard{background:#fff;border-radius:22px;padding:14px;max-width:600px;width:100%;position:relative;text-align:center;box-shadow:0 24px 60px rgba(20,50,20,.4)}
+  .mcard h2{margin:2px 0 8px;color:#39a34d;font-size:1.2rem}
+  .mcard img{width:100%;height:auto;border-radius:14px;display:block}
+  .mclose{position:absolute;top:10px;right:10px;border:none;background:#eef8e6;color:#39a34d;width:38px;height:38px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  @media(max-width:720px){#modelSide{position:static;width:min(92vw,360px)}}
+  .slot{position:absolute;transform:translate(-50%,-50%);border-radius:16px;min-height:36px;display:flex;align-items:center;justify-content:center;
+    text-align:center;font-weight:900;font-size:clamp(15px,2.5vw,23px);background:#eef8e6;border:2.5px solid #bcdfa6;color:#2f7d52;
+    box-shadow:0 2px 6px rgba(60,120,60,.18);cursor:text;outline:none;overflow:hidden}
+  .slot .hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#2f7d52;opacity:.1;z-index:1;pointer-events:none;letter-spacing:.3px}
+  .slot .typ{position:absolute;inset:0;width:100%;border:none;background:transparent;text-align:center;font:inherit;font-weight:900;color:#1f6b45;outline:none;z-index:2;letter-spacing:.3px;padding:0}
+  .slot:focus-within{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,111,165,.35)}
+  .slot.done{background:#d3f2c8;border-color:#7fd67f}
+  .slot.done .hint{opacity:0}
+  .slot .chk{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:none;z-index:3}
+  .slot.done .chk{display:inline-flex}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:2px}
+  .tbtn{border:none;cursor:pointer;font-weight:800;font-size:.9rem;padding:10px 16px;border-radius:14px;background:#fff;color:#4f7a48;box-shadow:0 4px 0 #cfe6c0}
+  .tbtn:active{transform:translateY(2px);box-shadow:0 2px 0 #cfe6c0}
+  .help{font-size:.86rem;color:#6f8a63;text-align:center;max-width:600px;line-height:1.5}
+  .help b{color:#39a34d}
+
+  .overlay{position:fixed;inset:0;z-index:60;background:rgba(30,50,30,.5);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:16px}
+  .overlay.hide{display:none}
+  .card{background:#fff;border-radius:24px;max-width:460px;width:100%;padding:22px;text-align:center;box-shadow:0 24px 60px rgba(20,50,20,.4)}
+  .card h2{margin:8px 0 4px;font-size:1.5rem;color:#39a34d}
+  .card p{color:#5f7a58;margin:6px 0 0;line-height:1.55;font-size:.95rem}
+  .card img.mini{width:190px;height:190px;object-fit:contain;border-radius:14px}
+  .bigbtn{display:block;width:100%;border:none;cursor:pointer;color:#fff;font-weight:900;font-size:1.15rem;padding:14px;border-radius:16px;margin-top:12px;
+    background:linear-gradient(180deg,#6fce6a,#3fa34d);box-shadow:0 6px 0 #2c7c37}
+  .bigbtn:active{transform:translateY(3px);box-shadow:0 3px 0 #2c7c37}
+  .keyrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px;font-size:.82rem;color:#5f7a58}
+  .keyrow span{background:#eef8e6;border:1px solid #bfe3a8;border-radius:10px;padding:5px 9px;font-weight:700}
+  #certWrap{max-width:560px;width:100%}
+  #certWrap svg{width:100%;height:auto;display:block;border-radius:12px;box-shadow:0 14px 34px rgba(20,50,20,.3)}
+  .certbtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+  .confetti{position:fixed;top:-14px;width:11px;height:16px;z-index:70;border-radius:2px;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(104vh) rotate(680deg);opacity:.85}}
+  @media(max-width:600px){h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<a href="../../lop-2/index.html" class="back-home" onclick="return goBack()">← Quay lại</a>
+<div class="wrap">
+  <h1>Gia Đình Hạnh Phúc</h1>
+  <div class="hud">
+    <span class="chip time">Thời gian <b id="timeN">00:00</b></span>
+    <span class="chip">Đúng <b id="doneN">0</b>/7</span>
+    <button class="sbtn" id="soundBtn"></button>
+  </div>
+
+  <div class="stagewrap">
+    <div id="modelSide" onclick="openModel()" title="Bấm để xem to hơn">
+      <h2>Cây gia đình mẫu</h2>
+      <img class="msimg" src="cay-mau.png" alt="Cây gia đình mẫu">
+      <div class="cap">Bấm để xem to hơn</div>
+    </div>
+    <div id="playPanel">
+      <h2>Em gõ Telex theo chữ mờ</h2>
+      <div class="tree" id="playTree"><img class="treeimg" src="cay-mau.png" alt="Cây gia đình"></div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button class="tbtn" id="clearBtn">Xóa ô đang gõ</button>
+    <button class="tbtn" id="restartBtn">Làm lại</button>
+  </div>
+  <p class="help">Mỗi ô có sẵn <b>chữ mờ</b> gợi ý. Bấm vào ô rồi <b>gõ Telex</b> cho chữ hiện rõ. Ví dụ: <b>oo</b>→ô, <b>aa</b>→â, <b>ow</b>→ơ; dấu <b>s</b>=sắc, <b>f</b>=huyền, <b>r</b>=hỏi, <b>x</b>=ngã, <b>j</b>=nặng. Đúng cả bảy ô để nhận giấy khen! <i>(Máy Mac đang bật gõ tiếng Việt cũng chơi được.)</i></p>
+</div>
+
+<div class="overlay" id="startOv">
+  <div class="card">
+    <img class="mini" src="cay-mau.png" alt="Cây gia đình">
+    <h2>Gia Đình Hạnh Phúc</h2>
+    <p>Nhìn cây gia đình mẫu, rồi <b>gõ Telex</b> theo chữ mờ để điền đúng tên: ông, bà, bố, mẹ, anh trai, em gái, tôi.</p>
+    <div class="keyrow"><span>ô = o o</span><span>â = a a</span><span>ơ = o w</span><span>ê = e e</span><span>sắc = s</span><span>huyền = f</span><span>hỏi = r</span><span>ngã = x</span><span>nặng = j</span></div>
+    <button class="bigbtn" onclick="startGame()">Bắt đầu</button>
+  </div>
+</div>
+
+<div class="overlay hide" id="modelOv">
+  <div class="mcard">
+    <button class="mclose" id="mcloseBtn" title="Đóng"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+    <h2>Cây gia đình mẫu</h2>
+    <img src="cay-mau.png" alt="Cây gia đình mẫu">
+  </div>
+</div>
+
+<div class="overlay hide" id="certOv">
+  <div class="card" style="max-width:600px">
+    <div id="certWrap"></div>
+    <div class="certbtns">
+      <button class="tbtn" id="saveBtn">Tải giấy khen</button>
+      <button class="bigbtn" style="width:auto;padding:14px 26px" onclick="restart()">Chơi lại</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+function goBack(){if(history.length>1){history.back();return false;}location.href='../../lop-2/index.html';return false;}
+const CHK='<svg width="14" height="14" viewBox="0 0 24 24"><path d="M5 13l4 4 10-10" fill="none" stroke="#2f7d52" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/* ===== TELEX ENGINE (per token) ===== */
+const TONE_TABLE={a:['a','á','à','ả','ã','ạ'],'ă':['ă','ắ','ằ','ẳ','ẵ','ặ'],'â':['â','ấ','ầ','ẩ','ẫ','ậ'],
+ e:['e','é','è','ẻ','ẽ','ẹ'],'ê':['ê','ế','ề','ể','ễ','ệ'],i:['i','í','ì','ỉ','ĩ','ị'],
+ o:['o','ó','ò','ỏ','õ','ọ'],'ô':['ô','ố','ồ','ổ','ỗ','ộ'],'ơ':['ơ','ớ','ờ','ở','ỡ','ợ'],
+ u:['u','ú','ù','ủ','ũ','ụ'],'ư':['ư','ứ','ừ','ử','ữ','ự'],y:['y','ý','ỳ','ỷ','ỹ','ỵ']};
+const TONE_OF={s:1,f:2,r:3,x:4,j:5};
+const DECOMP={};for(const b in TONE_TABLE)TONE_TABLE[b].forEach((ch,ti)=>DECOMP[ch]=[b,ti]);
+const isV=ch=>ch in DECOMP;
+const SPECIAL=new Set(['â','ă','ê','ô','ơ','ư']);
+function telexTok(seq){
+  let out=[],tone=0;
+  for(const raw of seq){const c=raw.toLowerCase();
+    if(c in TONE_OF){if(out.some(isV)){const t=TONE_OF[c];tone=(tone===t)?0:t;continue;}out.push(c);continue;}
+    const last=out.length?out[out.length-1]:'';
+    if(c==='a'&&last==='a'){out[out.length-1]='â';continue;}
+    if(c==='e'&&last==='e'){out[out.length-1]='ê';continue;}
+    if(c==='o'&&last==='o'){out[out.length-1]='ô';continue;}
+    if(c==='d'&&last==='d'){out[out.length-1]='đ';continue;}
+    if(c==='w'){if(last==='a'){out[out.length-1]='ă';continue;}if(last==='o'){out[out.length-1]='ơ';continue;}if(last==='u'){out[out.length-1]='ư';continue;}out.push('ư');continue;}
+    out.push(c);
+  }
+  if(tone>0){
+    const vs=[];for(let i=0;i<out.length;i++)if(isV(out[i]))vs.push(i);
+    let vi=-1;
+    if(vs.length){const sp=vs.find(i=>SPECIAL.has(out[i]));
+      if(sp!==undefined)vi=sp;
+      else if(vs.length>=2){const lastCh=out[vs[vs.length-1]];vi='iouy'.includes(lastCh)?vs[vs.length-2]:vs[vs.length-1];}
+      else vi=vs[0];}
+    if(vi>=0){const [base]=DECOMP[out[vi]];out[vi]=TONE_TABLE[base][tone];}
+  }
+  return out.join('');
+}
+function telex(raw){return raw.split(' ').map(telexTok).join(' ');}
+
+/* ===== label positions over the tree image (percent of the square) ===== */
+const LABELS={ong:'ông',ba:'bà',bo:'bố',me:'mẹ',anh:'anh trai',toi:'tôi',em:'em gái'};
+const ORDER=['ong','ba','bo','me','anh','toi','em'];
+const POS={ong:[38.2,20.4],ba:[63.8,20.4],bo:[38.4,40.2],me:[63.2,40.4],anh:[30.6,61.9],toi:[50.4,61.9],em:[71,62.1]};
+const WID={ong:15,ba:15,bo:15,me:15,toi:15,anh:20,em:20};
+
+/* chấp nhận cả chữ Việt có sẵn (bộ gõ của máy Mac) lẫn Telex gõ thô */
+const VIET_RE=/[ăâêôơưđáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ]/i;
+let slots={},activeKey=null,doneCount=0;
+function buildPlay(){
+  const pt=$('playTree');
+  pt.querySelectorAll('.slot').forEach(s=>s.remove());
+  ORDER.forEach(k=>{const[x,y]=POS[k];
+    const el=document.createElement('div');el.className='slot';el.dataset.k=k;
+    el.style.left=x+'%';el.style.top=y+'%';el.style.width=WID[k]+'%';
+    el.innerHTML=`<span class="hint">${LABELS[k]}</span><input class="typ" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="${LABELS[k]}"><span class="chk">${CHK}</span>`;
+    pt.appendChild(el);
+  });
+  slots={};doneCount=0;activeKey=null;$('doneN').textContent='0';
+  pt.querySelectorAll('.slot').forEach(el=>{
+    const k=el.dataset.k,inp=el.querySelector('.typ');
+    slots[k]={el,inp,done:false};
+    inp.addEventListener('input',()=>onInput(k));
+    inp.addEventListener('focus',()=>{activeKey=k;});
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();nextSlot(k);}});
+  });
+}
+function focusSlot(k){if(slots[k]&&!slots[k].done){activeKey=k;slots[k].inp.focus();}}
+function candidate(k){const v=slots[k].inp.value.trim().toLowerCase().replace(/\s+/g,' ');return VIET_RE.test(v)?v:telex(v);}
+function onInput(k){
+  const s=slots[k];if(s.done||!running)return;
+  if(candidate(k)===LABELS[k]){
+    s.done=true;s.el.classList.add('done');
+    s.inp.value=LABELS[k];s.inp.readOnly=true;s.inp.blur();
+    doneCount++;$('doneN').textContent=doneCount;ting();
+    if(doneCount>=7){finish();}else setTimeout(()=>nextSlot(k),160);
+  }
+}
+function nextSlot(k){const idx=ORDER.indexOf(k);for(let i=1;i<=ORDER.length;i++){const nk=ORDER[(idx+i)%ORDER.length];if(!slots[nk].done){focusSlot(nk);return;}}}
+
+/* ===== timer ===== */
+let running=false,elapsed=0,timer=null,tStart=0;
+function fmt(s){const m=Math.floor(s/60),ss=s%60;return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');}
+function startTimer(){tStart=Date.now();timer=setInterval(()=>{elapsed=Math.floor((Date.now()-tStart)/1000);$('timeN').textContent=fmt(elapsed);},500);}
+function stopTimer(){clearInterval(timer);}
+function startGame(){$('startOv').classList.add('hide');running=true;elapsed=0;$('timeN').textContent='00:00';startTimer();AC();focusSlot('ong');}
+function restart(){$('certOv').classList.add('hide');buildPlay();stopTimer();running=false;elapsed=0;$('timeN').textContent='00:00';$('startOv').classList.remove('hide');}
+
+/* ===== finish + certificate ===== */
+function finish(){running=false;stopTimer();confetti();say('Xuất sắc! Em đã ghi nhớ cách gõ Telex.');$('certWrap').innerHTML=certSVG(fmt(elapsed));$('certOv').classList.remove('hide');}
+function certSVG(timeStr){
+  const star=(x,y,r)=>{let p='';for(let i=0;i<10;i++){const a=(-90+i*36)*Math.PI/180,rr=i%2?r*0.45:r;p+=(i?'L':'M')+(x+rr*Math.cos(a)).toFixed(1)+' '+(y+rr*Math.sin(a)).toFixed(1)+' ';}return `<path d="${p}Z" fill="#ffd23b" stroke="#e0a92e" stroke-width="1.5"/>`;};
+  return `<svg viewBox="0 0 600 430" xmlns="http://www.w3.org/2000/svg">
+   <rect x="0" y="0" width="600" height="430" fill="#f6fff0"/>
+   <rect x="14" y="14" width="572" height="402" rx="16" fill="#fffdf6" stroke="#8ccf6a" stroke-width="6"/>
+   <rect x="26" y="26" width="548" height="378" rx="12" fill="none" stroke="#c6e6ad" stroke-width="2"/>
+   ${star(80,74,20)}${star(520,74,20)}${star(52,360,14)}${star(548,360,14)}
+   <text x="300" y="86" text-anchor="middle" font-family="Georgia,serif" font-size="34" font-weight="900" fill="#39a34d">GIẤY KHEN</text>
+   <text x="300" y="120" text-anchor="middle" font-family="Georgia,serif" font-size="15" fill="#7a9a6a" letter-spacing="2">HỌA SĨ GÕ TELEX TÍ HON</text>
+   <text x="300" y="176" text-anchor="middle" font-size="18" fill="#4a5a42">Chứng nhận em đã hoàn thành trò chơi</text>
+   <text x="300" y="206" text-anchor="middle" font-size="24" font-weight="900" fill="#2b8de0">Gia Đình Hạnh Phúc</text>
+   <text x="300" y="238" text-anchor="middle" font-size="18" fill="#4a5a42">và ghi nhớ cách gõ Telex tiếng Việt.</text>
+   <text x="300" y="286" text-anchor="middle" font-size="18" fill="#4a5a42">Thời gian hoàn thành: <tspan font-weight="900" fill="#39a34d">${timeStr}</tspan></text>
+   <line x1="120" y1="352" x2="250" y2="352" stroke="#a9c49a" stroke-width="1.5"/>
+   <text x="185" y="372" text-anchor="middle" font-size="13" fill="#6a8a5a">Học sinh</text>
+   <g transform="translate(430,330)"><circle cx="0" cy="0" r="34" fill="#ffe08a" stroke="#e0a92e" stroke-width="3"/>${star(0,-2,16)}<path d="M-14 26 L-22 54 L-6 44 Z" fill="#ff5a6e"/><path d="M14 26 L22 54 L6 44 Z" fill="#3b7dd8"/></g>
+   <text x="300" y="404" text-anchor="middle" font-size="12" fill="#8a9a7a">Trường Trung-Tiểu học Pétrus Ký</text>
+  </svg>`;
+}
+
+/* ===== fx / sound ===== */
+let soundOn=true,actx=null,viVoice=null;
+function AC(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}return actx;}
+function beep(f,f2,d,t,v){if(!soundOn)return;const a=AC();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=t||'sine';o.frequency.setValueAtTime(f,a.currentTime);if(f2)o.frequency.exponentialRampToValueAtTime(f2,a.currentTime+d);g.gain.setValueAtTime(v||.1,a.currentTime);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d);}
+function ting(){beep(880,0,.12,'triangle',.13);setTimeout(()=>beep(1320,0,.13,'triangle',.12),80);}
+function pop(){beep(520,760,.08,'triangle',.07);}
+function pv(){const vs=speechSynthesis.getVoices();viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||vs.find(v=>/vietnam/i.test(v.name))||null;}
+if('speechSynthesis'in window){pv();speechSynthesis.onvoiceschanged=pv;}
+function say(t){if(!soundOn||!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=1.02;speechSynthesis.speak(u);}catch(e){}}
+const SND_ON='<svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 8.5a4.5 4.5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const SND_OFF='<svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function setSnd(){$('soundBtn').innerHTML=soundOn?SND_ON:SND_OFF;}
+function confetti(){const cols=['#ff5a5a','#ffd23b','#7dc242','#38bdf8','#a78bfa','#ff9f1c','#f78fb3'];for(let i=0;i<80;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=cols[i%cols.length];c.style.animationDuration=(1.1+Math.random()*1.3)+'s';c.style.animationDelay=(Math.random()*.3)+'s';c.style.transform='rotate('+(Math.random()*360)+'deg)';document.body.appendChild(c);setTimeout(()=>c.remove(),2600);}}
+
+/* ===== controls ===== */
+$('clearBtn').onclick=()=>{if(activeKey&&slots[activeKey]&&!slots[activeKey].done){slots[activeKey].inp.value='';slots[activeKey].inp.focus();}};
+$('restartBtn').onclick=restart;
+$('soundBtn').onclick=function(){soundOn=!soundOn;setSnd();if(!soundOn&&'speechSynthesis'in window)speechSynthesis.cancel();else pop();};
+$('saveBtn').onclick=function(){const svg=$('certWrap').querySelector('svg');const data=new XMLSerializer().serializeToString(svg);const img=new Image();img.onload=function(){const cv=document.createElement('canvas');cv.width=1200;cv.height=860;const cx=cv.getContext('2d');cx.drawImage(img,0,0,1200,860);cv.toBlob(function(b){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='giay-khen-telex.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);});};img.src='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(data)));};
+
+/* model popup */
+function openModel(){$('modelOv').classList.remove('hide');}
+function closeModel(){$('modelOv').classList.add('hide');}
+$('mcloseBtn').onclick=closeModel;
+$('modelOv').addEventListener('click',e=>{if(e.target===$('modelOv'))closeModel();});
+
+/* init */
+buildPlay();setSnd();
+</script>
+</body>
+</html>
