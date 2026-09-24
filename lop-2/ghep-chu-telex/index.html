@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⌨️ Gõ Telex - Ghép Chữ Có Dấu</title>
+<style>
+:root{
+  --bg:#fff7ed; --card:#ffffff; --card2:#fff1e0;
+  --orange:#f97316; --orange2:#c2410c;
+  --blue:#2563eb; --green:#16a34a; --red:#e11d48;
+  --ink:#3a2a1a; --muted:#a1795a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Baloo 2','Be Vietnam Pro',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:radial-gradient(circle at 20% 15%,#ffe9c7 0,transparent 45%),
+             radial-gradient(circle at 85% 80%,#ffd9e8 0,transparent 45%),
+             var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:14px;position:relative;overflow-x:hidden;
+}
+
+/* Back link */
+.back-link{
+  position:fixed;top:12px;left:12px;z-index:50;
+  color:#7a5a3a;text-decoration:none;font-size:14px;font-weight:800;
+  background:rgba(255,255,255,.85);padding:8px 15px;border-radius:20px;
+  border:2px solid #f6c68a;box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+.back-link:hover{background:#fff;color:var(--orange2)}
+
+/* Mute */
+.mute-btn{
+  position:fixed;top:12px;right:12px;z-index:50;
+  width:44px;height:44px;border-radius:50%;border:2px solid #f6c68a;
+  background:rgba(255,255,255,.9);cursor:pointer;font-size:20px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+.mute-btn:hover{border-color:var(--orange);transform:scale(1.08)}
+.mute-btn.muted{opacity:.5;border-color:#ccc}
+
+/* Screens */
+.screen{display:none;flex-direction:column;align-items:center;width:100%;max-width:760px}
+.screen.active{display:flex}
+
+/* ── START ── */
+#screen-start{text-align:center;gap:20px;padding-top:46px}
+.start-emoji{font-size:74px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.game-title{
+  font-size:34px;font-weight:900;color:var(--orange);
+  text-shadow:3px 3px 0 var(--orange2);line-height:1.25;letter-spacing:.5px;
+}
+.game-desc{font-size:17px;color:#8a6a4a;line-height:1.7;max-width:440px;font-weight:600}
+.example-combos{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;max-width:520px}
+.example-pill{
+  background:#fff;border:2px solid #f6c68a;border-radius:50px;
+  padding:6px 15px;font-size:16px;font-weight:900;color:var(--orange2);
+  box-shadow:0 3px 8px rgba(0,0,0,.06);
+}
+.example-pill .k{color:var(--blue)}
+.btn{
+  background:var(--orange);color:#fff;border:none;border-radius:50px;
+  padding:15px 44px;font-family:inherit;font-size:19px;font-weight:900;cursor:pointer;
+  box-shadow:0 6px 0 var(--orange2),0 8px 22px rgba(249,115,22,.3);
+  transition:all .12s;letter-spacing:.5px;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 0 var(--orange2),0 12px 26px rgba(249,115,22,.35)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--orange2)}
+.btn-secondary{
+  background:#fff;border:2.5px solid var(--orange);color:var(--orange2);
+  border-radius:50px;padding:11px 30px;font-family:inherit;font-size:17px;font-weight:900;cursor:pointer;transition:all .15s;
+}
+.btn-secondary:hover{background:#fff3e6}
+
+/* ── GAME ── */
+.game-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;padding:44px 4px 10px}
+.header{display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.header-title{font-size:19px;font-weight:900;color:var(--orange);text-shadow:2px 2px 0 var(--orange2)}
+.header-right{display:flex;align-items:center;gap:14px}
+.q-counter{font-size:15px;color:var(--muted);font-weight:800}
+.score-display{font-size:21px;font-weight:900;color:var(--orange);text-shadow:2px 2px 0 var(--orange2)}
+.streak{font-size:15px;font-weight:900;color:var(--red)}
+.progress-bar{width:100%;height:9px;background:#ffe0c0;border-radius:5px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--orange),#fbbf24);border-radius:5px;transition:width .5s ease}
+
+/* Target panel */
+.target-panel{
+  width:100%;background:var(--card);border:3px solid #f6c68a;border-radius:24px;
+  padding:18px 16px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;
+  box-shadow:0 10px 30px rgba(249,115,22,.12);position:relative;
+}
+.target-panel::before{
+  content:'GÕ CHỮ NÀY';position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+  background:var(--card);padding:0 12px;font-size:12px;color:var(--muted);font-weight:900;letter-spacing:2px;white-space:nowrap;
+}
+.target-row{display:flex;align-items:center;gap:16px}
+.target-char{
+  font-size:88px;font-weight:900;color:var(--orange);line-height:1.05;
+  text-shadow:0 5px 0 rgba(194,65,12,.25);font-family:'Be Vietnam Pro',sans-serif;
+}
+.target-char.pop{animation:popChar .4s ease}
+@keyframes popChar{0%{transform:scale(1)}40%{transform:scale(1.22) rotate(-4deg)}100%{transform:scale(1)}}
+.speak-btn{
+  width:56px;height:56px;border-radius:50%;border:2.5px solid #f6c68a;background:#fff;
+  font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;
+  box-shadow:0 3px 8px rgba(0,0,0,.06);
+}
+.speak-btn:hover{border-color:var(--orange);transform:scale(1.08)}
+
+/* Live preview */
+.preview-box{
+  display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;
+}
+.preview-label{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:1px}
+.preview-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+.preview-typed{
+  min-width:120px;min-height:46px;padding:4px 18px;border:2.5px dashed #d8b48a;border-radius:14px;
+  font-size:22px;font-weight:900;color:var(--blue);background:#f6faff;
+  display:flex;align-items:center;justify-content:center;letter-spacing:2px;
+}
+.preview-typed .cursor{color:#c0c0c0;font-weight:400}
+.preview-arrow{font-size:22px;color:var(--muted);font-weight:900}
+.preview-result{
+  min-width:80px;min-height:52px;padding:2px 20px;border:2.5px solid #f6c68a;border-radius:14px;
+  font-size:38px;font-weight:900;color:var(--orange);background:#fff8ef;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.preview-result.match{border-color:var(--green);background:#eafaef;color:var(--green);transform:scale(1.06)}
+
+/* Controls */
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.ctrl-btn{
+  border:2px solid #e6c39a;border-radius:50px;padding:8px 18px;background:#fff;
+  color:#8a6a4a;font-family:inherit;font-weight:900;font-size:15px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;gap:6px;
+}
+.ctrl-btn:hover{border-color:var(--orange);color:var(--orange2);transform:translateY(-1px)}
+.ctrl-btn.hint:hover{background:#fffbe6}
+
+/* Tiles */
+.tiles-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;width:100%;padding:2px}
+.tile{
+  min-width:74px;height:82px;padding:0 6px;
+  background:var(--card);border:3px solid #e6c39a;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:34px;font-weight:900;color:var(--orange2);
+  user-select:none;transition:all .13s ease;touch-action:manipulation;
+  box-shadow:0 5px 0 #e6c39a,0 6px 14px rgba(0,0,0,.08);
+}
+.tile:hover{transform:translateY(-4px);border-color:var(--orange);box-shadow:0 8px 0 #e6c39a,0 12px 22px rgba(0,0,0,.12)}
+.tile:active{transform:translateY(2px);box-shadow:0 2px 0 #e6c39a}
+.tile.tone{color:var(--blue);background:#f3f8ff;border-color:#bcd3f5;box-shadow:0 5px 0 #bcd3f5,0 6px 14px rgba(0,0,0,.08)}
+.tile.tone:hover{border-color:var(--blue);box-shadow:0 8px 0 #bcd3f5,0 12px 22px rgba(0,0,0,.12)}
+.tile.tone:active{box-shadow:0 2px 0 #bcd3f5}
+.tile .sub{font-size:12px;color:var(--muted);font-weight:800;margin-left:4px}
+.tile.next-hint{animation:pulseHint 1s ease-in-out infinite;border-color:var(--green)!important;box-shadow:0 0 0 3px rgba(22,163,74,.25),0 5px 0 #a7d7b4!important}
+@keyframes pulseHint{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.tile.tap-flash{animation:tapFlash .3s ease}
+@keyframes tapFlash{0%{transform:scale(1)}45%{transform:scale(1.15);background:#fff3d6}100%{transform:scale(1)}}
+
+/* Telex reference */
+.ref-card{background:var(--card);border:2.5px solid #f0d3ac;border-radius:16px;padding:11px 14px;width:100%}
+.ref-title{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:1.5px;text-align:center;margin-bottom:8px;text-transform:uppercase}
+.ref-grid{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+.ref-item{background:#fff6ea;border:1.5px solid #f0d3ac;border-radius:8px;padding:4px 11px;font-size:14px;font-weight:900;color:#8a6a4a}
+.ref-item .rc{color:var(--orange)}
+.ref-item .rk{color:var(--blue)}
+
+/* Feedback overlay */
+.feedback-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:200}
+.feedback-msg{
+  font-size:40px;font-weight:900;opacity:0;transform:scale(.4) translateY(20px);
+  transition:all .28s cubic-bezier(.34,1.56,.64,1);
+}
+.feedback-msg.show{opacity:1;transform:scale(1) translateY(-40px)}
+.feedback-msg.correct{color:var(--green);text-shadow:0 0 28px rgba(22,163,74,.4),2px 2px 0 #a7d7b4}
+.feedback-msg.wrong{color:var(--red);text-shadow:0 0 24px rgba(225,29,72,.35),2px 2px 0 #f7b9c8}
+
+/* Particles */
+.particle{position:fixed;pointer-events:none;font-size:22px;z-index:199;animation:particleFly var(--dur) ease-out forwards}
+@keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0) rotate(var(--rot))}}
+
+/* END */
+#screen-end{text-align:center;gap:16px;padding-top:52px}
+.star-display{font-size:56px;animation:starPop .6s ease}
+@keyframes starPop{0%{transform:scale(0) rotate(-20deg)}70%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1)}}
+.result-score{font-size:66px;font-weight:900;color:var(--orange);text-shadow:4px 4px 0 var(--orange2);line-height:1}
+.result-msg{font-size:24px;color:#5a3a1a;font-weight:900}
+.result-sub{font-size:16px;color:var(--muted);font-weight:700}
+</style>
+</head>
+<body>
+<a href="../index.html" class="back-link">← Lớp 2</a>
+<button class="mute-btn" id="mute-btn" title="Tắt/Bật âm thanh">🔊</button>
+
+<!-- START -->
+<div class="screen active" id="screen-start">
+  <div class="start-emoji">⌨️</div>
+  <div class="game-title">GÕ TELEX<br>GHÉP CHỮ CÓ DẤU</div>
+  <div class="game-desc">
+    Nhìn chữ mẫu rồi <strong style="color:var(--orange2)">bấm các phím theo thứ tự Telex</strong> để ghép ra chữ có dấu.
+    Bấm được cả bằng <strong>chuột</strong> lẫn <strong>chạm tay</strong>!
+  </div>
+  <div class="example-combos">
+    <div class="example-pill">c + a + <span class="k">s</span> = cá</div>
+    <div class="example-pill">c + a + <span class="k">f</span> = cà</div>
+    <div class="example-pill">m + e + <span class="k">j</span> = mẹ</div>
+    <div class="example-pill">c + <span class="k">o</span> + <span class="k">o</span> = cô</div>
+    <div class="example-pill">b + <span class="k">o</span> + <span class="k">w</span> = bơ</div>
+    <div class="example-pill">đ = <span class="k">d</span> + <span class="k">d</span></div>
+  </div>
+  <button class="btn" id="start-btn">▶  BẮT ĐẦU CHƠI!</button>
+  <div style="font-size:13px;color:var(--muted);font-weight:700">Lớp 2 · Luyện gõ Telex · hơn 30 từ · dễ đến khó</div>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="screen-game">
+  <div class="game-wrap" id="game-wrap"></div>
+</div>
+
+<!-- END -->
+<div class="screen" id="screen-end">
+  <div class="star-display" id="end-stars">⭐⭐⭐</div>
+  <div class="game-title" style="font-size:20px">KẾT QUẢ</div>
+  <div class="result-score" id="end-score">10/10</div>
+  <div class="result-msg" id="end-msg">Xuất sắc! 🏆</div>
+  <div class="result-sub" id="end-sub"></div>
+  <button class="btn" id="replay-btn">↺  CHƠI LẠI</button>
+  <button class="btn-secondary" id="home-btn">🏠 Màn hình chính</button>
+</div>
+
+<div class="feedback-overlay"><div class="feedback-msg" id="feedback-msg"></div></div>
+
+<script>
+/* ═══════════════ TELEX ENGINE ═══════════════ */
+const TONE_TABLE = {
+  a:['a','á','à','ả','ã','ạ'],
+  'ă':['ă','ắ','ằ','ẳ','ẵ','ặ'],
+  'â':['â','ấ','ầ','ẩ','ẫ','ậ'],
+  e:['e','é','è','ẻ','ẽ','ẹ'],
+  'ê':['ê','ế','ề','ể','ễ','ệ'],
+  i:['i','í','ì','ỉ','ĩ','ị'],
+  o:['o','ó','ò','ỏ','õ','ọ'],
+  'ô':['ô','ố','ồ','ổ','ỗ','ộ'],
+  'ơ':['ơ','ớ','ờ','ở','ỡ','ợ'],
+  u:['u','ú','ù','ủ','ũ','ụ'],
+  'ư':['ư','ứ','ừ','ử','ữ','ự'],
+  y:['y','ý','ỳ','ỷ','ỹ','ỵ'],
+};
+const TONE_OF = {s:1,f:2,r:3,x:4,j:5};
+const DECOMP = {};
+for(const base in TONE_TABLE){ TONE_TABLE[base].forEach((ch,ti)=>{ DECOMP[ch]=[base,ti]; }); }
+function isVowelChar(ch){ return ch in DECOMP; }
+
+function telex(seq){
+  let out=[], tone=0;
+  for(const raw of seq){
+    const c=raw.toLowerCase();
+    if(c in TONE_OF){
+      const hasVowel=out.some(ch=>isVowelChar(ch));
+      if(hasVowel){ const t=TONE_OF[c]; tone=(tone===t)?0:t; continue; }
+      out.push(c); continue;
+    }
+    const last=out.length?out[out.length-1]:'';
+    if(c==='a'&&last==='a'){ out[out.length-1]='â'; continue; }
+    if(c==='e'&&last==='e'){ out[out.length-1]='ê'; continue; }
+    if(c==='o'&&last==='o'){ out[out.length-1]='ô'; continue; }
+    if(c==='d'&&last==='d'){ out[out.length-1]='đ'; continue; }
+    if(c==='w'){
+      if(last==='a'){ out[out.length-1]='ă'; continue; }
+      if(last==='o'){ out[out.length-1]='ơ'; continue; }
+      if(last==='u'){ out[out.length-1]='ư'; continue; }
+      out.push('w'); continue;
+    }
+    out.push(c);
+  }
+  if(tone>0){
+    let vi=-1;
+    for(let i=out.length-1;i>=0;i--){ if(isVowelChar(out[i])){ vi=i; break; } }
+    if(vi>=0){ const [base]=DECOMP[out[vi]]; out[vi]=TONE_TABLE[base][tone]; }
+  }
+  return out.join('');
+}
+
+/* Derive the Telex key sequence for a target syllable (build-time helper,
+   run at runtime so tiles ALWAYS match the engine). */
+const TONE_KEY=['','s','f','r','x','j'];
+const LETTER_KEYS={
+  a:['a'],'ă':['a','w'],'â':['a','a'],
+  e:['e'],'ê':['e','e'], i:['i'],
+  o:['o'],'ô':['o','o'],'ơ':['o','w'],
+  u:['u'],'ư':['u','w'], y:['y'],
+};
+function keysFor(target){
+  let keys=[], toneKey='';
+  for(const ch of Array.from(target)){
+    if(ch in DECOMP){
+      const [base,ti]=DECOMP[ch];
+      keys.push(...LETTER_KEYS[base]);
+      if(ti>0) toneKey=TONE_KEY[ti];
+    } else if(ch==='đ'){ keys.push('d','d'); }
+    else { keys.push(ch); }
+  }
+  if(toneKey) keys.push(toneKey);
+  return keys;
+}
+
+/* ═══════════════ SOUND ═══════════════ */
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+let audioCtx=null, isMuted=false;
+function ensureAudio(){ if(!audioCtx) audioCtx=new AudioCtx(); if(audioCtx.state==='suspended') audioCtx.resume(); }
+function playTone(freq,dur,type='square',vol=.12,delay=0){
+  if(isMuted) return; ensureAudio();
+  const t=audioCtx.currentTime+delay;
+  const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+  osc.type=type; osc.frequency.setValueAtTime(freq,t);
+  gain.gain.setValueAtTime(vol,t); gain.gain.exponentialRampToValueAtTime(.001,t+dur);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(t); osc.stop(t+dur);
+}
+function sfxTap(){ playTone(760,.06,'square',.09); playTone(980,.05,'square',.06,.03); }
+function sfxBack(){ playTone(420,.07,'square',.08); }
+function sfxCorrect(){ playTone(523,.12,'square',.12,0); playTone(659,.12,'square',.12,.1); playTone(784,.12,'square',.12,.2); playTone(1047,.24,'square',.14,.3); playTone(1568,.08,'sine',.06,.35); }
+function sfxWrong(){ playTone(300,.14,'sawtooth',.09,0); playTone(220,.16,'sawtooth',.08,.12); }
+function sfxHint(){ playTone(620,.1,'sine',.08); playTone(840,.14,'sine',.08,.08); }
+function sfxStart(){ [[392,.1],[523,.1],[659,.12],[784,.2]].forEach(([f,d],i)=>playTone(f,d,'square',.11,i*.09)); }
+function sfxWin(){ const m=[[523,.12],[523,.12],[523,.12],[523,.3],[415,.25],[466,.25],[523,.15],[466,.1],[523,.45]]; let t=0; m.forEach(([f,d])=>{ playTone(f,d,'square',.12,t); t+=d*.85; }); playTone(262,.8,'triangle',.06,0); }
+function sfxLose(){ [[392,.25],[349,.25],[311,.5]].forEach(([f,d],i)=>playTone(f,d,'triangle',.1,i*.24)); }
+
+/* Không đọc giọng nói — chỉ có tiếng hiệu ứng game. */
+function speak(_text){ /* đã tắt: game không đọc chữ */ }
+
+/* ═══════════════ DATA ═══════════════ */
+/* Xếp theo độ khó: từ dễ (chữ đơn có dấu, 2 chữ nguyên âm thường)
+   đến khó (nguyên âm đặc biệt ô/ơ/ư, chữ đ). Mỗi lượt xáo trộn TRONG
+   từng nhóm nhưng vẫn giữ thứ tự dễ → khó giữa các nhóm. */
+const TIERS=[
+  // Nhóm 1 — chữ cái đơn có dấu (dễ nhất)
+  ['á','à','ả','é','ò','ù'],
+  // Nhóm 2 — từ 2 chữ, nguyên âm thường + dấu
+  ['bé','bà','bò','cá','cà','cò','cỏ','dì','gà','lá'],
+  // Nhóm 3 — từ 2 chữ tiếp theo
+  ['mẹ','vé','sẻ','hổ','rổ','kẻ','mì','tủ'],
+  // Nhóm 4 — nguyên âm đặc biệt (ô/ơ/ư) và chữ đ (khó nhất)
+  ['cô','bơ','cờ','vở','nữ','dữ','đá','đỏ'],
+];
+const TARGET_LIST=[...new Set(TIERS.flat())];
+
+const LETTER_TILES=['a','b','c','d','e','g','h','i','k','l','m','n','o','r','s','t','u','v','w'];
+const TONE_TILES=[
+  {k:'s',label:'sắc'},{k:'f',label:'huyền'},{k:'r',label:'hỏi'},{k:'x',label:'ngã'},{k:'j',label:'nặng'}
+];
+const TONE_SET=new Set(['s','f','r','x','j']);
+const CORRECT_MSGS=['ĐÚNG RỒI! ⭐','TUYỆT VỜI! ✨','GIỎI LẮM! 🌟','XUẤT SẮC! 🎉','CHUẨN LUÔN! 💥'];
+const WRONG_MSGS=['THỬ LẠI NHÉ! 💪','CHƯA ĐÚNG!','GẦN ĐÚNG RỒI!'];
+
+/* ═══════════════ STATE ═══════════════ */
+let G={};
+
+/* ═══════════════ UTIL ═══════════════ */
+function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+/* Build the tile keyboard for a target: the needed keys plus decoy letters/tones. */
+function makeTiles(seq){
+  const need=[...new Set(seq)];
+  const neededLetters=need.filter(k=>!TONE_SET.has(k));
+  const neededTones=need.filter(k=>TONE_SET.has(k));
+  // decoy letters
+  const decoyPool=LETTER_TILES.filter(l=>!neededLetters.includes(l));
+  const decoyLetters=shuffle(decoyPool).slice(0,Math.max(0,8-neededLetters.length));
+  const letters=shuffle([...neededLetters,...decoyLetters]);
+  // tones: always show ALL five tone tiles (they teach the s/f/r/x/j marks)
+  const tones=TONE_TILES.map(t=>t.k);
+  return {letters,tones};
+}
+
+function pickQuestions(){
+  // Xáo trộn trong từng nhóm rồi nối lại → giữ thứ tự dễ đến khó.
+  const out=[];
+  for(const tier of TIERS){ out.push(...shuffle(tier)); }
+  return out;
+}
+
+/* ═══════════════ SCREENS ═══════════════ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+
+/* ═══════════════ FLOW ═══════════════ */
+function startGame(){
+  ensureAudio(); sfxStart();
+  G={ questions:pickQuestions(), qi:0, score:0, streak:0, bestStreak:0, wrongCount:0 };
+  loadQuestion();
+  showScreen('game');
+}
+
+function loadQuestion(){
+  const target=G.questions[G.qi];
+  const seq=keysFor(target);
+  const tiles=makeTiles(seq);
+  G.cur={ target, seq, typed:[], tiles, done:false, showHint:false };
+  renderGame();
+}
+
+function renderGame(){
+  const c=G.cur;
+  const built=telex(c.typed.join(''));
+  const match=(built===c.target);
+  const progress=(G.qi/G.questions.length)*100;
+
+  const letterTilesHTML=c.tiles.letters.map((k,i)=>
+    `<div class="tile" data-key="${k}" data-kind="letter" data-tid="L${i}">${k}</div>`
+  ).join('');
+  const toneTilesHTML=c.tiles.tones.map((k)=>{
+    const info=TONE_TILES.find(t=>t.k===k);
+    return `<div class="tile tone" data-key="${k}" data-kind="tone" data-tid="T${k}">${k}<span class="sub">${info.label}</span></div>`;
+  }).join('');
+
+  const typedDisplay=c.typed.length
+    ? c.typed.join('')
+    : '<span class="cursor">···</span>';
+  const resultDisplay=built||'<span class="cursor">?</span>';
+
+  const wrap=document.getElementById('game-wrap');
+  wrap.innerHTML=`
+    <div class="header">
+      <div class="header-title">⌨️ GHÉP CHỮ TELEX</div>
+      <div class="header-right">
+        <span class="q-counter">${G.qi+1}/${G.questions.length}</span>
+        ${G.streak>=2?`<span class="streak">🔥 ${G.streak}</span>`:''}
+        <span class="score-display">${G.score} ⭐</span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+
+    <div class="target-panel">
+      <div class="target-row">
+        <div class="target-char" id="target-char">${c.target}</div>
+      </div>
+      <div class="preview-box">
+        <div class="preview-label">ĐANG GHÉP</div>
+        <div class="preview-line">
+          <div class="preview-typed">${typedDisplay}</div>
+          <div class="preview-arrow">→</div>
+          <div class="preview-result${match?' match':''}" id="preview-result">${resultDisplay}</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="ctrl-btn" id="back-btn">⌫ Xóa 1</button>
+        <button class="ctrl-btn" id="clear-btn">🧹 Xóa hết</button>
+        <button class="ctrl-btn hint" id="hint-btn">💡 Gợi ý</button>
+      </div>
+    </div>
+
+    <div class="tiles-row">${letterTilesHTML}</div>
+    <div class="tiles-row">${toneTilesHTML}</div>
+
+    <div class="ref-card">
+      <div class="ref-title">📖 Mẹo gõ Telex</div>
+      <div class="ref-grid">
+        <div class="ref-item">Dấu: <span class="rc">sắc</span>=<span class="rk">s</span></div>
+        <div class="ref-item"><span class="rc">huyền</span>=<span class="rk">f</span></div>
+        <div class="ref-item"><span class="rc">hỏi</span>=<span class="rk">r</span></div>
+        <div class="ref-item"><span class="rc">ngã</span>=<span class="rk">x</span></div>
+        <div class="ref-item"><span class="rc">nặng</span>=<span class="rk">j</span></div>
+        <div class="ref-item"><span class="rc">â</span>=<span class="rk">aa</span></div>
+        <div class="ref-item"><span class="rc">ê</span>=<span class="rk">ee</span></div>
+        <div class="ref-item"><span class="rc">ô</span>=<span class="rk">oo</span></div>
+        <div class="ref-item"><span class="rc">ơ</span>=<span class="rk">ow</span></div>
+        <div class="ref-item"><span class="rc">ư</span>=<span class="rk">uw</span></div>
+        <div class="ref-item"><span class="rc">ă</span>=<span class="rk">aw</span></div>
+        <div class="ref-item"><span class="rc">đ</span>=<span class="rk">dd</span></div>
+      </div>
+    </div>
+  `;
+
+  // wire tile taps
+  wrap.querySelectorAll('.tile').forEach(el=>{
+    el.addEventListener('click',()=>tapTile(el.getAttribute('data-key'), el));
+  });
+  document.getElementById('back-btn').addEventListener('click',backspace);
+  document.getElementById('clear-btn').addEventListener('click',clearTyped);
+  document.getElementById('hint-btn').addEventListener('click',toggleHint);
+
+  if(c.showHint) highlightNext();
+}
+
+/* Which key must be tapped next to progress toward the target. */
+function nextExpectedKey(){
+  const c=G.cur;
+  const seq=c.seq;
+  // The correct path is exactly c.seq; typed must be a prefix of it.
+  for(let i=0;i<seq.length;i++){
+    if(c.typed[i]!==seq[i]) return {index:i, key:seq[i]};
+  }
+  return null; // fully typed correctly
+}
+
+function highlightNext(){
+  const nx=nextExpectedKey();
+  document.querySelectorAll('.tile.next-hint').forEach(el=>el.classList.remove('next-hint'));
+  if(!nx) return;
+  // highlight first matching tile with that key
+  const el=document.querySelector(`.tile[data-key="${nx.key}"]`);
+  if(el) el.classList.add('next-hint');
+}
+
+/* ═══════════════ INTERACTION ═══════════════ */
+function tapTile(key, el){
+  const c=G.cur;
+  if(c.done) return;
+  c.typed.push(key);
+  sfxTap();
+  if(el){ el.classList.add('tap-flash'); setTimeout(()=>el.classList.remove('tap-flash'),300); }
+  evaluate();
+}
+
+function backspace(){
+  const c=G.cur;
+  if(c.done||c.typed.length===0) return;
+  c.typed.pop(); sfxBack();
+  evaluate();
+}
+
+function clearTyped(){
+  const c=G.cur;
+  if(c.done||c.typed.length===0) return;
+  c.typed=[]; sfxBack();
+  renderGame();
+}
+
+function toggleHint(){
+  const c=G.cur;
+  c.showHint=!c.showHint;
+  if(c.showHint) sfxHint();
+  renderGame();
+}
+
+function evaluate(){
+  const c=G.cur;
+  const built=telex(c.typed.join(''));
+  // live re-render (keeps preview + hint fresh)
+  renderGame();
+  if(built===c.target){
+    c.done=true;
+    onCorrect();
+  }
+}
+
+function onCorrect(){
+  sfxCorrect();
+  G.score++; G.streak++; if(G.streak>G.bestStreak) G.bestStreak=G.streak;
+  showFeedback(pick(CORRECT_MSGS),true);
+  spawnParticles();
+  const tc=document.getElementById('target-char');
+  if(tc){ tc.classList.add('pop'); }
+  setTimeout(nextQuestion, 1300);
+}
+
+function registerWrong(){
+  // called when child taps a tile that makes the built string diverge badly.
+  // (kept simple: no life loss; we only track for the summary)
+}
+
+function nextQuestion(){
+  G.qi++;
+  if(G.qi>=G.questions.length){ endGame(); return; }
+  loadQuestion();
+  setTimeout(()=>{ const tc=document.getElementById('target-char'); if(tc){ tc.classList.add('pop'); setTimeout(()=>tc.classList.remove('pop'),400); } },40);
+}
+
+function endGame(){
+  const total=G.questions.length;
+  const pct=Math.round((G.score/total)*100);
+  let stars='⭐', msg='Cố gắng thêm nhé! 💪';
+  if(pct>=60){ stars='⭐⭐'; msg='Giỏi lắm! 🎉'; }
+  if(pct>=90){ stars='⭐⭐⭐'; msg='Xuất sắc! 🏆'; }
+  if(pct===100){ stars='🌟🌟🌟'; msg='Hoàn hảo! Bé gõ Telex siêu giỏi! ⌨️'; }
+  if(pct>=60) sfxWin(); else sfxLose();
+  document.getElementById('end-stars').textContent=stars;
+  document.getElementById('end-score').textContent=`${G.score}/${total}`;
+  document.getElementById('end-msg').textContent=msg;
+  document.getElementById('end-sub').textContent=`Chuỗi đúng dài nhất: ${G.bestStreak} 🔥`;
+  showScreen('end');
+}
+
+/* ═══════════════ FEEDBACK / FX ═══════════════ */
+function showFeedback(text,correct){
+  const el=document.getElementById('feedback-msg');
+  el.textContent=text;
+  el.className='feedback-msg '+(correct?'correct':'wrong')+' show';
+  setTimeout(()=>{ el.className='feedback-msg'; }, 1100);
+}
+function spawnParticles(){
+  const emojis=['⭐','✨','🎉','🌟','💥','💫','🔥','🏆'];
+  const cx=window.innerWidth/2, cy=window.innerHeight*0.35;
+  for(let i=0;i<18;i++){
+    const el=document.createElement('div');
+    el.className='particle';
+    el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    el.style.left=(cx+(Math.random()-.5)*80)+'px';
+    el.style.top=(cy+(Math.random()-.5)*50)+'px';
+    const ang=(i/18)*Math.PI*2+Math.random()*.5, dist=90+Math.random()*150;
+    el.style.setProperty('--dx',(Math.cos(ang)*dist)+'px');
+    el.style.setProperty('--dy',(Math.sin(ang)*dist-40)+'px');
+    el.style.setProperty('--dur',(.6+Math.random()*.5)+'s');
+    el.style.setProperty('--rot',(Math.random()*360)+'deg');
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1200);
+  }
+}
+
+/* ═══════════════ CONTROLS / WIRING ═══════════════ */
+function toggleMute(){
+  isMuted=!isMuted;
+  const btn=document.getElementById('mute-btn');
+  btn.textContent=isMuted?'🔇':'🔊';
+  btn.classList.toggle('muted',isMuted);
+  if(isMuted&&'speechSynthesis' in window) speechSynthesis.cancel();
+}
+
+/* keyboard support (physical keys) */
+document.addEventListener('keydown',(e)=>{
+  if(!document.getElementById('screen-game').classList.contains('active')) return;
+  if(!G.cur||G.cur.done) return;
+  const k=e.key.toLowerCase();
+  if(k==='backspace'){ e.preventDefault(); backspace(); return; }
+  if(k==='escape'){ clearTyped(); return; }
+  const validKeys=new Set([...G.cur.tiles.letters,...G.cur.tiles.tones]);
+  if(validKeys.has(k)){
+    const el=document.querySelector(`.tile[data-key="${k}"]`);
+    tapTile(k, el);
+  }
+});
+
+document.getElementById('mute-btn').addEventListener('click',toggleMute);
+document.getElementById('start-btn').addEventListener('click',startGame);
+document.getElementById('replay-btn').addEventListener('click',startGame);
+document.getElementById('home-btn').addEventListener('click',()=>showScreen('start'));
+</script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hiệp sĩ sửa lỗi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#26405A; --panel:#2E4A66; --ink:#F3F6F8; --ink-soft:#A9BCCB;
+  --paper:#FDFCF7; --paper-ink:#1F2B36; --stripe:#F4BFBF;
+  --well:#1E3444; --well-line:#3D5870;
+  --sun:#F6C95B; --sun-ink:#23303B;
+  --note:#39524F; --note-line:#C9B25A;
+  --ok:#7FD39B; --bad:#F08A7E;
+  --sky:#8FC6E8; --sky2:#BFE0F2; --hill:#6FB07A; --hill2:#5A9A66; --castle:#D9DEE6; --castle-shadow:#AEB7C4;
+  --focus:#F6C95B;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --page:#E6EEF3; --panel:#D6E2EA; --ink:#1F2F3D; --ink-soft:#4F6475;
+    --well:#FFFFFF; --well-line:#B7C8D5;
+    --note:#FFF7DD; --note-line:#C9A93F;
+    --ok:#1F8A4C; --bad:#C2412F;
+    --focus:#2E6FA8;
+  }
+}
+:root[data-theme="light"]{
+  --page:#E6EEF3; --panel:#D6E2EA; --ink:#1F2F3D; --ink-soft:#4F6475;
+  --well:#FFFFFF; --well-line:#B7C8D5; --note:#FFF7DD; --note-line:#C9A93F;
+  --ok:#1F8A4C; --bad:#C2412F; --focus:#2E6FA8;
+}
+:root[data-theme="dark"]{
+  --page:#26405A; --panel:#2E4A66; --ink:#F3F6F8; --ink-soft:#A9BCCB;
+  --well:#1E3444; --well-line:#3D5870; --note:#39524F; --note-line:#C9B25A;
+  --ok:#7FD39B; --bad:#F08A7E; --focus:#F6C95B;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--page);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding:20px 18px 48px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+h1{font-family:"Baloo 2","Be Vietnam Pro",system-ui,sans-serif;font-weight:800;font-size:clamp(1.6rem,4.6vw,2.3rem);line-height:1.1;margin:0;letter-spacing:-.01em}
+.tools{display:flex;gap:8px;align-items:center}
+.progress{display:flex;gap:6px;align-items:center;font-weight:600;color:var(--ink-soft);font-size:.95rem}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--ink-soft)}
+.dot.on{background:var(--sun);border-color:var(--sun)}
+.icon-btn{border:2px solid var(--well-line);background:transparent;color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer}
+.icon-btn[aria-pressed="false"]{opacity:.6}
+
+/* ---------- Stage ---------- */
+.stage{position:relative;width:100%;aspect-ratio:16/10;min-height:340px;border-radius:22px;overflow:hidden;background:linear-gradient(var(--sky),var(--sky2));border:3px solid var(--well-line)}
+.scene{position:absolute;inset:0;width:100%;height:100%}
+.bubble{position:absolute;top:5%;left:50%;transform:translateX(-50%) scale(.9);width:min(90%,540px);background:var(--paper);color:var(--paper-ink);border-radius:18px;padding:12px 16px 12px;box-shadow:0 4px 0 rgba(0,0,0,.18);opacity:0;transition:opacity .25s,transform .25s;z-index:3;font-size:clamp(.92rem,2.4vw,1.05rem);font-weight:500}
+.bubble.show{opacity:1;transform:translateX(-50%) scale(1)}
+.bubble::after{content:"";position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);border:12px solid transparent;border-bottom:0;border-top-color:var(--paper)}
+.bubble .who{font-family:"Baloo 2",system-ui,sans-serif;font-weight:800;color:#B5462F;font-size:.95em;margin-bottom:2px}
+.replay{position:absolute;top:12px;right:12px;z-index:3;border:0;background:var(--paper);color:var(--paper-ink);border-radius:999px;font:inherit;font-size:.9rem;font-weight:600;padding:6px 14px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.replay[hidden]{display:none}
+.knight{position:absolute;left:-20%;bottom:-6%;height:60%;aspect-ratio:2/3;transform:translateX(-50%) scale(.55);transform-origin:50% 100%;z-index:2}
+.knight svg{width:100%;height:100%;overflow:visible;display:block}
+.knight.at-center{left:50%;bottom:4%;transform:translateX(-50%) scale(1)}
+.knight.walk-in{animation:walkIn 2.6s cubic-bezier(.3,.1,.3,1) forwards}
+.knight.walk-out{animation:walkOut 1.9s ease-in forwards}
+@keyframes walkIn{from{left:-18%;bottom:-8%;transform:translateX(-50%) scale(.55)}to{left:50%;bottom:4%;transform:translateX(-50%) scale(1)}}
+@keyframes walkOut{from{left:50%;bottom:4%;transform:translateX(-50%) scale(1)}to{left:125%;bottom:4%;transform:translateX(-50%) scale(1)}}
+.knight .part{transform-box:fill-box}
+.knight .leg{transform-origin:50% 0}
+.knight .arm{transform-origin:50% 8%}
+.knight.walking .leg-l,.knight.walking .arm-r{animation:swing .45s ease-in-out infinite alternate}
+.knight.walking .leg-r,.knight.walking .arm-l{animation:swing .45s ease-in-out infinite alternate-reverse}
+.knight.walking .bob{animation:bob .225s ease-in-out infinite alternate}
+@keyframes swing{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-5px)}}
+.knight.waving .arm-r{animation:wave .4s ease-in-out 4 alternate}
+@keyframes wave{from{transform:rotate(-150deg)}to{transform:rotate(-115deg)}}
+.knight .mouth{transform-origin:50% 50%;transform:scaleY(.5)}
+.knight.talking .mouth{animation:talk .18s ease-in-out infinite alternate}
+@keyframes talk{from{transform:scaleY(.4)}to{transform:scaleY(1.4)}}
+.knight.cheer .bob{animation:hop .35s ease-out 3 alternate}
+@keyframes hop{from{transform:translateY(0)}to{transform:translateY(-18px)}}
+
+.start{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(12,26,40,.78);backdrop-filter:blur(4px)}
+.start[hidden]{display:none}
+.start-box{text-align:center;max-width:420px}
+.start-emoji{font-size:clamp(3rem,12vw,4.5rem);line-height:1}
+.start-box h2{font-family:"Baloo 2","Be Vietnam Pro",sans-serif;font-weight:800;color:#FFF;font-size:clamp(1.8rem,6vw,2.6rem);margin:6px 0 4px}
+.start-box p{color:#D6E3ED;margin:0 0 22px;font-size:1.05rem}
+.btn-big{font-size:1.25rem;padding:16px 38px}
+
+/* ---------- Worksheet ---------- */
+.sheet{margin-top:22px;transition:opacity .35s}
+.sheet.dim{opacity:.35;pointer-events:none}
+.label{color:var(--ink-soft);font-weight:500;font-size:.95rem;margin:0 0 6px}
+.paper{position:relative;background:var(--paper);color:var(--paper-ink);border-radius:14px;padding:26px 26px 34px;font-size:clamp(1.15rem,3.6vw,1.6rem);font-weight:500;line-height:1.6;box-shadow:0 8px 0 -2px rgba(0,0,0,.18);overflow:hidden;min-height:96px}
+.paper::after{content:"";position:absolute;left:0;right:0;bottom:0;height:12px;background:repeating-linear-gradient(-45deg,var(--stripe) 0 14px,transparent 14px 26px)}
+.paper.fixed::after{background:repeating-linear-gradient(-45deg,#9ED8B1 0 14px,transparent 14px 26px)}
+.mark{position:relative;border-radius:6px;transition:background .25s,box-shadow .25s;white-space:pre}
+.checked .mark{background:#FDE0DB;box-shadow:0 0 0 2px #E8705F inset}
+.checked .mark.space,.checked .mark.missing{display:inline-block;min-width:.9em}
+.mark.missing{display:inline-block;width:0}
+.checked .mark.missing{width:.9em;height:1em;vertical-align:-.1em;background:#FDE0DB;box-shadow:0 0 0 2px #E8705F inset;border-radius:4px}
+.mark .n{display:none;position:absolute;top:-.95em;left:50%;transform:translateX(-50%);background:#E8705F;color:#fff;font-size:.5em;font-weight:700;line-height:1;border-radius:999px;padding:3px 6px}
+.checked .mark .n{display:block}
+.good{background:#D6F2DF;box-shadow:0 0 0 2px #3FA56A inset;border-radius:6px}
+
+textarea{display:block;width:100%;margin-top:22px;min-height:130px;resize:vertical;background:var(--well);color:var(--ink);border:2px solid var(--well-line);border-radius:14px;padding:16px 18px;font:inherit;font-size:clamp(1.05rem,3.2vw,1.35rem);font-weight:600}
+textarea::placeholder{color:var(--ink-soft);font-weight:500}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+.btn{font:inherit;font-weight:700;font-size:1.05rem;border-radius:14px;padding:14px 26px;cursor:pointer;border:2px solid transparent;transition:transform .1s}
+.btn:active{transform:translateY(2px)}
+.btn-sun{background:var(--sun);color:var(--sun-ink);box-shadow:0 4px 0 #C99A2E}
+.btn-line{background:transparent;color:var(--ink);border-color:var(--sun)}
+.btn-next{background:var(--ok);color:#12311F;box-shadow:0 4px 0 rgba(0,0,0,.2)}
+.btn[hidden]{display:none}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+
+.result{margin-top:22px;border:2px dashed var(--note-line);background:var(--note);border-radius:14px;padding:18px 22px}
+.result[hidden]{display:none}
+.result h2{font-size:1.05rem;margin:0 0 8px;color:var(--sun);font-weight:700}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .result h2{color:#8A6A00}}
+:root[data-theme="light"] .result h2{color:#8A6A00}
+.result ol{margin:0;padding-left:0;list-style:none}
+.result li{display:flex;gap:10px;align-items:baseline;margin:6px 0}
+.result li .n{flex:none;background:#E8705F;color:#fff;font-size:.8rem;font-weight:700;border-radius:999px;min-width:1.6em;text-align:center;padding:1px 6px}
+.verdict{margin:12px 0 0;font-weight:700}
+.verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
+
+.finish{text-align:center;padding:24px 0 0}
+.finish[hidden]{display:none}
+
+@media (prefers-reduced-motion: reduce){
+  .knight.walk-in,.knight.walk-out{animation-duration:.01s}
+  .knight.walking *, .knight.talking .mouth, .knight.waving .arm-r, .knight.cheer .bob{animation:none!important}
+}
+</style>
+</head>
+<body>
+<a href="../index.html" style="position:fixed;top:12px;left:12px;z-index:40;color:#333;text-decoration:none;font-size:13px;font-weight:800;background:rgba(255,255,255,.9);padding:8px 14px;border-radius:20px;box-shadow:0 4px 12px rgba(0,0,0,.15)">← Công cụ</a>
+<div id="pwGate" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#1e2a4a,#0f1830);padding:18px;font-family:-apple-system,'Segoe UI',Roboto,sans-serif">
+  <div style="background:#fff;border-radius:24px;max-width:360px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.4)">
+    <svg width="64" height="64" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="#f2c14e" stroke="#c99a2e" stroke-width="1.4"/><path d="M8 10V8a4 4 0 0 1 8 0v2" fill="none" stroke="#c99a2e" stroke-width="2"/><circle cx="12" cy="15" r="1.7" fill="#7a5a13"/></svg>
+    <h2 style="margin:4px 0;color:#2b3a55;font-size:1.4rem">Cần mật khẩu</h2>
+    <p style="color:#6b7896;margin:6px 0 14px;font-size:.95rem">Trò chơi này cần mật khẩu của cô/thầy mới vào được.</p>
+    <input id="pwInput" type="password" placeholder="Nhập mật khẩu" autocomplete="off" style="width:100%;padding:12px 14px;border:2px solid #cfd8e6;border-radius:12px;font-size:1.1rem;text-align:center;outline:none">
+    <div id="pwMsg" style="color:#e0554e;font-weight:700;min-height:20px;margin-top:8px;font-size:.9rem"></div>
+    <button id="pwBtn" style="width:100%;border:none;cursor:pointer;color:#fff;font-weight:900;font-size:1.1rem;padding:13px;border-radius:14px;margin-top:6px;background:linear-gradient(180deg,#5aa0ff,#2f6fe0);box-shadow:0 5px 0 #1f56b8">Vào chơi</button>
+  </div>
+</div>
+<script>(function(){var K='pek_gate_hsl';try{if(sessionStorage.getItem(K)==='1'){var g=document.getElementById('pwGate');if(g)g.remove();return;}}catch(e){}
+  function go(){var v=(document.getElementById('pwInput').value||'').trim();if(v==='pek88'){try{sessionStorage.setItem(K,'1');}catch(e){}var g=document.getElementById('pwGate');if(g)g.remove();}else{document.getElementById('pwMsg').textContent='Sai mật khẩu, thử lại nhé!';document.getElementById('pwInput').value='';document.getElementById('pwInput').focus();}}
+  var b=document.getElementById('pwBtn');b.onclick=go;var i=document.getElementById('pwInput');i.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();go();}});setTimeout(function(){try{i.focus();}catch(e){}},60);})();</script>
+<div class="wrap">
+  <header>
+    <h1>Hiệp sĩ sửa lỗi</h1>
+    <div class="tools">
+      <div class="progress" aria-label="Tiến độ"><span id="progText">Câu 1/2</span><span class="dot on" id="d0"></span><span class="dot" id="d1"></span></div>
+      <button class="icon-btn" id="voiceBtn" aria-pressed="true" title="Bật/tắt giọng đọc">🔊 Giọng đọc</button>
+    </div>
+  </header>
+
+  <div class="stage" id="stage">
+    <svg class="scene" viewBox="0 0 800 500" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <circle cx="690" cy="80" r="38" fill="#FFE59A"/>
+      <g fill="#FFFFFF" opacity=".85"><ellipse cx="140" cy="90" rx="55" ry="18"/><ellipse cx="180" cy="78" rx="38" ry="16"/><ellipse cx="520" cy="60" rx="46" ry="14"/></g>
+      <!-- castle -->
+      <g transform="translate(560 170)">
+        <rect x="0" y="60" width="200" height="170" fill="var(--castle)"/>
+        <rect x="-20" y="20" width="60" height="210" fill="var(--castle)"/><rect x="160" y="20" width="60" height="210" fill="var(--castle)"/>
+        <g fill="var(--castle)"><rect x="-20" y="4" width="14" height="18"/><rect x="3" y="4" width="14" height="18"/><rect x="26" y="4" width="14" height="18"/><rect x="160" y="4" width="14" height="18"/><rect x="183" y="4" width="14" height="18"/><rect x="206" y="4" width="14" height="18"/><rect x="40" y="44" width="16" height="18"/><rect x="72" y="44" width="16" height="18"/><rect x="112" y="44" width="16" height="18"/><rect x="144" y="44" width="16" height="18"/></g>
+        <path d="M70 230 V170 Q100 135 130 170 V230Z" fill="var(--castle-shadow)"/>
+        <rect x="-2" y="80" width="18" height="26" rx="9" fill="var(--castle-shadow)"/><rect x="184" y="80" width="18" height="26" rx="9" fill="var(--castle-shadow)"/>
+        <line x1="10" y1="4" x2="10" y2="-40" stroke="#6B7280" stroke-width="3"/><path d="M10 -40 L44 -30 L10 -20Z" fill="#E0524A"/>
+        <line x1="190" y1="4" x2="190" y2="-40" stroke="#6B7280" stroke-width="3"/><path d="M190 -40 L224 -30 L190 -20Z" fill="#F6C95B"/>
+      </g>
+      <path d="M0 360 Q200 300 420 350 T800 330 V500 H0Z" fill="var(--hill2)"/>
+      <path d="M0 400 Q260 360 520 400 T800 390 V500 H0Z" fill="var(--hill)"/>
+      <path d="M-20 520 Q300 420 400 440 T820 420" stroke="#E9D9A6" stroke-width="46" fill="none" opacity=".9"/>
+      <g fill="#F4BFBF"><circle cx="90" cy="430" r="7"/><circle cx="108" cy="438" r="6"/><circle cx="700" cy="440" r="7"/></g>
+      <g fill="#FFF3B0"><circle cx="250" cy="455" r="6"/><circle cx="620" cy="462" r="6"/></g>
+    </svg>
+
+    <button class="replay" id="replayBtn" type="button" hidden>🔁 Nghe lại</button>
+
+    <div class="knight" id="knight" aria-hidden="true">
+      <svg viewBox="0 0 200 300">
+        <ellipse cx="100" cy="286" rx="52" ry="9" fill="rgba(0,0,0,.18)"/>
+        <g class="bob part">
+          <!-- legs -->
+          <g class="part leg leg-l">
+            <rect x="76" y="206" width="22" height="52" rx="8" fill="#B8C4D0" stroke="#7D8B99" stroke-width="3"/>
+            <rect x="78" y="226" width="18" height="6" rx="3" fill="#95A3B2"/>
+            <path d="M72 254 H100 V278 H66 Q60 278 62 270 Q64 258 72 254Z" fill="#7A4B2A" stroke="#56331C" stroke-width="3" stroke-linejoin="round"/>
+          </g>
+          <g class="part leg leg-r">
+            <rect x="102" y="206" width="22" height="52" rx="8" fill="#B8C4D0" stroke="#7D8B99" stroke-width="3"/>
+            <rect x="104" y="226" width="18" height="6" rx="3" fill="#95A3B2"/>
+            <path d="M100 254 H128 Q136 258 138 270 Q140 278 134 278 H100Z" fill="#7A4B2A" stroke="#56331C" stroke-width="3" stroke-linejoin="round"/>
+          </g>
+          <!-- left arm (behind) -->
+          <g class="part arm arm-l">
+            <rect x="46" y="142" width="20" height="56" rx="10" fill="#B8C4D0" stroke="#7D8B99" stroke-width="3"/>
+            <circle cx="56" cy="202" r="11" fill="#95A3B2" stroke="#7D8B99" stroke-width="3"/>
+          </g>
+          <!-- body -->
+          <path d="M64 140 Q100 128 136 140 L131 204 Q100 216 69 204Z" fill="#C9D3DD" stroke="#7D8B99" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M100 136 V210" stroke="#AEB9C5" stroke-width="3"/>
+          <rect x="68" y="196" width="64" height="12" rx="5" fill="#8A5A34" stroke="#56331C" stroke-width="2"/>
+          <rect x="94" y="195" width="12" height="14" rx="3" fill="#F6C95B" stroke="#B8902A" stroke-width="2"/>
+          <path d="M100 150 L118 156 Q118 176 100 186 Q82 176 82 156Z" fill="#E0524A" stroke="#A83328" stroke-width="2.5"/>
+          <text x="100" y="175" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="20" fill="#FFF3D0">A</text>
+          <!-- right arm -->
+          <g class="part arm arm-r">
+            <rect x="134" y="142" width="20" height="56" rx="10" fill="#B8C4D0" stroke="#7D8B99" stroke-width="3"/>
+            <circle cx="144" cy="202" r="11" fill="#95A3B2" stroke="#7D8B99" stroke-width="3"/>
+          </g>
+          <!-- neck guard -->
+          <rect x="78" y="126" width="44" height="14" rx="6" fill="#95A3B2" stroke="#7D8B99" stroke-width="3"/>
+          <!-- head -->
+          <circle cx="100" cy="94" r="38" fill="#F6D2B0"/>
+          <path d="M100 38 Q126 20 146 34 Q128 36 118 46" fill="#E0524A" stroke="#A83328" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M56 90 Q56 38 100 36 Q144 38 144 90 L144 118 Q136 124 128 118 L128 82 Q100 70 72 82 L72 118 Q64 124 56 118Z" fill="#B8C4D0" stroke="#7D8B99" stroke-width="3" stroke-linejoin="round"/>
+          <rect x="66" y="52" width="68" height="15" rx="7" fill="#95A3B2" stroke="#7D8B99" stroke-width="3"/>
+          <g fill="#7D8B99"><circle cx="76" cy="59.5" r="2"/><circle cx="124" cy="59.5" r="2"/></g>
+          <path d="M80 86 Q86 82 92 86 M108 86 Q114 82 120 86" stroke="#6B4A33" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <circle cx="86" cy="98" r="5.5" fill="#26323D"/><circle cx="114" cy="98" r="5.5" fill="#26323D"/>
+          <circle cx="88" cy="96" r="1.8" fill="#fff"/><circle cx="116" cy="96" r="1.8" fill="#fff"/>
+          <ellipse cx="78" cy="110" rx="6" ry="3.5" fill="#F4A6A0" opacity=".8"/><ellipse cx="122" cy="110" rx="6" ry="3.5" fill="#F4A6A0" opacity=".8"/>
+          <ellipse class="part mouth" cx="100" cy="115" rx="7" ry="4" fill="#9A3E3E"/>
+        </g>
+      </svg>
+    </div>
+
+  </div>
+
+  <section class="sheet dim" id="sheet">
+    <div class="paper" id="paper"></div>
+
+    <label class="label" for="answer" style="display:block;margin-top:22px;margin-bottom:-14px">Gõ lại câu đúng</label>
+    <textarea id="answer" spellcheck="false"></textarea>
+
+    <div class="actions">
+      <button class="btn btn-sun" id="checkBtn" type="button">Kiểm tra</button>
+      <button class="btn btn-line" id="fixBtn" type="button">Chỉnh sửa</button>
+      <button class="btn btn-next" id="nextBtn" type="button" hidden>Câu tiếp theo</button>
+    </div>
+
+    <div class="result" id="result" hidden>
+      <h2 id="resultTitle"></h2>
+      <ol id="errList"></ol>
+      <p class="verdict" id="verdict" hidden></p>
+    </div>
+
+    <div class="finish" id="finish" hidden>
+      <button class="btn btn-sun" id="againBtn" type="button">Chơi lại từ đầu</button>
+    </div>
+  </section>
+</div>
+
+<div class="start" id="startLayer">
+  <div class="start-box">
+    <div class="start-emoji">🛡️</div>
+    <h2>Hiệp sĩ sửa lỗi</h2>
+    <p>Cùng hiệp sĩ đi tìm và sửa lỗi sai trong câu nhé!</p>
+    <button class="btn btn-sun btn-big" id="startBtn" type="button">Bắt đầu chơi</button>
+  </div>
+</div>
+
+<script>
+const LEVELS = [
+  {
+    // Bạn minh đi tham quan vườn hoa trong công viên
+    segments: [
+      {t:"Bạn "}, {t:"minh", e:1}, {t:" đi tham quan vườn hoa trong công viên"}, {t:"", e:2, kind:"missing"}
+    ],
+    errors: ["Tên riêng “Minh” chưa viết hoa", "Cuối câu thiếu dấu chấm"],
+    correct: "Bạn Minh đi tham quan vườn hoa trong công viên.",
+    fixedHtml: 'Bạn <span class="good">Minh</span> đi tham quan vườn hoa trong công viên<span class="good">.</span>',
+    intro: "Xin chào các bạn nhỏ! Mình là Hiệp sĩ sửa lỗi. Cùng mình đi tìm và sửa lỗi sai cho các câu sau nhé!",
+    checkLine: "Tên bạn Minh phải viết hoa. Và cuối câu còn thiếu dấu chấm.",
+    fixLine: "Hãy xem mình sửa nhé! Câu đúng là: Bạn Minh đi tham quan vườn hoa trong công viên."
+  },
+  {
+    // mẹ mua cho em một chiếc cặpsách mới .
+    segments: [
+      {t:"m", e:1}, {t:"ẹ mua cho em một chiếc "}, {t:"cặpsách", e:2}, {t:" mới"}, {t:" ", e:3, kind:"space"}, {t:"."}
+    ],
+    errors: ["Chữ đầu câu chưa viết hoa", "Có 2 chữ bị dính vào nhau", "Thừa khoảng trắng trước dấu chấm"],
+    correct: "Mẹ mua cho em một chiếc cặp sách mới.",
+    fixedHtml: '<span class="good">M</span>ẹ mua cho em một chiếc <span class="good">cặp sách</span> mới<span class="good">.</span>',
+    intro: "Giỏi lắm! Câu thứ hai khó hơn một chút đấy. Các bạn hãy để ý chữ đầu câu, khoảng cách giữa các chữ và dấu chấm nhé!",
+    checkLine: "Chữ đầu câu phải viết hoa. Cặp và sách là hai chữ, phải tách ra. Và dấu chấm phải đứng sát chữ cuối câu.",
+    fixLine: "Đây là câu đúng: Mẹ mua cho em một chiếc cặp sách mới."
+  }
+];
+const END_LINE = "Tuyệt vời! Các bạn đã sửa xong tất cả các tờ giấy. Cảm ơn các hiệp sĩ nhí nhé!";
+
+const $ = id => document.getElementById(id);
+const knight=$("knight"), sheet=$("sheet"), paper=$("paper"),
+      answer=$("answer"), result=$("result"), errList=$("errList"), verdict=$("verdict"),
+      checkBtn=$("checkBtn"), fixBtn=$("fixBtn"), nextBtn=$("nextBtn"), finish=$("finish");
+let idx=0, voiceOn=true, lastLine="", talkTimer=null, viVoice=null;
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- Voice ---------- */
+function pickVoice(){
+  if(!("speechSynthesis" in window)) return;
+  const vs = speechSynthesis.getVoices();
+  viVoice = vs.find(v=>/^vi/i.test(v.lang)) || null;
+}
+if("speechSynthesis" in window){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+
+function say(text){
+  lastLine = text;
+  $("replayBtn").hidden = false;
+  clearTimeout(talkTimer);
+  knight.classList.add("talking");
+  // fallback length so the mouth stops even if speech is off/unavailable
+  const est = Math.max(1500, text.length * 70);
+  if(voiceOn && "speechSynthesis" in window){
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang="vi-VN"; if(viVoice) u.voice=viVoice; u.rate=.95; u.pitch=1.25;
+    u.onend = ()=>{ clearTimeout(talkTimer); knight.classList.remove("talking"); };
+    speechSynthesis.speak(u);
+    talkTimer = setTimeout(()=>knight.classList.remove("talking"), est*2);
+  } else {
+    talkTimer = setTimeout(()=>knight.classList.remove("talking"), est);
+  }
+}
+function speaking(){ return voiceOn && "speechSynthesis" in window && speechSynthesis.speaking; }
+
+$("voiceBtn").onclick = e=>{
+  voiceOn=!voiceOn; e.currentTarget.setAttribute("aria-pressed", voiceOn);
+  e.currentTarget.textContent = voiceOn ? "🔊 Giọng đọc" : "🔇 Giọng đọc";
+  if(!voiceOn && "speechSynthesis" in window) speechSynthesis.cancel();
+};
+$("replayBtn").onclick = ()=> lastLine && say(lastLine);
+
+/* ---------- Knight movement ---------- */
+function onceAnim(el, cls){
+  return new Promise(res=>{
+    const done=()=>{ el.removeEventListener("animationend", h); res(); };
+    const h = ev=>{ if(ev.target===el) done(); };
+    el.addEventListener("animationend", h);
+    el.classList.add(cls);
+  });
+}
+async function walkIn(){
+  knight.className="knight walking";
+  void knight.offsetWidth;
+  await onceAnim(knight,"walk-in");
+  knight.className="knight at-center waving";
+  setTimeout(()=>knight.classList.remove("waving"),1700);
+}
+async function walkOut(){
+  $("replayBtn").hidden = true; knight.classList.remove("talking");
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+  knight.className="knight at-center walking";
+  void knight.offsetWidth;
+  await onceAnim(knight,"walk-out");
+  knight.className="knight";
+}
+
+/* ---------- Level ---------- */
+function renderPaper(level){
+  paper.className="paper";
+  paper.innerHTML="";
+  level.segments.forEach(s=>{
+    if(!s.e){ paper.append(document.createTextNode(s.t)); return; }
+    const m=document.createElement("span");
+    m.className="mark"+(s.kind?" "+s.kind:"");
+    m.textContent=s.t;
+    const n=document.createElement("span"); n.className="n"; n.textContent=s.e;
+    m.append(n); paper.append(m);
+  });
+}
+function setProgress(){
+  $("progText").textContent=`Câu ${idx+1}/${LEVELS.length}`;
+  LEVELS.forEach((_,i)=>$("d"+i).classList.toggle("on", i<=idx));
+}
+async function startLevel(i){
+  idx=i; const L=LEVELS[i];
+  setProgress();
+  renderPaper(L);
+  answer.value=""; answer.readOnly=false;
+  result.hidden=true; verdict.hidden=true; nextBtn.hidden=true; finish.hidden=true;
+  checkBtn.disabled=false; fixBtn.disabled=false;
+  sheet.classList.add("dim");
+  await walkIn();
+  say(L.intro);
+  sheet.classList.remove("dim");
+}
+
+const norm = s => s.normalize("NFC").replace(/\u00A0/g," ").trim();
+
+checkBtn.onclick = ()=>{
+  const L=LEVELS[idx];
+  paper.classList.add("checked");
+  errList.innerHTML = L.errors.map((e,k)=>`<li><span class="n">${k+1}</span><span>${e}</span></li>`).join("");
+  $("resultTitle").textContent = `Tờ giấy này có ${L.errors.length} chỗ hỏng`;
+  result.hidden=false;
+  const typed = norm(answer.value);
+  if(typed){
+    verdict.hidden=false;
+    if(typed===L.correct){
+      verdict.className="verdict ok"; verdict.textContent="Chính xác! Bạn đã sửa đúng cả câu.";
+      knight.classList.add("cheer"); setTimeout(()=>knight.classList.remove("cheer"),1100);
+      paper.innerHTML=L.fixedHtml; paper.classList.add("fixed");
+      nextBtn.hidden=false; nextBtn.textContent = idx<LEVELS.length-1 ? "Câu tiếp theo" : "Hoàn thành";
+      return;
+    }
+    verdict.className="verdict bad"; verdict.textContent="Câu bạn gõ chưa đúng hết. Xem các chỗ hỏng ở trên rồi thử lại nhé.";
+  } else { verdict.hidden=true; }
+};
+
+fixBtn.onclick = ()=>{
+  const L=LEVELS[idx];
+  checkBtn.disabled=true; fixBtn.disabled=true;
+  answer.readOnly=true; answer.value="";
+  say(L.fixLine);
+  let i=0;
+  const t=setInterval(()=>{
+    answer.value=L.correct.slice(0,++i);
+    if(i>=L.correct.length){
+      clearInterval(t);
+      paper.innerHTML=L.fixedHtml; paper.classList.remove("checked"); paper.classList.add("fixed");
+      nextBtn.hidden=false; nextBtn.textContent = idx<LEVELS.length-1 ? "Câu tiếp theo" : "Hoàn thành";
+      nextBtn.focus();
+    }
+  }, reduceMotion?1:70);
+};
+
+nextBtn.onclick = async ()=>{
+  nextBtn.hidden=true; sheet.classList.add("dim");
+  await walkOut();
+  if(idx<LEVELS.length-1){ startLevel(idx+1); }
+  else {
+    await walkIn();
+    knight.classList.add("cheer");
+    say(END_LINE);
+    sheet.classList.remove("dim");
+    checkBtn.disabled=true; fixBtn.disabled=true;
+    finish.hidden=false;
+  }
+};
+$("againBtn").onclick = async ()=>{ finish.hidden=true; sheet.classList.add("dim"); await walkOut(); startLevel(0); };
+
+$("startBtn").onclick = ()=>{ $("startLayer").hidden=true; startLevel(0); };
+renderPaper(LEVELS[0]);
+</script>
+</body>
+</html>

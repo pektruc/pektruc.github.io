@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tìm Đường Về Nhà Cho Rô-bốt - Lớp 4</title>
+<style>
+  :root{
+    --sky1:#cfe9ff; --sky2:#eef7ff; --ink:#2b3a55;
+    --hw:#f4913c; --hw2:#e5720f; --sw:#7c5cff; --sw2:#5b39e0;
+    --green:#25c15c; --red:#ff6b6b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Nunito',sans-serif;
+    background:linear-gradient(160deg,var(--sky1),var(--sky2) 60%,#fff);
+    color:var(--ink); min-height:100vh; overflow-x:hidden;
+    user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  }
+  #app{max-width:920px;margin:0 auto;padding:12px;min-height:100vh;display:flex;flex-direction:column}
+  .back-home{position:fixed;top:12px;left:12px;z-index:20;color:#3a5170;text-decoration:none;font-size:13px;font-weight:800;
+    background:rgba(255,255,255,.85);padding:8px 14px;border-radius:20px;box-shadow:0 4px 12px rgba(43,58,85,.14)}
+
+  /* ---------- HUD ---------- */
+  #hud{display:flex;align-items:center;gap:8px;background:#fff;border-radius:18px;
+    padding:8px 12px;box-shadow:0 6px 18px rgba(43,58,85,.12);margin-bottom:10px;flex-wrap:wrap}
+  #hud .pill{font-weight:800;font-size:1rem;background:#f1f7ff;border-radius:14px;padding:6px 12px;white-space:nowrap;display:inline-block}
+  .pill.score{color:#e8890b}
+  .pill.step{color:#2b8fe0}
+  .progress{flex:1;height:16px;background:#e6eefc;border-radius:12px;overflow:hidden;min-width:60px}
+  #progressFill{height:100%;width:0;border-radius:12px;background:linear-gradient(90deg,var(--green),#3fc46a);transition:width .45s}
+  #soundBtn{border:none;background:#f1f7ff;font-size:1.3rem;width:44px;height:44px;border-radius:14px;cursor:pointer}
+  #soundBtn:active{transform:scale(.92)}
+  .pill.bump{animation:bump .45s}
+  @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+  /* ---------- Screens ---------- */
+  .screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  h1{font-size:clamp(1.7rem,6vw,2.7rem);line-height:1.1;
+    background:linear-gradient(90deg,#f4913c,#7c5cff);-webkit-background-clip:text;
+    background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 rgba(255,255,255,.6))}
+  .sub{font-size:clamp(1rem,3.5vw,1.25rem);color:#4a5b78;margin:12px 0 4px;font-weight:800}
+  .rulecard{background:#fff;border-radius:20px;padding:16px 20px;margin:16px auto 0;max-width:540px;
+    box-shadow:0 8px 20px rgba(43,58,85,.12);text-align:left}
+  .rulecard .r{display:flex;align-items:center;gap:12px;font-weight:800;font-size:1.02rem;margin:8px 0}
+  .rulecard .r .ic{font-size:1.9rem;flex:0 0 auto}
+  .rulecard .r.hw{color:var(--hw2)} .rulecard .r.sw{color:var(--sw2)}
+  .big-btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:clamp(1.2rem,4vw,1.6rem);
+    padding:16px 34px;border-radius:22px;margin-top:24px;
+    background:linear-gradient(180deg,#67e28c,#25c15c);box-shadow:0 8px 0 #189745,0 12px 22px rgba(24,151,69,.4);
+    transition:transform .08s,box-shadow .08s}
+  .big-btn:active{transform:translateY(6px);box-shadow:0 2px 0 #189745,0 6px 12px rgba(24,151,69,.4)}
+
+  /* ---------- Game ---------- */
+  #gameScreen{justify-content:flex-start;padding-top:2px}
+  .stage{position:relative;width:100%;max-width:900px;margin:0 auto}
+  canvas{width:100%;display:block;border-radius:20px;box-shadow:0 10px 26px rgba(43,58,85,.16);background:#dff1c9}
+
+  .askwrap{width:min(96%,540px);margin:12px auto 0;text-align:center}
+  .gatetag{display:inline-block;background:#fff4e0;color:#b85a09;font-weight:900;font-size:.82rem;
+    padding:5px 14px;border-radius:14px;margin-bottom:8px;box-shadow:0 4px 10px rgba(184,90,9,.12)}
+  .card-item{background:#fff;border-radius:26px;box-shadow:0 10px 26px rgba(43,58,85,.16);
+    padding:16px 18px;animation:pop .32s;display:flex;align-items:center;gap:16px;justify-content:center}
+  .card-item .emoji{font-size:clamp(3.4rem,14vw,5rem);line-height:1;filter:drop-shadow(0 5px 7px rgba(43,58,85,.18))}
+  .card-item .name{font-size:clamp(1.3rem,5.5vw,2rem);font-weight:900;color:#2b3a55;text-align:left}
+  @keyframes pop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+
+  .ask{font-size:clamp(.95rem,3.6vw,1.2rem);font-weight:800;color:#5a6b88;margin:12px 0 10px}
+  .choices{display:flex;gap:14px;width:min(96%,540px);margin:0 auto}
+  .choice{flex:1;border:none;cursor:pointer;color:#fff;font-weight:900;font-size:clamp(1.05rem,4.2vw,1.5rem);
+    padding:20px 10px;border-radius:24px;transition:transform .1s,box-shadow .1s,filter .1s;line-height:1.2}
+  .choice .ic{display:block;font-size:clamp(1.9rem,8vw,2.8rem);margin-bottom:6px}
+  .choice.hw{background:linear-gradient(180deg,#f7a457,var(--hw2));box-shadow:0 8px 0 #b85a09,0 12px 22px rgba(184,90,9,.35)}
+  .choice.sw{background:linear-gradient(180deg,#9a80ff,var(--sw2));box-shadow:0 8px 0 #4526bf,0 12px 22px rgba(69,38,191,.35)}
+  .choice:active{transform:translateY(5px);filter:brightness(1.05)}
+  .choice:disabled{cursor:default}
+  .choice.dim{filter:grayscale(.55) brightness(.9);opacity:.6}
+  .choice.pick-correct{animation:glow .5s}
+  .choice.pick-wrong{animation:shake .45s}
+  @keyframes glow{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
+
+  /* feedback */
+  .feedback{width:min(96%,540px);margin:12px auto 0;border-radius:20px;padding:14px 18px;font-weight:800;
+    font-size:clamp(1rem,3.6vw,1.15rem);box-shadow:0 8px 20px rgba(43,58,85,.12);animation:pop .3s}
+  .feedback.ok{background:#e7fbef;color:#137a3c;border:2px solid #6fe39a}
+  .feedback.no{background:#fff0f0;color:#c0324a;border:2px solid #ffb0b0}
+  .feedback .head{font-size:1.12em;font-weight:900;margin-bottom:4px}
+  .next-btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:clamp(1.05rem,3.6vw,1.3rem);
+    padding:12px 30px;border-radius:20px;margin-top:12px;
+    background:linear-gradient(180deg,#5bc0ff,#2b8fe0);box-shadow:0 6px 0 #1c6db3,0 10px 18px rgba(28,109,179,.35)}
+  .next-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #1c6db3}
+
+  /* ---------- End ---------- */
+  #endScreen .stars{font-size:clamp(2.4rem,12vw,4rem);letter-spacing:6px;margin:10px 0}
+  #endScreen .bigscore{font-size:clamp(1.4rem,6vw,2.2rem);font-weight:900;color:#e8890b}
+  #endScreen .msg{font-size:clamp(1.05rem,4vw,1.3rem);font-weight:800;color:#4a5b78;margin-top:6px}
+  #endScreen .robohome{font-size:clamp(3rem,16vw,5rem);margin:4px 0}
+
+  /* confetti + floaters */
+  .confetti{position:fixed;top:-14px;width:12px;height:16px;border-radius:3px;z-index:60;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+  .floater{position:fixed;z-index:60;font-weight:900;font-size:2rem;color:#25c15c;pointer-events:none;
+    text-shadow:0 2px 6px rgba(0,0,0,.15);animation:floatup 1s ease-out forwards}
+  @keyframes floatup{0%{opacity:1;transform:translateY(0) scale(.6)}30%{transform:translateY(-10px) scale(1.15)}100%{opacity:0;transform:translateY(-90px) scale(1)}}
+</style>
+</head>
+<body>
+<a href="../index.html" class="back-home">← Lớp 4</a>
+<div id="app">
+
+  <!-- HUD -->
+  <div id="hud" hidden>
+    <span class="pill score">⭐ <span id="scoreVal">0</span></span>
+    <span class="pill step">🚩 Cổng <span id="stepVal">0</span>/<span id="stepMax">20</span></span>
+    <div class="progress"><div id="progressFill"></div></div>
+    <button id="soundBtn" title="Bật/tắt âm thanh">🔊</button>
+  </div>
+
+  <!-- START -->
+  <section id="startScreen" class="screen">
+    <h1>🤖 Tìm Đường Về Nhà Cho Rô-bốt 🏠</h1>
+    <p class="sub">Giúp rô-bốt vượt qua các cổng để về nhà!</p>
+    <div class="rulecard">
+      <div class="r"><span class="ic">🚪</span><span>Mỗi cổng hiện một thiết bị hoặc ứng dụng. Chọn <b>đúng nhóm</b> để mở cổng.</span></div>
+      <div class="r hw"><span class="ic">🔧</span><span>Phần cứng: <b>sờ được, cầm được</b> — là thiết bị máy móc.</span></div>
+      <div class="r sw"><span class="ic">💿</span><span>Phần mềm: <b>chương trình, ứng dụng</b> chạy trên máy — không cầm được.</span></div>
+      <div class="r"><span class="ic">⭐</span><span>Chọn đúng: cổng mở, rô-bốt tiến 1 bước và được <b>1 ngôi sao</b>.</span></div>
+    </div>
+    <button class="big-btn" id="startBtn">Thực hiện nhiệm vụ ▶</button>
+  </section>
+
+  <!-- GAME -->
+  <section id="gameScreen" class="screen" hidden>
+    <div class="stage">
+      <canvas id="map" width="900" height="300"></canvas>
+    </div>
+    <div class="askwrap">
+      <span class="gatetag" id="gateTag">Cổng 1</span>
+      <div class="card-item" id="itemCard">
+        <span class="emoji" id="itemEmoji">🖱️</span>
+        <div class="name" id="itemName">Chuột máy tính</div>
+      </div>
+      <p class="ask">Đây là <b>Phần cứng</b> hay <b>Phần mềm</b>?</p>
+    </div>
+    <div class="choices">
+      <button class="choice hw" id="btnHW"><span class="ic">🔧</span>Phần Cứng</button>
+      <button class="choice sw" id="btnSW"><span class="ic">💿</span>Phần Mềm</button>
+    </div>
+    <div class="feedback" id="feedback" hidden></div>
+  </section>
+
+  <!-- END -->
+  <section id="endScreen" class="screen" hidden>
+    <h1 id="endTitle">Về tới nhà rồi! 🎉</h1>
+    <div class="robohome">🤖🏠</div>
+    <div class="stars" id="endStars">⭐⭐⭐</div>
+    <div class="bigscore">Ngôi sao: <span id="endScore">0</span></div>
+    <div class="msg" id="endMsg"></div>
+    <button class="big-btn" id="againBtn">Chơi lại 🔄</button>
+  </section>
+
+</div>
+
+<script>
+/* ============ DỮ LIỆU: ~20 CỔNG, DỄ → KHÓ ============
+   Lấy từ danh sách thiết bị/ứng dụng của game "Phần Cứng hay Phần Mềm?".
+   Sắp xếp: bắt đầu là phần cứng quen thuộc (Chuột, Bàn phím, Màn hình),
+   rồi khó dần sang các ứng dụng / phần mềm. */
+const GATES = [
+  // --- Dễ: phần cứng quen thuộc ---
+  {name:"Chuột máy tính", emoji:"🖱️", type:"hw", why:"Chuột cầm được, di chuyển bằng tay."},
+  {name:"Bàn phím", emoji:"⌨️", type:"hw", why:"Bàn phím có các phím bấm được bằng tay."},
+  {name:"Màn hình", emoji:"🖥️", type:"hw", why:"Màn hình là thiết bị nhìn thấy, sờ được."},
+  {name:"Loa", emoji:"🔊", type:"hw", why:"Loa là thiết bị phát ra âm thanh, cầm được."},
+  {name:"Tai nghe", emoji:"🎧", type:"hw", why:"Tai nghe là thiết bị đeo vào tai được."},
+  {name:"Máy in", emoji:"🖨️", type:"hw", why:"Máy in là máy móc đặt trên bàn, sờ được."},
+  // --- Vừa: xen phần mềm cơ bản ---
+  {name:"Trò chơi điện tử", emoji:"🎮", type:"sw", why:"Trò chơi chạy trên máy là một phần mềm."},
+  {name:"USB (thẻ nhớ)", emoji:"💾", type:"hw", why:"USB cắm vào máy để lưu dữ liệu, cầm được."},
+  {name:"YouTube", emoji:"▶️", type:"sw", why:"YouTube là ứng dụng để xem video."},
+  {name:"Webcam", emoji:"📷", type:"hw", why:"Webcam là thiết bị gắn vào máy, cầm được."},
+  {name:"Paint", emoji:"🎨", type:"sw", why:"Paint là chương trình để vẽ trên máy."},
+  {name:"Micro", emoji:"🎤", type:"hw", why:"Micro là thiết bị thu tiếng nói, cầm được."},
+  // --- Khó: nhiều phần mềm/ứng dụng ---
+  {name:"Zalo", emoji:"💬", type:"sw", why:"Zalo là ứng dụng nhắn tin, gọi điện."},
+  {name:"Máy chiếu", emoji:"📽️", type:"hw", why:"Máy chiếu chiếu hình lên tường, là thiết bị."},
+  {name:"Word", emoji:"📝", type:"sw", why:"Word là chương trình để gõ văn bản."},
+  {name:"Ổ cứng", emoji:"💽", type:"hw", why:"Ổ cứng là thiết bị lưu trữ, cầm được."},
+  {name:"PowerPoint", emoji:"📊", type:"sw", why:"PowerPoint là chương trình làm trình chiếu."},
+  {name:"Trình duyệt web", emoji:"🌐", type:"sw", why:"Trình duyệt (Cốc Cốc, Chrome) là phần mềm để lướt web."},
+  {name:"Phần mềm diệt virus", emoji:"🛡️", type:"sw", why:"Diệt virus là phần mềm bảo vệ máy tính."},
+  {name:"Windows", emoji:"🪟", type:"sw", why:"Windows là hệ điều hành — chương trình chạy trên máy."},
+];
+
+const PRAISE = ["Giỏi quá!","Chính xác!","Tuyệt vời!","Đúng rồi!","Xuất sắc!","Hay lắm!","Rô-bốt tiến lên!"];
+
+/* ============ TRẠNG THÁI ============ */
+let idx=0, score=0, soundOn=true, locked=false;
+let robotPos=0;        // vị trí rô-bốt trên đường (0..GATES.length), trùng số cổng đã mở
+let robotAnim=0;       // vị trí đang vẽ (mượt), tiến dần tới robotPos
+let animRAF=null;
+
+/* ============ ÂM THANH (Web Audio) ============ */
+let AC=null;
+function ac(){ if(!AC){ try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } return AC; }
+function beep(freqs, dur, type, gain){
+  if(!soundOn) return; const c=ac(); if(!c) return;
+  if(c.state==="suspended") c.resume();
+  freqs.forEach((f,i)=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type=type||"sine"; o.frequency.value=f;
+    const t0=c.currentTime+i*0.09;
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.exponentialRampToValueAtTime(gain||0.18,t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+(dur||0.2));
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+(dur||0.2)+0.02);
+  });
+}
+const sndCorrect = ()=>beep([784,1046],0.18,"sine",0.2);
+const sndStep    = ()=>beep([523,659,880],0.14,"triangle",0.16);   // bước chân rô-bốt
+const sndWrong   = ()=>beep([220,165],0.22,"sawtooth",0.14);
+const sndWin     = ()=>beep([523,659,784,1046,1318],0.22,"triangle",0.2);
+const sndTap     = ()=>beep([440],0.06,"sine",0.1);
+
+/* Đọc tên thiết bị bằng giọng tiếng Việt (nếu có) */
+function speak(text){
+  if(!soundOn) return;
+  try{
+    const synth=window.speechSynthesis; if(!synth) return;
+    synth.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="vi-VN"; u.rate=0.95; u.pitch=1.05;
+    const vs=synth.getVoices(); const v=vs.find(x=>/vi/i.test(x.lang));
+    if(v) u.voice=v;
+    synth.speak(u);
+  }catch(e){}
+}
+
+/* ============ TIỆN ÍCH ============ */
+const $=id=>document.getElementById(id);
+function bump(el){ el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+function confetti(){
+  const colors=["#f4913c","#7c5cff","#25c15c","#ff6b6b","#ffd36e","#5bc0ff"];
+  for(let i=0;i<26;i++){
+    const c=document.createElement("div"); c.className="confetti";
+    c.style.left=Math.random()*100+"vw";
+    c.style.background=colors[i%colors.length];
+    c.style.animationDuration=(1.6+Math.random()*1.4)+"s";
+    c.style.transform="rotate("+Math.random()*360+"deg)";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),3200);
+  }
+}
+function floatPlus(text){
+  const f=document.createElement("div"); f.className="floater"; f.textContent=text;
+  f.style.left=(45+Math.random()*10)+"vw"; f.style.top="30vh";
+  document.body.appendChild(f); setTimeout(()=>f.remove(),1000);
+}
+
+/* ============ BẢN ĐỒ / ĐƯỜNG ĐI (canvas) ============
+   Vẽ một con đường uốn lượn hình sin từ trái sang phải,
+   với N cổng (checkpoint) đặt đều nhau, rô-bốt ở nhà cuối đường. */
+const N = GATES.length;
+const cv=$("map"), CTX=cv.getContext("2d");
+const CW=cv.width, CH=cv.height;
+const MX=52, MW=CW-MX*2;                 // lề trái/phải
+const MIDY=CH*0.52, AMP=CH*0.24;         // trục + biên độ sóng
+
+function pathY(t){ return MIDY + Math.sin(t*Math.PI*3.2)*AMP; } // t: 0..1
+function pathX(t){ return MX + t*MW; }
+// vị trí (theo chỉ số bước s = 0..N) trên đường: cổng i nằm ở giữa bước i và i+1? -> đặt cổng ở các điểm 1..N
+function tAtStep(s){ return N===0?0:(s/N); }
+
+function drawMap(){
+  CTX.clearRect(0,0,CW,CH);
+  // nền cỏ + trời
+  const sky=CTX.createLinearGradient(0,0,0,CH);
+  sky.addColorStop(0,"#cdeafe"); sky.addColorStop(0.45,"#e6f6ff"); sky.addColorStop(0.46,"#e8f7cf"); sky.addColorStop(1,"#cdeaa0");
+  CTX.fillStyle=sky; CTX.fillRect(0,0,CW,CH);
+  // mây
+  CTX.fillStyle="rgba(255,255,255,.85)";
+  cloud(120,40,26); cloud(430,30,20); cloud(700,48,24);
+
+  // đường đi (dày, nâu, viền)
+  CTX.lineCap="round"; CTX.lineJoin="round";
+  const steps=180;
+  function stroke(w,color){
+    CTX.beginPath();
+    for(let i=0;i<=steps;i++){ const t=i/steps; const x=pathX(t), y=pathY(t); i?CTX.lineTo(x,y):CTX.moveTo(x,y); }
+    CTX.lineWidth=w; CTX.strokeStyle=color; CTX.stroke();
+  }
+  stroke(34,"#caa06a");        // viền đường
+  stroke(24,"#e9cfa0");        // mặt đường
+  // vạch kẻ giữa đường (nét đứt)
+  CTX.setLineDash([10,14]); stroke(4,"#fff8ec"); CTX.setLineDash([]);
+
+  // các cổng (checkpoint) tại step 1..N
+  for(let s=1;s<=N;s++){
+    const t=tAtStep(s), x=pathX(t), y=pathY(t);
+    const opened = robotAnim >= s-0.05;
+    gate(x,y,s,opened);
+  }
+  // nhà ở cuối đường
+  const ht=1.0, hx=pathX(ht), hy=pathY(ht);
+  house(hx, hy);
+
+  // rô-bốt tại vị trí robotAnim (0..N)
+  const rt=tAtStep(robotAnim), rx=pathX(rt), ry=pathY(rt);
+  robot(rx, ry);
+}
+function cloud(x,y,r){
+  CTX.beginPath();
+  CTX.arc(x,y,r,0,7); CTX.arc(x+r,y+4,r*0.8,0,7); CTX.arc(x-r*0.9,y+5,r*0.7,0,7);
+  CTX.fill();
+}
+function gate(x,y,num,opened){
+  // hai cột cổng
+  const gw=13, gh=34, gap=30;
+  CTX.fillStyle=opened?"#8fd66f":"#e07a6b";
+  roundRect(x-gap/2-gw, y-gh-6, gw, gh, 4); CTX.fill();
+  roundRect(x+gap/2,     y-gh-6, gw, gh, 4); CTX.fill();
+  // thanh ngang / cờ
+  CTX.fillStyle=opened?"#66c94a":"#cf5b4b";
+  roundRect(x-gap/2-gw, y-gh-12, gap+gw*2, 9, 4); CTX.fill();
+  // số cổng
+  CTX.fillStyle="#fff"; CTX.font="bold 12px sans-serif"; CTX.textAlign="center"; CTX.textBaseline="middle";
+  CTX.fillText(num, x, y-gh-7);
+  // trạng thái mở: dấu tick, chưa mở: khoá
+  CTX.font="14px sans-serif";
+  CTX.fillText(opened?"✅":"🔒", x, y-6);
+}
+function house(x,y){
+  // thân
+  CTX.fillStyle="#ffd98a"; roundRect(x-24,y-30,48,34,5); CTX.fill();
+  // mái
+  CTX.fillStyle="#e0603f"; CTX.beginPath(); CTX.moveTo(x-30,y-30); CTX.lineTo(x,y-56); CTX.lineTo(x+30,y-30); CTX.closePath(); CTX.fill();
+  // cửa
+  CTX.fillStyle="#9b5a2b"; roundRect(x-8,y-16,16,20,3); CTX.fill();
+  // biển "NHÀ"
+  CTX.fillStyle="#2b3a55"; CTX.font="bold 11px sans-serif"; CTX.textAlign="center"; CTX.textBaseline="middle";
+  CTX.fillText("🏠 NHÀ", x, y-64);
+}
+function robot(x,y){
+  // bóng
+  CTX.fillStyle="rgba(0,0,0,.12)"; CTX.beginPath(); CTX.ellipse(x,y+16,18,6,0,0,7); CTX.fill();
+  // thân
+  CTX.fillStyle="#7cc4ff"; roundRect(x-15,y-8,30,24,7); CTX.fill();
+  // đầu
+  CTX.fillStyle="#9fd4ff"; roundRect(x-13,y-30,26,22,8); CTX.fill();
+  // ăng-ten
+  CTX.strokeStyle="#5b39e0"; CTX.lineWidth=2; CTX.beginPath(); CTX.moveTo(x,y-30); CTX.lineTo(x,y-40); CTX.stroke();
+  CTX.fillStyle="#ff6b6b"; CTX.beginPath(); CTX.arc(x,y-42,3,0,7); CTX.fill();
+  // mắt
+  CTX.fillStyle="#2b3a55"; CTX.beginPath(); CTX.arc(x-6,y-20,3.2,0,7); CTX.arc(x+6,y-20,3.2,0,7); CTX.fill();
+  CTX.fillStyle="#fff"; CTX.beginPath(); CTX.arc(x-5,y-21,1.1,0,7); CTX.arc(x+7,y-21,1.1,0,7); CTX.fill();
+  // miệng cười
+  CTX.strokeStyle="#2b3a55"; CTX.lineWidth=2; CTX.beginPath(); CTX.arc(x,y-15,4,0.15*Math.PI,0.85*Math.PI); CTX.stroke();
+}
+function roundRect(x,y,w,h,r){
+  CTX.beginPath();
+  CTX.moveTo(x+r,y); CTX.arcTo(x+w,y,x+w,y+h,r); CTX.arcTo(x+w,y+h,x,y+h,r);
+  CTX.arcTo(x,y+h,x,y,r); CTX.arcTo(x,y,x+w,y,r); CTX.closePath();
+}
+
+/* Chạy rô-bốt mượt tới robotPos rồi gọi callback */
+function animateRobot(done){
+  cancelAnimationFrame(animRAF);
+  function frame(){
+    const diff = robotPos - robotAnim;
+    if(Math.abs(diff) < 0.01){ robotAnim=robotPos; drawMap(); if(done) done(); return; }
+    robotAnim += diff*0.18;
+    drawMap();
+    animRAF=requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+/* ============ LUỒNG GAME ============ */
+function startGame(){
+  idx=0; score=0; robotPos=0; robotAnim=0; locked=false;
+  $("scoreVal").textContent="0";
+  $("stepMax").textContent=N; $("stepVal").textContent="0";
+  updateProgress();
+  $("startScreen").hidden=true; $("endScreen").hidden=true;
+  $("gameScreen").hidden=false; $("hud").hidden=false;
+  drawMap();
+  showGate();
+}
+function showGate(){
+  locked=false;
+  const it=GATES[idx];
+  $("gateTag").textContent="Cổng "+(idx+1)+" / "+N;
+  $("itemEmoji").textContent=it.emoji;
+  $("itemName").textContent=it.name;
+  const card=$("itemCard"); card.classList.remove("card-item"); void card.offsetWidth; card.classList.add("card-item");
+  const fb=$("feedback"); fb.hidden=true; fb.innerHTML="";
+  const hw=$("btnHW"), sw=$("btnSW");
+  [hw,sw].forEach(b=>{ b.disabled=false; b.classList.remove("dim","pick-correct","pick-wrong"); });
+  updateProgress();
+  sndTap();
+  speak(it.name);
+}
+function choose(pick){
+  if(locked) return; locked=true;
+  const it=GATES[idx];
+  const correct = (pick===it.type);
+  const hw=$("btnHW"), sw=$("btnSW");
+  hw.disabled=true; sw.disabled=true;
+  const pickedBtn = pick==="hw"?hw:sw;
+  const rightBtn  = it.type==="hw"?hw:sw;
+  const wrongBtn  = it.type==="hw"?sw:hw;
+  const typeLabel = it.type==="hw"?"Phần cứng":"Phần mềm";
+  const fb=$("feedback"); fb.hidden=false;
+
+  if(correct){
+    score+=1;
+    robotPos=idx+1;                         // rô-bốt tiến 1 bước, cổng mở
+    $("scoreVal").textContent=score; bump($("scoreVal").parentElement);
+    $("stepVal").textContent=robotPos;
+    rightBtn.classList.add("pick-correct"); wrongBtn.classList.add("dim");
+    sndCorrect(); floatPlus("⭐ +1"); confetti();
+    animateRobot(()=>sndStep());
+    fb.className="feedback ok";
+    fb.innerHTML='<div class="head">'+PRAISE[Math.floor(Math.random()*PRAISE.length)]+' ✅</div>'+
+                 '<div>Cổng mở! '+it.name+' → <b>'+typeLabel+'</b>. '+it.why+'</div>'+
+                 '<button class="next-btn" id="nextBtn">'+(robotPos>=N?'Về nhà 🏠':'Đi tiếp ➜')+'</button>';
+    $("nextBtn").addEventListener("click", next);
+  } else {
+    pickedBtn.classList.add("pick-wrong"); rightBtn.classList.add("pick-correct");
+    sndWrong();
+    fb.className="feedback no";
+    fb.innerHTML='<div class="head">Chưa đúng, thử lại nhé 💡</div>'+
+                 '<div>'+it.name+' là <b>'+typeLabel+'</b>. '+it.why+'</div>'+
+                 '<button class="next-btn" id="nextBtn">Thử lại cổng này ➜</button>';
+    $("nextBtn").addEventListener("click", ()=>showGate());  // rô-bốt chờ, làm lại cổng
+  }
+  updateProgress();
+}
+function next(){
+  idx++;
+  if(idx>=N){ endGame(); return; }
+  showGate();
+}
+function updateProgress(){ $("progressFill").style.width = (robotPos/N*100)+"%"; }
+
+function endGame(){
+  robotPos=N; animateRobot();
+  $("gameScreen").hidden=true; $("hud").hidden=true; $("endScreen").hidden=false;
+  $("endScore").textContent=score;
+  $("endStars").textContent = "⭐⭐⭐";
+  $("endTitle").textContent="Rô-bốt về tới nhà! 🎉";
+  $("endMsg").textContent = score>=N
+    ? "Con đã mở hết "+N+" cổng — chuyên gia máy tính! 🎓"
+    : "Rô-bốt về nhà an toàn với "+score+" ngôi sao. Giỏi lắm!";
+  sndWin(); confetti(); setTimeout(confetti,300);
+}
+
+/* ============ SỰ KIỆN ============ */
+$("startBtn").addEventListener("click", ()=>{ ac(); if(window.speechSynthesis){try{window.speechSynthesis.getVoices();}catch(e){}} startGame(); });
+$("againBtn").addEventListener("click", startGame);
+$("btnHW").addEventListener("click", ()=>choose("hw"));
+$("btnSW").addEventListener("click", ()=>choose("sw"));
+$("soundBtn").addEventListener("click", ()=>{
+  soundOn=!soundOn; $("soundBtn").textContent = soundOn?"🔊":"🔇";
+  if(!soundOn && window.speechSynthesis){ try{window.speechSynthesis.cancel();}catch(e){} }
+  if(soundOn) sndTap();
+});
+if(window.speechSynthesis){ window.speechSynthesis.onvoiceschanged=()=>{}; }
+</script>
+</body>
+</html>

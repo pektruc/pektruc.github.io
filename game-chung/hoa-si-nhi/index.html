@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Họa Sĩ Nhí</title>
+<style>
+  :root{--bg1:#fff6e9;--bg2:#ffe9d1;--ink:#5a4632;--accent:#ff8a3d}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  .hide{display:none !important}
+  html,body{margin:0;padding:0;height:100%}
+  body{font-family:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:var(--ink);
+    background:linear-gradient(160deg,var(--bg1),var(--bg2) 60%,#ffe0c0);min-height:100%;overflow-x:hidden;user-select:none;touch-action:manipulation}
+  .back-home{position:fixed;top:12px;left:12px;z-index:40;color:#8a6a45;text-decoration:none;font-size:13px;font-weight:800;
+    background:rgba(255,255,255,.85);padding:8px 14px;border-radius:20px;box-shadow:0 4px 12px rgba(120,80,40,.15)}
+  .wrap{max-width:720px;margin:0 auto;padding:56px 12px 24px;display:flex;flex-direction:column;align-items:center}
+  h1{font-weight:900;font-size:2rem;margin:4px 0 2px;text-align:center;
+    background:linear-gradient(90deg,#ff6f3d,#ff3d81,#8a5cff,#2eb6ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 2px 0 rgba(255,255,255,.7))}
+  .sub{color:#9a7a55;font-weight:700;margin-bottom:12px;font-size:.9rem}
+
+  .screen{width:100%;display:none;flex-direction:column;align-items:center;gap:12px}
+  .screen.on{display:flex}
+
+  /* gallery */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .tab{border:none;cursor:pointer;font-weight:800;font-size:.9rem;padding:9px 15px;border-radius:16px;background:#fff;color:#a3805a;box-shadow:0 3px 0 #e7cfa8}
+  .tab.on{background:linear-gradient(180deg,#ffb45e,#ff8a3d);color:#fff;box-shadow:0 3px 0 #d86a1f}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;width:100%}
+  .thumb{background:#fff;border-radius:18px;padding:8px;cursor:pointer;box-shadow:0 6px 16px rgba(120,80,40,.14);transition:transform .12s}
+  .thumb:active{transform:scale(.96)}
+  .thumb svg{width:100%;height:auto;display:block;border-radius:12px;background:#fff}
+  .thumb .tt{text-align:center;font-weight:800;font-size:.82rem;color:#7a5a38;margin-top:5px}
+
+  /* color screen */
+  #picWrap{width:100%;background:#fff;border-radius:20px;padding:10px;box-shadow:0 10px 26px rgba(120,80,40,.16)}
+  #pic{width:100%;height:auto;display:block;border-radius:12px}
+  #pic .rg{cursor:pointer}
+  .palette{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;background:#fff;border-radius:18px;padding:10px;width:100%;box-shadow:0 8px 20px rgba(120,80,40,.14)}
+  .sw{width:38px;height:38px;border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 0 0 2px #e7cfa8}
+  .sw.on{box-shadow:0 0 0 3px var(--accent),0 3px 8px rgba(0,0,0,.2);transform:scale(1.12)}
+  .sw.erase{position:relative;background:#fff}
+  .sw.erase::after{content:"";position:absolute;inset:8px;border-radius:50%;border:2px dashed #c9a879}
+  .tools{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;width:100%}
+  .tbtn{border:none;cursor:pointer;font-weight:800;font-size:.92rem;padding:11px 18px;border-radius:14px;background:#fff;color:#7a5a38;box-shadow:0 4px 0 #e7cfa8;display:flex;align-items:center;gap:6px}
+  .tbtn:active{transform:translateY(2px);box-shadow:0 2px 0 #e7cfa8}
+  .tbtn.go{background:linear-gradient(180deg,#67e0a3,#39c07a);color:#0a5;box-shadow:0 4px 0 #2a9159}
+  .tbtn.warn{color:#e0554e}
+  .row{display:flex;gap:10px;align-items:center;width:100%;justify-content:space-between;flex-wrap:wrap}
+  .curcolor{display:flex;align-items:center;gap:8px;font-weight:800;color:#8a6a45;font-size:.9rem}
+  .curcolor .dot{width:24px;height:24px;border-radius:50%;border:2px solid #e7cfa8}
+
+  .confetti{position:fixed;top:-14px;width:11px;height:16px;z-index:70;border-radius:2px;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(104vh) rotate(680deg);opacity:.85}}
+  @media(max-width:600px){h1{font-size:1.6rem}.sw{width:34px;height:34px}}
+</style>
+</head>
+<body>
+<a href="../../index.html" class="back-home" id="backLink" onclick="return goBack()">← Quay lại</a>
+<div class="wrap">
+  <h1>Họa Sĩ Nhí</h1>
+  <div class="sub" id="sub">Chọn một bức tranh rồi tô màu thật đẹp nhé!</div>
+
+  <!-- GALLERY -->
+  <div class="screen on" id="galleryScreen">
+    <div class="tabs" id="tabs"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- COLOR -->
+  <div class="screen" id="colorScreen">
+    <div class="row">
+      <button class="tbtn" id="galBtn">← Tranh khác</button>
+      <span class="curcolor">Màu: <span class="dot" id="curDot"></span><span id="curName">Đỏ</span></span>
+    </div>
+    <div id="picWrap"><svg id="pic" viewBox="0 0 360 300"></svg></div>
+    <div class="palette" id="palette"></div>
+    <div class="tools">
+      <button class="tbtn warn" id="resetBtn">Làm lại</button>
+      <button class="tbtn go" id="saveBtn">Tải ảnh</button>
+      <button class="tbtn" id="soundBtn"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let grade=1;
+(function(){const m=(location.search.match(/lop=(\d)/)||[])[1];if(m==='1'||m==='2'||m==='3')grade=+m;})();
+function goBack(){if(history.length>1){history.back();return false;}location.href=grade===2?'../../lop-2/index.html':grade===3?'../../lop-3/index.html':'../../lop-1/index.html';return false;}
+
+/* ---------- drawing helpers (viewBox 360x300) ---------- */
+const A='#41372c';
+function rg(d,f){return `<path class="rg" d="${d}" fill="${f||'#fff'}" stroke="${A}" stroke-width="2.4" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`;}
+function rgC(cx,cy,r,f){return `<circle class="rg" cx="${cx}" cy="${cy}" r="${r}" fill="${f||'#fff'}" stroke="${A}" stroke-width="2.4" vector-effect="non-scaling-stroke"/>`;}
+function rgE(cx,cy,rx,ry,f){return `<ellipse class="rg" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${f||'#fff'}" stroke="${A}" stroke-width="2.4" vector-effect="non-scaling-stroke"/>`;}
+function rgR(x,y,w,h,r,f){return `<rect class="rg" x="${x}" y="${y}" width="${w}" height="${h}" rx="${r||0}" fill="${f||'#fff'}" stroke="${A}" stroke-width="2.4" vector-effect="non-scaling-stroke"/>`;}
+function rgP(pts,f){return `<polygon class="rg" points="${pts}" fill="${f||'#fff'}" stroke="${A}" stroke-width="2.4" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`;}
+function ln(d){return `<path d="${d}" fill="none" stroke="${A}" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linecap="round"/>`;}
+function eye(cx,cy,r){return `<circle cx="${cx}" cy="${cy}" r="${r||3}" fill="${A}"/>`;}
+function G(x,y,s,inner){return `<g transform="translate(${x},${y}) scale(${s})">${inner}</g>`;}
+
+/* parts (local ~100 box unless noted) */
+const bg=()=>`<rect class="rg" x="0" y="0" width="360" height="300" fill="#fff" stroke="none"/>`;
+const ground=(y,f)=>rg(`M0 ${y} Q90 ${y-22} 180 ${y} T360 ${y} V300 H0 Z`,f);
+const sea=(y)=>rg(`M0 ${y} q30 -14 60 0 t60 0 t60 0 t60 0 t60 0 t60 0 V300 H0 Z`);
+const sun=(x,y,r)=>{let s='';for(let i=0;i<12;i++){const a=i*30*Math.PI/180;s+=ln(`M${x+Math.cos(a)*(r+4)} ${y+Math.sin(a)*(r+4)} L${x+Math.cos(a)*(r+13)} ${y+Math.sin(a)*(r+13)}`);}return s+rgC(x,y,r);};
+const cloud=(x,y,s)=>G(x,y,s,rg('M12 40 C-2 40 -2 20 14 22 C16 6 44 4 50 18 C60 6 82 14 78 28 C94 28 94 44 78 44 Z'));
+const star=(x,y,s)=>G(x,y,s,rgP('20,2 25,14 38,15 28,24 31,37 20,30 9,37 12,24 2,15 15,14'));
+const moon=(x,y,s)=>G(x,y,s,rg('M30 4 A26 26 0 1 0 30 56 A20 20 0 1 1 30 4 Z'));
+const tree=(x,y,s)=>G(x,y,s,rgR(42,46,16,48,4)+rgC(50,36,30));
+const pine=(x,y,s)=>G(x,y,s,rgR(44,66,12,30,3)+rgP('50,4 74,44 26,44')+rgP('50,26 78,72 22,72'));
+const flower=(x,y,s)=>{let p='';for(let i=0;i<5;i++){const a=i*72*Math.PI/180;p+=rgC(50+Math.cos(a)*15,26+Math.sin(a)*15,10);}return G(x,y,s,ln('M50 40 V92')+rg('M50 66 q18 -6 22 10 q-18 4 -22 -10 Z')+p+rgC(50,26,9));};
+const house=(x,y,s)=>G(x,y,s,rgR(16,44,84,54,3)+rgP('6,44 58,6 110,44')+rgR(66,66,20,32,2)+rgR(28,56,20,18,2)+ln('M38 56 V74 M28 65 H48'));
+const boat=(x,y,s)=>G(x,y,s,rgP('6,54 94,54 78,80 22,80')+ln('M50 54 V8')+rgP('50,10 50,50 12,50')+rgP('50,14 50,48 84,48'));
+const fish=(x,y,s)=>G(x,y,s,rgE(40,30,30,20)+rgP('64,30 92,12 92,48')+eye(28,26,3)+ln('M46 18 q10 12 0 24'));
+const bird=(x,y,s)=>G(x,y,s,rgE(40,40,24,17)+rgC(62,30,12)+rgP('72,30 88,24 76,36')+rg('M20,40 q-14 -6 -18 6 q16 6 18 -6Z')+eye(64,28,2.6));
+const bfly=(x,y,s)=>G(x,y,s,rg('M40 40 C10 10 6 42 38 44 Z')+rg('M40 40 C70 10 74 42 42 44 Z')+rg('M40 44 C14 60 16 82 40 60 Z')+rg('M40 44 C66 60 64 82 40 60 Z')+ln('M40 30 V64')+ln('M40 32 q-8 -12 -14 -12 M40 32 q8 -12 14 -12'));
+const cat=(x,y,s)=>G(x,y,s,rgE(50,74,30,22)+rg('M22,72 q-16 -2 -18 -24 q14 6 20 14Z')+rgC(50,40,26)+rgP('30,22 26,2 46,18')+rgP('70,22 74,2 54,18')+eye(42,40,3)+eye(58,40,3)+rgP('50,46 45,52 55,52')+ln('M50 52 v6 M50 56 q-8 4 -14 2 M50 56 q8 4 14 2')+ln('M24 46 h-16 M26 52 h-16 M76 46 h16 M74 52 h16'));
+const rabbit=(x,y,s)=>G(x,y,s,rgE(50,76,26,20)+rgC(50,44,22)+rgE(40,16,7,20)+rgE(60,16,7,20)+eye(43,44,3)+eye(57,44,3)+rgP('50,50 46,55 54,55')+ln('M50 55 v5'));
+const carrot=(x,y,s)=>G(x,y,s,rgP('50,96 30,30 70,30')+rgP('50,32 40,6 50,20')+rgP('50,32 60,6 50,20')+rgP('50,30 50,4 50,20')+ln('M42 50 h16 M45 64 h10'));
+const yarn=(x,y,s)=>G(x,y,s,rgC(40,40,28)+ln('M20 30 Q40 46 60 30 M18 44 Q40 58 62 42 M24 20 Q40 40 56 18'));
+const seaweed=(x,y,s)=>G(x,y,s,rg('M20 96 q-16 -20 0 -40 q-14 -22 4 -46 q10 20 -2 44 q12 22 -2 42 Z'));
+const bubble=(x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${A}" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+const rocket=(x,y,s)=>G(x,y,s,rg('M50 4 C74 24 74 60 66 84 H34 C26 60 26 24 50 4 Z')+rgC(50,38,12)+rgP('34,66 12,92 34,84')+rgP('66,66 88,92 66,84')+rgP('40,84 60,84 50,104')+ln('M50 26 a1 1 0 0 0 0 0'));
+const planet=(x,y,s)=>G(x,y,s,rgE(50,50,44,14)+rgC(50,44,30));
+const astro=(x,y,s)=>G(x,y,s,rgC(50,32,24)+rg('M36 30 a14 14 0 0 1 28 0 a14 14 0 0 1 -28 0Z')+rgR(30,54,40,40,8)+rgR(14,58,14,30,6)+rgR(72,58,14,30,6)+rgR(34,92,14,16,4)+rgR(52,92,14,16,4));
+const ufo=(x,y,s)=>G(x,y,s,rg('M20 46 a30 30 0 0 1 60 0Z')+rgE(50,52,44,16)+eye(34,52,3)+eye(50,54,3)+eye(66,52,3));
+const alien=(x,y,s)=>G(x,y,s,rgE(50,40,26,30)+eye(40,38,5)+eye(60,38,5)+ln('M50 26 v-14 M50 12 a4 4 0 1 0 0.1 0')+ln('M40 60 q10 8 20 0'));
+const robot=(x,y,s)=>G(x,y,s,ln('M50 10 v10')+rgC(50,8,5)+rgR(28,20,44,34,7)+eye(41,37,5)+eye(59,37,5)+ln('M42 48 q8 6 16 0')+rgR(24,58,52,40,8)+rgC(50,78,10)+rgR(8,62,12,28,4)+rgR(80,62,12,28,4)+rgR(32,100,14,18,4)+rgR(54,100,14,18,4));
+const gear=(x,y,s)=>{let t='';for(let i=0;i<8;i++){const a=i*45*Math.PI/180;t+=ln(`M${50+Math.cos(a)*24} ${50+Math.sin(a)*24} L${50+Math.cos(a)*32} ${50+Math.sin(a)*32}`);}return G(x,y,s,t+rgC(50,50,24)+rgC(50,50,9));};
+const princess=(x,y,s)=>G(x,y,s,rgP('50,44 18,110 82,110')+rgR(40,30,20,20,6)+rgC(50,22,16)+rg('M34 20 q0 -18 16 -18 q16 0 16 18 q-8 -6 -16 -6 q-8 0 -16 6Z')+rgP('38,8 44,-2 50,6 56,-2 62,8')+eye(45,22,2.6)+eye(55,22,2.6)+ln('M46 30 q4 4 8 0')+ln('M50 60 v40 M34 78 h32'));
+const queen=(x,y,s)=>G(x,y,s,rg('M50 40 L14 112 H86 Z')+rg('M50 42 C20 60 18 108 30 112 L50 100Z')+rgR(41,28,18,18,6)+rgC(50,20,15)+rg('M36 18 q0 -16 14 -16 q14 0 14 16 q-6 20 -14 40 q-8 -20 -14 -40Z')+rgP('40,6 46,-2 50,4 54,-2 60,6')+eye(46,20,2.6)+eye(54,20,2.6));
+const castle=(x,y,s)=>G(x,y,s,rgR(20,50,80,60,2)+rgR(6,30,26,80,2)+rgR(88,30,26,80,2)+rgP('6,30 19,10 32,30')+rgP('88,30 101,10 114,30')+rgP('40,50 60,26 80,50')+rgR(48,78,24,32,10)+rgR(30,60,14,14,2)+rgR(76,60,14,14,2)+ln('M19 10 V2 M101 10 V2'));
+const apple=(x,y,s)=>G(x,y,s,rg('M50 30 C30 22 14 40 18 62 C22 88 44 96 50 84 C56 96 78 88 82 62 C86 40 70 22 50 30Z')+ln('M50 30 V16')+rg('M50 18 q16 -12 24 0 q-14 8 -24 0Z'));
+const dwarf=(x,y,s)=>G(x,y,s,rgP('50,2 22,44 78,44')+rgC(50,56,20)+rg('M32 60 q18 40 36 0 q-6 8 -18 8 q-12 0 -18 -8Z')+rgR(34,72,32,28,8)+eye(44,54,2.6)+eye(56,54,2.6)+ln('M48 58 q2 3 4 0'));
+const appletree=(x,y,s)=>G(x,y,s,rgR(44,52,14,44,4)+rgC(50,36,30)+rgC(38,30,5,'#fff')+rgC(60,34,5,'#fff')+rgC(50,46,5,'#fff'));
+
+/* ---------- pictures ---------- */
+const THEMES=['Phong cảnh','Động vật','Vũ trụ','Công chúa','Rô bốt'];
+const PICS=[
+ {t:0,n:'Ngôi nhà nhỏ',d:()=>bg()+ground(210)+sun(58,54,22)+cloud(230,44,1.1)+cloud(120,30,0.8)+house(120,120,1.3)+tree(20,150,1.2)+tree(268,150,1.3)+flower(70,232,0.7)+flower(285,236,0.7)+flower(150,244,0.6)},
+ {t:0,n:'Bên bờ biển',d:()=>bg()+sea(170)+sun(60,52,22)+cloud(240,40,1)+boat(120,96,1.5)+fish(60,232,1)+fish(250,250,0.9)+bird(150,52,0.7)+bird(200,66,0.6)},
+ {t:0,n:'Vườn hoa mùa xuân',d:()=>bg()+ground(215)+sun(300,52,20)+cloud(70,44,1)+appletree(40,110,1.2)+flower(150,205,0.85)+flower(210,215,0.85)+flower(270,205,0.85)+bfly(130,120,1)+bfly(250,110,0.9)},
+ {t:1,n:'Chú mèo con',d:()=>bg()+ground(235,)+cat(90,120,1.7)+yarn(255,225,1.4)+flower(300,235,0.6)},
+ {t:1,n:'Bể cá xinh',d:()=>bg()+sea(20)+fish(60,90,1.5)+fish(210,150,1.3)+fish(120,215,1.2)+seaweed(20,200,1.2)+seaweed(300,196,1.3)+bubble(150,70,7)+bubble(170,50,5)+bubble(90,180,6)},
+ {t:1,n:'Thỏ và cà rốt',d:()=>bg()+ground(225)+sun(300,50,20)+cloud(70,44,0.9)+rabbit(70,110,1.7)+carrot(230,150,1.2)+carrot(285,170,1)+flower(150,240,0.6)},
+ {t:2,n:'Bay vào vũ trụ',d:()=>bg()+star(40,40,0.9)+star(300,60,1.1)+star(120,220,0.8)+star(320,220,0.9)+moon(280,30,1.2)+rocket(120,60,1.6)+planet(30,180,1.1)},
+ {t:2,n:'Phi hành gia',d:()=>bg()+star(50,50,1)+star(300,40,0.9)+star(90,240,0.8)+star(330,200,1)+astro(90,60,1.6)+ufo(220,180,1.4)+alien(250,60,1)},
+ {t:3,n:'Công chúa & lâu đài',d:()=>bg()+ground(240)+sun(60,50,20)+cloud(250,44,1)+castle(180,90,1.3)+princess(40,120,1.5)+flower(300,246,0.6)},
+ {t:3,n:'Nàng tiên và chú lùn',d:()=>bg()+ground(235)+appletree(250,110,1.2)+princess(60,110,1.7)+dwarf(190,170,1.1)+dwarf(255,180,1)+apple(170,150,0.7)},
+ {t:3,n:'Nữ hoàng băng giá',d:()=>bg()+star(40,40,0.7)+star(320,60,0.8)+queen(110,70,1.8)+star(60,200,0.7)+star(300,210,0.8)+star(180,30,0.6)},
+ {t:4,n:'Rô bốt dễ thương',d:()=>bg()+ground(245)+robot(105,60,1.7)+gear(255,150,1.1)+gear(295,205,0.8)+star(50,60,0.7)},
+ {t:4,n:'Rô bốt phi hành',d:()=>bg()+star(40,40,0.8)+star(310,50,0.9)+star(120,230,0.8)+robot(60,80,1.4)+rocket(230,70,1.2)+planet(280,210,0.8)},
+];
+
+/* ---------- palette ---------- */
+const COLORS=[['#e53935','Đỏ'],['#fb8c00','Cam'],['#fdd835','Vàng'],['#7cb342','Xanh lá'],['#26a69a','Xanh ngọc'],['#1e88e5','Xanh dương'],['#5e35b1','Tím'],['#ec407a','Hồng'],['#8d6e63','Nâu'],['#90caf9','Xanh nhạt'],['#a5d6a7','Xanh non'],['#f8bbd0','Hồng nhạt'],['#ffcc80','Da'],['#9e9e9e','Xám'],['#000000','Đen'],['#ffffff','Tẩy']];
+let curColor='#e53935', curNameStr='Đỏ';
+
+/* ---------- sound ---------- */
+let soundOn=true,actx=null,viVoice=null,lastSay=0;
+function AC(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}return actx;}
+function beep(f,f2,d,t,v){if(!soundOn)return;const a=AC();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=t||'sine';o.frequency.setValueAtTime(f,a.currentTime);if(f2)o.frequency.exponentialRampToValueAtTime(f2,a.currentTime+d);g.gain.setValueAtTime(v||.1,a.currentTime);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d);}
+function pop(){beep(560,820,.08,'triangle',.08);}
+function ting(){beep(880,0,.12,'triangle',.13);setTimeout(()=>beep(1320,0,.13,'triangle',.12),80);}
+function pv(){const vs=speechSynthesis.getVoices();viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||vs.find(v=>/vietnam/i.test(v.name))||null;}
+if('speechSynthesis'in window){pv();speechSynthesis.onvoiceschanged=pv;}
+function say(t){if(!soundOn||!('speechSynthesis'in window))return;const now=performance.now();if(now-lastSay<500)return;lastSay=now;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=1.05;speechSynthesis.speak(u);}catch(e){}}
+const SND_ON='<svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 8.5a4.5 4.5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const SND_OFF='<svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function setSnd(){$('soundBtn').innerHTML=(soundOn?SND_ON:SND_OFF)+' Âm thanh';}
+
+/* ---------- screens ---------- */
+let curTheme=0, curPicIdx=0, celebrated=false;
+function screen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');}
+function buildTabs(){$('tabs').innerHTML=THEMES.map((t,i)=>`<button class="tab${i===curTheme?' on':''}" data-i="${i}">${t}</button>`).join('');
+  $('tabs').querySelectorAll('.tab').forEach(b=>b.onclick=()=>{curTheme=+b.dataset.i;buildTabs();buildGrid();});}
+function buildGrid(){
+  const grid=$('grid');grid.innerHTML='';
+  PICS.forEach((p,i)=>{if(p.t!==curTheme)return;
+    const d=document.createElement('div');d.className='thumb';
+    d.innerHTML=`<svg viewBox="0 0 360 300">${p.d()}</svg><div class="tt">${p.n}</div>`;
+    d.onclick=()=>openPic(i);
+    grid.appendChild(d);
+  });
+}
+function openPic(i){
+  curPicIdx=i;celebrated=false;
+  $('pic').innerHTML=PICS[i].d();
+  $('sub').textContent=PICS[i].n;
+  screen('colorScreen');
+}
+function buildPalette(){
+  const pal=$('palette');pal.innerHTML='';
+  COLORS.forEach(c=>{
+    const b=document.createElement('div');
+    b.className='sw'+(c[0]===curColor?' on':'')+(c[0]==='#ffffff'?' erase':'');
+    if(c[0]!=='#ffffff')b.style.background=c[0];
+    b.onclick=()=>{curColor=c[0];curNameStr=c[1];document.querySelectorAll('.sw').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      $('curDot').style.background=c[0];$('curName').textContent=c[1];say(c[1]);};
+    pal.appendChild(b);
+  });
+  $('curDot').style.background=curColor;$('curName').textContent=curNameStr;
+}
+$('pic').addEventListener('click',e=>{
+  const t=e.target.closest('.rg');if(!t)return;
+  t.setAttribute('fill',curColor);pop();checkDone();
+});
+function checkDone(){
+  if(celebrated)return;
+  const rs=$('pic').querySelectorAll('.rg');
+  for(const r of rs){const f=(r.getAttribute('fill')||'').toLowerCase();if(f===''||f==='#fff'||f==='#ffffff'||f==='white')return;}
+  celebrated=true;ting();confetti();say('Đẹp quá! Bức tranh hoàn thành rồi.');
+}
+function confetti(){const cols=['#ff5a5a','#ffd23b','#7dc242','#38bdf8','#a78bfa','#ff9f1c','#f78fb3'];for(let i=0;i<70;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=cols[i%cols.length];c.style.animationDuration=(1.1+Math.random()*1.3)+'s';c.style.animationDelay=(Math.random()*.3)+'s';c.style.transform='rotate('+(Math.random()*360)+'deg)';document.body.appendChild(c);setTimeout(()=>c.remove(),2600);}}
+
+/* reset / save */
+$('resetBtn').onclick=()=>{$('pic').querySelectorAll('.rg').forEach(r=>r.setAttribute('fill','#fff'));celebrated=false;};
+$('galBtn').onclick=()=>{screen('galleryScreen');$('sub').textContent='Chọn một bức tranh rồi tô màu thật đẹp nhé!';};
+$('saveBtn').onclick=savePng;
+function savePng(){
+  const svg=$('pic');const clone=svg.cloneNode(true);clone.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const bgr=document.createElementNS('http://www.w3.org/2000/svg','rect');bgr.setAttribute('x',0);bgr.setAttribute('y',0);bgr.setAttribute('width',360);bgr.setAttribute('height',300);bgr.setAttribute('fill','#fff');clone.insertBefore(bgr,clone.firstChild);
+  const data=new XMLSerializer().serializeToString(clone);
+  const img=new Image();
+  img.onload=function(){const cv=document.createElement('canvas');cv.width=720;cv.height=600;const cx=cv.getContext('2d');cx.drawImage(img,0,0,720,600);cv.toBlob(function(b){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='tranh-cua-em.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);});};
+  img.src='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(data)));
+}
+$('soundBtn').onclick=function(){soundOn=!soundOn;setSnd();if(!soundOn&&'speechSynthesis'in window)speechSynthesis.cancel();else pop();};
+
+/* init */
+buildTabs();buildGrid();buildPalette();setSnd();
+</script>
+</body>
+</html>
