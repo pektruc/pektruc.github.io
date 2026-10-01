@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bắn Thiên Thạch Nhân</title>
+<style>
+  :root{--ink:#0c1a26;--ink2:#0f2433;--panel:#0a1520;--gold:#f0a83c;--gold2:#e08a2a;--yellow:#ffe08a;--cyan:#7cd4ff}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%}
+  body{font-family:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#fff;
+    background:radial-gradient(120% 90% at 50% 10%,#12304a 0%,#0c1a26 55%,#07121b 100%);
+    min-height:100%;overflow-x:hidden;user-select:none;touch-action:manipulation}
+  .back-home{position:fixed;top:12px;left:12px;z-index:50;color:#cbd8e6;text-decoration:none;font-size:13px;font-weight:800;
+    background:rgba(255,255,255,.08);padding:8px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.16)}
+  .wrap{max-width:1040px;margin:0 auto;padding:52px 12px 22px;display:flex;flex-direction:column;align-items:center}
+
+  /* chevron buttons */
+  .cbtn{position:relative;border:none;cursor:pointer;color:#fff;font-weight:900;font-style:italic;font-size:1.5rem;letter-spacing:1px;
+    background:linear-gradient(180deg,#f6b64e,#e0902c);padding:14px 54px 14px 30px;border-radius:6px;
+    box-shadow:0 6px 0 #b06b17,0 10px 20px rgba(0,0,0,.35)}
+  .cbtn::after{content:"";position:absolute;right:14px;top:50%;transform:translateY(-50%);
+    width:16px;height:16px;border-top:5px solid #fff;border-right:5px solid #fff;rotate:45deg}
+  .cbtn:active{transform:translateY(3px);box-shadow:0 3px 0 #b06b17}
+  .cbtn.sm{font-size:1.1rem;padding:11px 42px 11px 22px}
+  .ghostbtn{border:none;cursor:pointer;color:#fff;font-weight:900;background:#0a1622;border:1px solid rgba(255,255,255,.18);
+    padding:12px 22px;border-radius:8px;font-size:1rem}
+  .ghostbtn:active{transform:translateY(2px)}
+
+  .banner{position:relative;background:repeating-linear-gradient(115deg,#f4b445 0 22px,#eaa63a 22px 44px);
+    color:#22344a;font-weight:900;font-size:2.1rem;letter-spacing:1px;padding:14px 40px;border-radius:6px;text-align:center;
+    box-shadow:0 8px 0 rgba(0,0,0,.25);border:3px solid #f7cd7a}
+  .banner::before,.banner::after{content:"";position:absolute;top:0;width:26px;height:100%;background:#e46a3a}
+  .banner::before{left:-20px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,40% 50%)}
+  .banner::after{right:-20px;clip-path:polygon(0 0,100% 0,60% 50%,100% 100%,0 100%)}
+
+  .stars-bg{position:fixed;inset:0;z-index:-1;pointer-events:none}
+
+  /* screens */
+  .screen{width:100%;display:none;flex-direction:column;align-items:center;gap:26px;margin-top:16px}
+  .screen.on{display:flex}
+  .howto{max-width:560px;text-align:center;color:#cfe0ee;line-height:1.55;font-size:1rem}
+  .metrow{display:flex;gap:26px;align-items:flex-end;justify-content:center;margin:6px 0}
+
+  .panel{background:rgba(6,14,22,.72);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:26px 30px;width:100%;max-width:760px}
+  .panel h2{margin:0 0 18px;font-size:1.7rem;font-weight:800}
+  .opt-grid{display:flex;gap:40px;flex-wrap:wrap;justify-content:space-around}
+  .opt-col h3{font-size:1.3rem;font-weight:700;margin:0 0 16px;text-align:center}
+  .rangerow{display:flex;align-items:center;gap:12px;margin:10px 0;justify-content:center}
+  .rangerow label{width:52px;text-align:right;font-size:1.1rem}
+  .rangerow input{width:78px;font-size:1.3rem;font-weight:800;text-align:center;padding:8px;border-radius:8px;border:none}
+  .speedopt{display:flex;align-items:center;gap:10px;font-size:1.25rem;margin:12px 0;cursor:pointer;justify-content:center}
+  .speedopt .dot{width:18px;height:18px;border-radius:50%;border:2px solid #fff;display:inline-block}
+  .speedopt.sel .dot{background:var(--gold);border-color:var(--gold);box-shadow:0 0 0 3px rgba(240,168,60,.3)}
+  .gradepick{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .gradepick button{border:none;cursor:pointer;font-weight:800;font-size:1rem;padding:10px 20px;border-radius:10px;background:#0a1622;color:#cfe0ee;border:1px solid rgba(255,255,255,.18)}
+  .gradepick button.on{background:var(--gold);color:#22344a}
+
+  /* game */
+  #gameScreen{gap:8px}
+  #topbar{width:100%;max-width:980px;display:flex;align-items:center;justify-content:center;gap:16px;min-height:56px}
+  #startWrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .stageinfo{background:#060e16;border-radius:10px;padding:10px 22px;font-size:1.15rem;font-weight:800;line-height:1.5}
+  .stageinfo b{color:var(--yellow);margin-left:10px}
+  #stage{position:relative;width:100%;max-width:980px;aspect-ratio:16/10;max-height:76vh;border-radius:16px;overflow:hidden;
+    background:radial-gradient(130% 100% at 50% 0%,#123047 0%,#0b1a27 60%,#081019 100%);box-shadow:0 10px 30px rgba(0,0,0,.4);touch-action:none}
+  .meteor{position:absolute;transform:translate(-50%,-50%);width:clamp(74px,12%,128px);cursor:pointer;z-index:3;will-change:left,top}
+  .meteor svg{width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.4))}
+  .meteor .lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;
+    font-size:clamp(15px,2.4vw,26px);color:#fff;text-shadow:0 2px 3px rgba(0,0,0,.6);pointer-events:none}
+  .meteor.sel::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:3px dashed var(--cyan);animation:spin 6s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .meteor.boom{animation:boom .32s ease-out forwards;pointer-events:none}
+  @keyframes boom{0%{transform:translate(-50%,-50%) scale(1)}100%{transform:translate(-50%,-50%) scale(1.9);opacity:0}}
+  .meteor.wrong{animation:wob .3s}
+  @keyframes wob{0%,100%{transform:translate(-50%,-50%)}25%{transform:translate(-56%,-50%) rotate(-8deg)}75%{transform:translate(-44%,-50%) rotate(8deg)}}
+  #cannon{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:clamp(84px,14%,150px);z-index:4;pointer-events:none}
+  #cannon svg{width:100%;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+  #cannon .num{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);font-weight:900;color:#fff;
+    font-size:clamp(20px,3.6vw,40px);text-shadow:0 2px 3px rgba(0,0,0,.6)}
+  #cannon.hitflash{animation:flash .3s}
+  @keyframes flash{50%{filter:drop-shadow(0 0 12px #ff6b6b)}}
+  .bolt{position:absolute;height:5px;background:linear-gradient(90deg,rgba(124,212,255,0),#7cd4ff,#fff);border-radius:3px;
+    transform-origin:0 50%;z-index:3;pointer-events:none;box-shadow:0 0 8px #7cd4ff}
+
+  #hud{width:100%;max-width:980px;display:flex;align-items:center;gap:12px;margin-top:4px}
+  .dial{width:64px;height:64px;border-radius:50%;background:#8a7f83;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:.8rem;color:#22344a;position:relative;flex:0 0 auto}
+  #timeDial{background:conic-gradient(var(--gold) 0deg,#5b5560 0deg)}
+  #timeDial span,#rateDial span{position:relative;z-index:2}
+  .dial::before{content:"";position:absolute;inset:6px;border-radius:50%;background:#c9c2c6}
+  #hud .spacer{flex:1}
+  .cnt{background:#060e16;border-radius:8px;padding:6px 10px;font-weight:800;font-size:.95rem}
+  .cnt b{color:var(--yellow);margin-left:6px}
+  .sndbtn{border:none;background:#0a1622;color:#cfe0ee;border:1px solid rgba(255,255,255,.18);width:44px;height:44px;border-radius:12px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center}
+  .sndbtn.off{opacity:.5}
+
+  /* results */
+  .rescols{display:flex;gap:20px;width:100%;max-width:900px;flex-wrap:wrap}
+  .rescol{flex:1 1 320px;background:rgba(6,14,22,.72);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:22px 26px;min-height:260px}
+  .rescol h2{margin:0 0 18px;font-size:1.6rem}
+  .bigstat{font-size:1.25rem;margin:10px 0}.bigstat b{color:var(--yellow)}
+  .misshead{display:flex;gap:20px;font-weight:800;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:6px;margin-bottom:8px}
+  .misshead span{flex:1;text-decoration:underline}
+  .missrow{display:flex;gap:20px;font-size:1.1rem;margin:6px 0}
+  .missrow span{flex:1}
+  .missrow .yours{color:#ff9aa2}
+  .resbtns{display:flex;gap:16px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:6px}
+  @media(max-width:600px){.banner{font-size:1.4rem;padding:12px 30px}.opt-grid{gap:20px}}
+</style>
+</head>
+<body>
+<a href="../../index.html" class="back-home" onclick="return goBack()">← Quay lại</a>
+<svg class="stars-bg" id="stars"></svg>
+
+<div class="wrap">
+  <!-- TITLE -->
+  <div class="screen on" id="titleScreen">
+    <div class="banner">BẮN THIÊN THẠCH NHÂN</div>
+    <div class="metrow" id="titleMeteors"></div>
+    <p class="howto">Trên tàu hiện <b>một số</b>. Hãy bắn (chạm/bấm) vào thiên thạch có <b>phép nhân bằng số đó</b>.
+      Dùng phím <b>mũi tên</b> để chọn, phím <b>Space</b> để bắn. Đừng để thiên thạch chạm vào tàu!</p>
+    <div class="gradepick" id="gradePick">
+      <button data-g="3">Lớp 3</button>
+      <button data-g="4">Lớp 4</button>
+    </div>
+    <button class="cbtn" onclick="showOptions()">CHƠI</button>
+  </div>
+
+  <!-- OPTIONS -->
+  <div class="screen" id="optionsScreen">
+    <div class="panel">
+      <h2>Tùy chọn</h2>
+      <div class="opt-grid">
+        <div class="opt-col">
+          <h3>Phạm vi bảng nhân</h3>
+          <div class="rangerow"><label>Từ</label><input id="fromInput" type="number" min="0" max="12" value="1"></div>
+          <div class="rangerow"><label>Đến</label><input id="toInput" type="number" min="1" max="12" value="10"></div>
+        </div>
+        <div class="opt-col">
+          <h3>Tốc độ</h3>
+          <div class="speedopt" data-s="slow"><span class="dot"></span>Chậm</div>
+          <div class="speedopt sel" data-s="normal"><span class="dot"></span>Vừa</div>
+          <div class="speedopt" data-s="fast"><span class="dot"></span>Nhanh</div>
+        </div>
+      </div>
+    </div>
+    <button class="cbtn" onclick="showReady()">TIẾP</button>
+  </div>
+
+  <!-- READY -->
+  <div class="screen" id="readyScreen">
+    <div class="stageinfo">Thời gian<b>60 giây</b></div>
+    <button class="cbtn" onclick="startGame()">BẮT ĐẦU</button>
+    <div id="readyShip"></div>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="gameScreen">
+    <div id="stage"></div>
+    <div id="hud">
+      <div class="dial" id="timeDial"><span>GIỜ</span></div>
+      <div class="spacer"></div>
+      <button class="sndbtn" id="soundBtn" title="Âm thanh"></button>
+      <span class="cnt">TRÚNG<b id="hitN">0</b></span>
+      <span class="cnt">TRƯỢT<b id="missN">0</b></span>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="screen" id="resultScreen">
+    <div class="rescols">
+      <div class="rescol">
+        <h2>Kết quả</h2>
+        <p class="bigstat">Độ chính xác: <b id="accN">0%</b></p>
+        <p class="bigstat">Tốc độ: <b id="rateN">0/phút</b></p>
+        <p class="bigstat">Số câu đúng: <b id="doneN">0</b></p>
+      </div>
+      <div class="rescol">
+        <h2>Câu bị sai</h2>
+        <div class="misshead"><span>Đáp án đúng</span><span>Em chọn</span></div>
+        <div id="missList"></div>
+      </div>
+    </div>
+    <div class="resbtns">
+      <button class="ghostbtn" onclick="showTitle()">MENU</button>
+      <button class="cbtn sm" onclick="startGame()">CHƠI LẠI</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+function goBack(){if(history.length>1){history.back();return false;}window.location.href=grade===4?'../../lop-4/index.html':'../../lop-3/index.html';return false;}
+
+/* grade from URL */
+let grade=3;
+(function(){const m=(location.search.match(/lop=(\d)/)||[])[1];if(m==='3'||m==='4')grade=+m;})();
+
+/* ---------- art ---------- */
+const AST_COLORS=[['#8fa6b3','#5f7683'],['#9aa36e','#6d7548'],['#9b8fce','#6f639f'],['#7fb0c4','#557d8f']];
+function asteroidSVG(ci){
+  const c=AST_COLORS[ci%AST_COLORS.length];
+  return `<svg viewBox="0 0 100 100">
+    <path d="M50 7 C68 5 86 16 91 34 C97 52 90 68 78 81 C66 93 46 96 30 88 C15 81 5 65 8 47 C11 29 33 9 50 7 Z"
+      fill="${c[0]}" stroke="${c[1]}" stroke-width="3.5"/>
+    <ellipse cx="38" cy="34" rx="7" ry="5" fill="${c[1]}" opacity=".55"/>
+    <ellipse cx="64" cy="52" rx="6" ry="4" fill="${c[1]}" opacity=".5"/>
+    <ellipse cx="44" cy="66" rx="5" ry="3.5" fill="${c[1]}" opacity=".5"/>
+    <ellipse cx="40" cy="24" rx="12" ry="5" fill="#fff" opacity=".18"/>
+  </svg>`;
+}
+function shipSVG(){
+  return `<svg viewBox="0 0 120 120">
+    <polygon points="30,34 90,34 108,58 90,100 30,100 12,58" fill="#dfe3e6" stroke="#111820" stroke-width="3.5" stroke-linejoin="round"/>
+    <polygon points="30,34 48,58 30,100 12,58" fill="#c3c9ce" stroke="#111820" stroke-width="3"/>
+    <polygon points="90,34 108,58 90,100 72,58" fill="#c3c9ce" stroke="#111820" stroke-width="3"/>
+    <rect x="46" y="52" width="28" height="40" rx="3" fill="#4a4f55" stroke="#111820" stroke-width="3"/>
+    <line x1="60" y1="52" x2="60" y2="20" stroke="#c3c9ce" stroke-width="4"/>
+    <ellipse cx="60" cy="40" rx="12" ry="4" fill="none" stroke="#4bc3f0" stroke-width="2.4"/>
+    <ellipse cx="60" cy="35" rx="9" ry="3" fill="none" stroke="#4bc3f0" stroke-width="2"/>
+    <circle cx="60" cy="17" r="6" fill="#ffd23b" stroke="#b8912a" stroke-width="2"/>
+  </svg>`;
+}
+/* starfield */
+(function(){const s=$('stars');let h='';for(let i=0;i<70;i++){const x=Math.floor((i*173)%100),y=Math.floor((i*97)%100),r=(i%7===0)?1.8:0.9,o=0.3+((i%5)/10);h+=`<circle cx="${x}%" cy="${y}%" r="${r}" fill="#cdd8e6" opacity="${o}"/>`;}
+  for(let i=0;i<7;i++){const x=(i*140+40)%1000/10,y=(i*220+30)%1000/10;h+=`<path d="M${x} ${y-2} L${x+0.6} ${y} L${x} ${y+2} L${x-0.6} ${y} Z" fill="#e6eef7" opacity=".7" transform="scale(1)"/>`;}
+  s.innerHTML=h;})();
+
+/* title floating meteors */
+(function(){const box=$('titleMeteors');const demo=[['5×4',0,90],['8×2',1,120],['3×6',2,80]];
+  box.innerHTML=demo.map(d=>`<div style="width:${d[2]}px;position:relative">${asteroidSVG(d[1])}<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;text-shadow:0 2px 3px rgba(0,0,0,.6)">${d[0]}</div></div>`).join('');
+})();
+$('readyShip').innerHTML=`<div style="width:150px">${shipSVG()}</div>`;
+
+/* ---------- sound ---------- */
+let soundOn=true,actx=null;
+function AC(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}return actx;}
+function tone(f,f2,d,type,vol){if(!soundOn)return;const a=AC();if(!a)return;const o=a.createOscillator(),g=a.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,a.currentTime);if(f2)o.frequency.exponentialRampToValueAtTime(f2,a.currentTime+d);
+  g.gain.setValueAtTime(vol||.12,a.currentTime);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);
+  o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d);}
+function sPew(){tone(880,320,.16,'square',.09);}
+function sBoom(){tone(180,60,.32,'sawtooth',.14);}
+function sBad(){tone(200,140,.18,'sine',.13);}
+let viVoice=null;
+function pickVoice(){const vs=speechSynthesis.getVoices();viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||vs.find(v=>/vietnam/i.test(v.name))||null;}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function say(t){if(!soundOn||!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=1.05;speechSynthesis.speak(u);}catch(e){}}
+const SND_ON='<svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 8.5a4.5 4.5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const SND_OFF='<svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function setSnd(){$('soundBtn').innerHTML=soundOn?SND_ON:SND_OFF;$('soundBtn').classList.toggle('off',!soundOn);}
+
+/* ---------- screens ---------- */
+function screen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');}
+function showTitle(){stop();screen('titleScreen');markGrade();}
+function showOptions(){screen('optionsScreen');}
+function showReady(){readOptions();screen('readyScreen');}
+function markGrade(){document.querySelectorAll('#gradePick button').forEach(b=>b.classList.toggle('on',+b.dataset.g===grade));}
+document.querySelectorAll('#gradePick button').forEach(b=>b.onclick=()=>{grade=+b.dataset.g;markGrade();applyGradeDefaults();});
+document.querySelectorAll('.speedopt').forEach(o=>o.onclick=()=>{document.querySelectorAll('.speedopt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');});
+
+/* ---------- options / config ---------- */
+let cfg={from:1,to:10,speed:'normal'};
+function applyGradeDefaults(){
+  // both grades default range 1-10; L3 slower
+  $('fromInput').value=1;$('toInput').value=10;
+  const sp=grade===3?'slow':'normal';
+  document.querySelectorAll('.speedopt').forEach(x=>x.classList.toggle('sel',x.dataset.s===sp));
+}
+function readOptions(){
+  let f=parseInt($('fromInput').value)||1,t=parseInt($('toInput').value)||10;
+  f=Math.max(0,Math.min(12,f));t=Math.max(1,Math.min(12,t));if(f>t){const s=f;f=t;t=s;}
+  $('fromInput').value=f;$('toInput').value=t;
+  const sel=document.querySelector('.speedopt.sel');
+  cfg={from:f,to:t,speed:sel?sel.dataset.s:'normal'};
+}
+
+/* ---------- game ---------- */
+const GAME_SECONDS=60, NMET=7;
+let meteors=[], target=0, hits=0, misses=0, missed=[], selIdx=0;
+let running=false, tEnd=0, tStart=0, raf=0, lastTs=0, spawnAngle=0;
+let stageEl,cannonEl;
+
+function stop(){running=false;cancelAnimationFrame(raf);if('speechSynthesis'in window)speechSynthesis.cancel();}
+
+function startGame(){
+  readOptions();
+  screen('gameScreen');
+  stageEl=$('stage');
+  stageEl.innerHTML='';
+  cannonEl=document.createElement('div');cannonEl.id='cannon';
+  cannonEl.innerHTML=shipSVG()+'<div class="num" id="cannonNum">?</div>';
+  stageEl.appendChild(cannonEl);
+  meteors=[];hits=0;misses=0;missed=[];selIdx=0;
+  $('hitN').textContent='0';$('missN').textContent='0';
+  for(let i=0;i<NMET;i++)meteors.push(makeMeteor(i));
+  layoutInit();
+  pickTarget();
+  running=true;tStart=performance.now();tEnd=tStart+GAME_SECONDS*1000;lastTs=tStart;
+  AC();
+  raf=requestAnimationFrame(loop);
+}
+
+function dims(){const r=stageEl.getBoundingClientRect();return {w:r.width,h:r.height,cx:r.width/2,cy:r.height/2,min:Math.min(r.width,r.height)};}
+function randExpr(){const a=cfg.from+Math.floor(Math.random()*(cfg.to-cfg.from+1));const b=cfg.from+Math.floor(Math.random()*(cfg.to-cfg.from+1));return {a,b,val:a*b};}
+function makeMeteor(i){
+  const el=document.createElement('div');el.className='meteor';el.dataset.i=i;
+  const e=randExpr();const ci=i%AST_COLORS.length;
+  el.innerHTML=asteroidSVG(ci)+`<div class="lbl">${e.a}×${e.b}</div>`;
+  el.addEventListener('click',()=>fireAt(el));
+  stageEl.appendChild(el);
+  const m={el,a:e.a,b:e.b,val:e.val,ci,x:0,y:0,ang:0,r:0};
+  place(m,i);
+  return m;
+}
+function place(m,i){
+  const d=dims();
+  const ang=(i!=null? (i/NMET*Math.PI*2) : Math.random()*Math.PI*2)+ (Math.random()*0.5-0.25);
+  m.ang=ang;
+  m.r=d.min*0.52+Math.random()*d.min*0.06;
+  m.x=d.cx+Math.cos(ang)*m.r;
+  m.y=d.cy+Math.sin(ang)*m.r;
+  render(m);
+}
+function respawn(m){
+  const e=randExpr();m.a=e.a;m.b=e.b;m.val=e.val;m.ci=(m.ci+1)%AST_COLORS.length;
+  m.el.className='meteor';m.el.innerHTML=asteroidSVG(m.ci)+`<div class="lbl">${e.a}×${e.b}</div>`;
+  m.el.addEventListener('click',()=>fireAt(m.el));
+  place(m,null);
+}
+function render(m){m.el.style.left=m.x+'px';m.el.style.top=m.y+'px';}
+function layoutInit(){meteors.forEach((m,i)=>place(m,i));positionCannonNum();}
+function positionCannonNum(){}
+
+function pickTarget(){
+  const alive=meteors.filter(m=>!m.el.classList.contains('boom'));
+  const pool=alive.length?alive:meteors;
+  const m=pool[Math.floor(Math.random()*pool.length)];
+  target=m.val;
+  $('cannonNum').textContent=target;
+  updateSel(true);
+  say(String(target));
+}
+
+function updateSel(reset){
+  meteors.forEach(m=>m.el.classList.remove('sel'));
+  const alive=meteors.filter(m=>!m.el.classList.contains('boom'));
+  if(!alive.length)return;
+  if(reset||selIdx>=meteors.length||meteors[selIdx].el.classList.contains('boom')){
+    selIdx=meteors.indexOf(alive[0]);
+  }
+  meteors[selIdx].el.classList.add('sel');
+}
+function cycleSel(dir){
+  const order=meteors.map((m,idx)=>({m,idx,ang:Math.atan2(m.y-dims().cy,m.x-dims().cx)}))
+    .filter(o=>!o.m.el.classList.contains('boom')).sort((a,b)=>a.ang-b.ang);
+  if(!order.length)return;
+  let pos=order.findIndex(o=>o.idx===selIdx);if(pos<0)pos=0;
+  pos=(pos+dir+order.length)%order.length;selIdx=order[pos].idx;
+  meteors.forEach(m=>m.el.classList.remove('sel'));meteors[selIdx].el.classList.add('sel');
+}
+
+function boltTo(m){
+  const d=dims();const dx=m.x-d.cx,dy=m.y-d.cy,len=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)*180/Math.PI;
+  const b=document.createElement('div');b.className='bolt';b.style.left=d.cx+'px';b.style.top=d.cy+'px';
+  b.style.width=len+'px';b.style.transform=`rotate(${ang}deg)`;stageEl.appendChild(b);
+  b.animate([{opacity:.9},{opacity:0}],{duration:220,easing:'ease-out'});
+  setTimeout(()=>b.remove(),220);
+}
+function fireAt(el){
+  if(!running)return;
+  const m=meteors.find(x=>x.el===el);if(!m||el.classList.contains('boom'))return;
+  boltTo(m);sPew();
+  if(m.val===target){
+    hits++;$('hitN').textContent=hits;
+    el.classList.add('boom');sBoom();
+    setTimeout(()=>{respawn(m);pickTarget();},300);
+  }else{
+    misses++;$('missN').textContent=misses;
+    el.classList.remove('wrong');void el.offsetWidth;el.classList.add('wrong');sBad();
+    recordMiss(m.val);
+  }
+}
+function recordMiss(your){
+  // find an expression equal to target among meteors for the "correct answer"
+  let corr=null;for(const m of meteors){if(m.val===target){corr=m.a+' × '+m.b+' = '+target;break;}}
+  if(!corr)corr='= '+target;
+  missed.push({correct:corr,your:your});
+}
+
+function loop(ts){
+  if(!running)return;
+  const dt=Math.min(0.05,(ts-lastTs)/1000);lastTs=ts;
+  const d=dims();
+  const base=d.min*(cfg.speed==='slow'?0.022:cfg.speed==='fast'?0.06:0.038);
+  const arrive=d.min*0.11;
+  meteors.forEach(m=>{
+    if(m.el.classList.contains('boom'))return;
+    const dx=d.cx-m.x,dy=d.cy-m.y,dist=Math.hypot(dx,dy)||1;
+    const step=base*dt;
+    m.x+=dx/dist*step;m.y+=dy/dist*step;
+    render(m);
+    if(dist<arrive){
+      // reached the ship
+      if(m.val===target){
+        misses++;$('missN').textContent=misses;recordMiss('—');
+        cannonEl.classList.remove('hitflash');void cannonEl.offsetWidth;cannonEl.classList.add('hitflash');sBad();
+        respawn(m);pickTarget();
+      }else{
+        respawn(m);
+        cannonEl.classList.remove('hitflash');void cannonEl.offsetWidth;cannonEl.classList.add('hitflash');
+      }
+    }
+  });
+  // time
+  const left=Math.max(0,(tEnd-ts)/1000);
+  const frac=1-left/GAME_SECONDS;
+  $('timeDial').style.background=`conic-gradient(var(--gold) ${frac*360}deg,#5b5560 0deg)`;
+  if(left<=0){endGame();return;}
+  raf=requestAnimationFrame(loop);
+}
+
+function endGame(){
+  stop();
+  const attempts=hits+misses;
+  const acc=attempts?Math.round(hits/attempts*100):0;
+  const mins=Math.max(0.001,(performance.now()-tStart)/60000);
+  const rate=Math.round(hits/mins);
+  $('accN').textContent=acc+'%';
+  $('rateN').textContent=rate+'/phút';
+  $('doneN').textContent=hits;
+  const ml=$('missList');
+  if(!missed.length){ml.innerHTML='<div class="missrow"><span>Không có câu sai. Giỏi quá!</span></div>';}
+  else{ml.innerHTML=missed.slice(0,12).map(x=>`<div class="missrow"><span>${x.correct}</span><span class="yours">${x.your}</span></div>`).join('');}
+  screen('resultScreen');
+  say('Kết thúc! Em được '+hits+' câu đúng.');
+}
+
+/* keyboard */
+window.addEventListener('keydown',e=>{
+  if(!running)return;
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){cycleSel(-1);e.preventDefault();}
+  else if(e.key==='ArrowRight'||e.key==='ArrowDown'){cycleSel(1);e.preventDefault();}
+  else if(e.key===' '||e.key==='Spacebar'){if(meteors[selIdx])fireAt(meteors[selIdx].el);e.preventDefault();}
+});
+window.addEventListener('resize',()=>{if(running){meteors.forEach(m=>{const d=dims();/* keep relative angle */});}});
+
+/* controls */
+$('soundBtn').onclick=function(){soundOn=!soundOn;setSnd();if(!soundOn&&'speechSynthesis'in window)speechSynthesis.cancel();else sPew();};
+
+/* init */
+setSnd();markGrade();applyGradeDefaults();
+</script>
+</body>
+</html>
