@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lớp 1 - Trò Chơi Học Tập</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+            background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);min-height:100vh;padding:70px 20px 40px;color:#fff;
+            display:flex;flex-direction:column;align-items:center;justify-content:center}
+        .back-home{position:fixed;top:16px;left:16px;color:#cbd5e1;text-decoration:none;font-size:14px;font-weight:600;
+            background:rgba(255,255,255,.08);padding:9px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.14)}
+        .back-home:hover{color:#fff;background:rgba(255,255,255,.16)}
+        h1{text-align:center;font-size:2.4rem;margin-bottom:10px;
+            background:linear-gradient(90deg,#34d399,#10b981);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+        .subtitle{text-align:center;color:#94a3b8;margin-bottom:46px}
+        .cards{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;max-width:900px}
+        .card{background:rgba(255,255,255,.1);border-radius:20px;padding:40px 30px;width:270px;text-align:center;
+            text-decoration:none;color:#fff;transition:transform .3s,box-shadow .3s;backdrop-filter:blur(10px);
+            border:1px solid rgba(52,211,153,.25)}
+        .card:hover{transform:translateY(-10px);box-shadow:0 20px 40px rgba(16,185,129,.2)}
+        .card-icon{font-size:80px;margin-bottom:20px;display:block}
+        .card-title{font-size:1.3rem;font-weight:700;margin-bottom:10px;color:#34d399}
+        .card-desc{font-size:14px;color:#94a3b8;line-height:1.5}
+        .card-badge{display:inline-block;background:linear-gradient(90deg,#10b981,#059669);padding:5px 15px;border-radius:20px;font-size:12px;margin-top:15px;font-weight:500}
+        .footer{margin-top:60px;text-align:center;color:#64748b;font-size:14px}
+        .footer p{margin:5px 0}.footer strong{color:#94a3b8}
+        @media(max-width:600px){h1{font-size:1.8rem}.card{width:100%;max-width:300px;padding:30px 20px}.card-icon{font-size:60px}}
+    </style>
+</head>
+<body>
+    <a href="../index.html" class="back-home">← Trang chủ</a>
+    <h1>🎒 Lớp 1</h1>
+    <p class="subtitle">Trò chơi học tập dành cho học sinh lớp 1</p>
+
+    <div class="cards">
+        <a href="ghep-bong-may-tinh/" class="card">
+            <span class="card-icon">🧩</span>
+            <h2 class="card-title">Ghép Bóng Máy Tính</h2>
+            <p class="card-desc">Kéo đồ vật thả vào đúng cái bóng của nó — làm quen 10 đồ dùng máy tính</p>
+            <span class="card-badge">Kéo thả</span>
+        </a>
+
+        <a href="pokemon-ghep-chu/" class="card">
+            <span class="card-icon">⚡</span>
+            <h2 class="card-title">Pokémon Ghép Chữ Telex</h2>
+            <p class="card-desc">Học gõ tiếng Việt Telex qua trò chơi ghép chữ cùng Pikachu</p>
+            <span class="card-badge">Gõ tiếng Việt</span>
+        </a>
+
+        <a href="noi-diem-thanh-hinh/" class="card">
+            <span class="card-icon">✏️</span>
+            <h2 class="card-title">Nối Điểm Thành Hình</h2>
+            <p class="card-desc">Dùng chuột nối các điểm theo số để tạo tam giác, ngôi sao, vương miện… — luyện dùng chuột</p>
+            <span class="card-badge">Luyện chuột</span>
+        </a>
+
+        <a href="../game-chung/to-mau/" class="card">
+            <span class="card-icon">🎨</span>
+            <h2 class="card-title">Tô Màu Ngộ Nghĩnh</h2>
+            <p class="card-desc">Chọn hình quả táo, con cá, bông hoa… rồi chọn màu và tô theo mẫu gợi ý</p>
+            <span class="card-badge">Tô màu</span>
+        </a>
+
+        <a href="dem-do-vat/" class="card">
+            <span class="card-icon">🔢</span>
+            <h2 class="card-title">Đếm Đồ Vật</h2>
+            <p class="card-desc">Kéo đúng số lượng ngôi sao, bông hoa, bong bóng… vào ô — bạn Rô-bốt khen khi đếm đúng</p>
+            <span class="card-badge">Đếm số</span>
+        </a>
+
+        <a href="../game-chung/hoa-si-nhi/?lop=1" class="card">
+            <span class="card-icon"><svg width="76" height="76" viewBox="0 0 72 72" fill="none">
+              <path d="M34 8 C17 8 8 20 8 33 C8 45 18 51 26 49 C31 48 30 55 34 58 C39 62 47 61 52 56 C63 46 64 27 54 17 C49 11 42 8 34 8 Z" fill="#fff5e6" stroke="#a3805a" stroke-width="2.6"/>
+              <circle cx="22" cy="26" r="4.2" fill="#e53935"/><circle cx="34" cy="18" r="4.2" fill="#fdd835"/><circle cx="47" cy="22" r="4.2" fill="#1e88e5"/><circle cx="49" cy="36" r="4.2" fill="#7cb342"/>
+              <circle cx="28" cy="40" r="6" fill="#fff" stroke="#a3805a" stroke-width="2"/>
+              <g transform="rotate(40 56 40)"><rect x="53" y="22" width="6" height="30" rx="3" fill="#8d6e63" stroke="#5a4632" stroke-width="1.6"/><polygon points="53,52 59,52 56,62" fill="#5e35b1" stroke="#5a4632" stroke-width="1.4"/></g>
+            </svg></span>
+            <h2 class="card-title">Họa Sĩ Nhí</h2>
+            <p class="card-desc">Chọn tranh theo chủ đề (phong cảnh, động vật, vũ trụ, công chúa, rô bốt) rồi chạm từng vùng để tô màu tự do. Có bảng màu, làm lại và tải ảnh về khoe</p>
+            <span class="card-badge">Tô màu</span>
+        </a>
+
+        <a href="../game-chung/tho-hung-trai-cay/?lop=1" class="card">
+            <span class="card-icon"><svg width="80" height="80" viewBox="0 0 72 72" fill="none">
+              <path d="M54 22 C48 18 42 22 44 30 C45 38 52 42 54 38 C56 42 63 38 64 30 C66 22 60 18 54 22Z" fill="#e8402f" stroke="#a82a1e" stroke-width="2"/>
+              <path d="M54 22 V16" stroke="#7a4a24" stroke-width="2.4" stroke-linecap="round"/><path d="M54 18 q6 -4 9 1 q-6 4 -9 -1Z" fill="#5aa845"/>
+              <ellipse cx="24" cy="16" rx="4.5" ry="12" fill="#f4f4f8" stroke="#c9c9d4" stroke-width="2"/><ellipse cx="24" cy="16" rx="2.2" ry="7" fill="#ffc0cb"/>
+              <ellipse cx="36" cy="15" rx="4.5" ry="12" fill="#f4f4f8" stroke="#c9c9d4" stroke-width="2"/><ellipse cx="36" cy="15" rx="2.2" ry="7" fill="#ffc0cb"/>
+              <circle cx="30" cy="34" r="16" fill="#f9f9fd" stroke="#c9c9d4" stroke-width="2.4"/>
+              <circle cx="25" cy="33" r="2.2" fill="#33384a"/><circle cx="35" cy="33" r="2.2" fill="#33384a"/>
+              <path d="M28 37 h4 l-2 3Z" fill="#ff8fb3"/>
+              <rect x="16" y="48" width="28" height="6" rx="3" fill="#8a5a2b"/><path d="M18 54 L42 54 L38 66 L22 66 Z" fill="#c98a4a" stroke="#8a5a2b" stroke-width="2"/>
+            </svg></span>
+            <h2 class="card-title">Thỏ Hứng Trái Cây</h2>
+            <p class="card-desc">Di chuyển thỏ hứng đúng trái cây đang hiện; ăn hộp quà được thưởng, dính bom thì đứng im 4 giây. Có chế độ tính giờ và chơi vô hạn</p>
+            <span class="card-badge">Hứng trái</span>
+        </a>
+
+        <a href="../game-chung/lap-rap-robot/?lop=1" class="card">
+            <span class="card-icon"><svg width="76" height="76" viewBox="0 0 72 78" fill="none">
+              <line x1="36" y1="5" x2="36" y2="15" stroke="#8892a3" stroke-width="2.6" stroke-linecap="round"/>
+              <circle cx="36" cy="4.5" r="4" fill="#ff5a5a"/>
+              <rect x="19" y="14" width="34" height="24" rx="5" fill="#ffd23b" stroke="#c99f24" stroke-width="2"/>
+              <circle cx="29" cy="26" r="2.6" fill="#2b2f45"/><circle cx="43" cy="26" r="2.6" fill="#2b2f45"/>
+              <path d="M29 31 Q36 35 43 31" stroke="#2b2f45" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <rect x="17" y="40" width="38" height="26" rx="5" fill="#3b7dd8" stroke="#2a5aa0" stroke-width="2"/>
+              <circle cx="36" cy="53" r="7" fill="#ffd23b" stroke="#c99f24" stroke-width="1.6"/>
+              <rect x="7" y="42" width="8" height="19" rx="3" fill="#7dc242" stroke="#5c9a2e" stroke-width="1.6"/>
+              <rect x="57" y="42" width="8" height="19" rx="3" fill="#7dc242" stroke="#5c9a2e" stroke-width="1.6"/>
+              <rect x="26" y="66" width="8" height="10" rx="2" fill="#b7c0cc" stroke="#8f9aab" stroke-width="1.6"/>
+              <rect x="38" y="66" width="8" height="10" rx="2" fill="#b7c0cc" stroke="#8f9aab" stroke-width="1.6"/>
+            </svg></span>
+            <h2 class="card-title">Lắp Ráp Rô Bốt Hình Học</h2>
+            <p class="card-desc">Kéo các hình vuông, chữ nhật, tròn, tam giác vào đúng ô có tô màu để lắp rô bốt giống mẫu, rồi tự sáng tạo rô bốt của em</p>
+            <span class="card-badge">Kéo thả · Hình học</span>
+        </a>
+        <a href="xuong-ghep-hinh/" class="card">
+            <span class="card-icon"><svg width="80" height="80" viewBox="0 0 72 72" fill="none">
+              <rect x="34" y="12" width="3" height="34" rx="1.5" fill="#92400e"/>
+              <polygon points="37,16 37,42 56,42" fill="#fbcfe8" stroke="#db2777" stroke-width="2" stroke-linejoin="round"/>
+              <polygon points="34,20 34,42 18,42" fill="#fde68a" stroke="#f59e0b" stroke-width="2" stroke-linejoin="round"/>
+              <rect x="20" y="47" width="32" height="10" rx="2" fill="#bfdbfe" stroke="#3b82f6" stroke-width="2"/>
+              <polygon points="20,47 11,47 20,57" fill="#bbf7d0" stroke="#16a34a" stroke-width="2" stroke-linejoin="round"/>
+              <polygon points="52,47 61,47 52,57" fill="#bbf7d0" stroke="#16a34a" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M6 64 q6 -4 12 0 t12 0 t12 0 t12 0 t12 0" stroke="#38bdf8" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg></span>
+            <h2 class="card-title">Xưởng Ghép Hình Vui</h2>
+            <p class="card-desc">Kéo hình tròn, vuông, tam giác, chữ nhật vào đúng chỗ để ghép thành thuyền, máy bay, tàu vũ trụ, con cá, con ong… rồi tô màu cho sản phẩm của em</p>
+            <span class="card-badge">Kéo thả · Hình học · Tô màu</span>
+        </a>
+
+        <a href="../game-chung/ghep-nhan-vat/?lop=1" class="card">
+            <span class="card-icon"><svg width="80" height="80" viewBox="0 0 72 72" fill="none">
+              <circle cx="36" cy="32" r="24" fill="#1aa3e8" stroke="#1f2937" stroke-width="2"/>
+              <ellipse cx="36" cy="37" rx="19" ry="18" fill="#fff" stroke="#1f2937" stroke-width="1.6"/>
+              <ellipse cx="31" cy="22" rx="5" ry="6.5" fill="#fff" stroke="#1f2937" stroke-width="1.6"/><ellipse cx="41" cy="22" rx="5" ry="6.5" fill="#fff" stroke="#1f2937" stroke-width="1.6"/>
+              <circle cx="33" cy="24" r="1.8" fill="#1f2937"/><circle cx="39" cy="24" r="1.8" fill="#1f2937"/>
+              <circle cx="36" cy="30" r="3.2" fill="#e53935" stroke="#1f2937" stroke-width="1.2"/>
+              <path d="M24 39 Q36 54 48 39 Q36 44 24 39 Z" fill="#e53935" stroke="#1f2937" stroke-width="1.4"/>
+              <path d="M50 46 h12 v6 a3.5 3.5 0 1 1 0 7 v6 h-12 v-5 a3.5 3.5 0 1 0 0-7 z" fill="#fbbf24" stroke="#c2410c" stroke-width="1.6"/>
+            </svg></span>
+            <h2 class="card-title">Ghép Nhân Vật Hoạt Hình</h2>
+            <p class="card-desc">Kéo từng bộ phận vào đúng chỗ để ghép Doraemon, chuột Mickey, Pikachu, vịt Donald, gấu Pooh, Tom và Jerry, gấu trúc, Minion, cá Nemo</p>
+            <span class="card-badge">Kéo thả · Ghép hình</span>
+        </a>
+
+        <a href="../game-chung/ghep-co-the-gioi/?lop=1" class="card">
+            <span class="card-icon"><svg width="80" height="80" viewBox="0 0 72 72" fill="none">
+              <rect x="9" y="8" width="3.4" height="58" rx="1.7" fill="#92400e"/>
+              <rect x="13" y="12" width="17" height="32" fill="#0055a4"/>
+              <rect x="30" y="12" width="17" height="32" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+              <rect x="49" y="15" width="17" height="32" fill="#ef4135" transform="rotate(10 57 31)"/>
+              <rect x="13" y="12" width="34" height="32" fill="none" stroke="#334155" stroke-width="1.4" stroke-dasharray="3 2"/>
+            </svg></span>
+            <h2 class="card-title">Ghép Cờ Các Nước</h2>
+            <p class="card-desc">Kéo sọc, ngôi sao, hình tròn vào đúng chỗ để ghép lại lá cờ các nước trên thế giới; ghép xong biết thêm thủ đô và châu lục</p>
+            <span class="card-badge">Kéo thả · Thế giới</span>
+        </a>
+
+        <a href="../game-chung/doan-ten-co/?lop=1" class="card">
+            <span class="card-icon"><svg width="80" height="80" viewBox="0 0 72 72" fill="none">
+              <rect x="9" y="8" width="3.4" height="58" rx="1.7" fill="#92400e"/>
+              <rect x="13" y="12" width="40" height="27" fill="#da251d"/>
+              <polygon points="33,17.5 34.6,22.4 39.8,22.4 35.6,25.4 37.2,30.3 33,27.3 28.8,30.3 30.4,25.4 26.2,22.4 31.4,22.4" fill="#ffde00"/>
+              <rect x="20" y="46" width="11" height="13" rx="2.5" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+              <rect x="34" y="46" width="11" height="13" rx="2.5" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+              <rect x="48" y="46" width="11" height="13" rx="2.5" fill="#fff" stroke="#16a34a" stroke-width="2"/>
+              <path d="M54 26a6 6 0 1 1 8 5.6c-1.4.6-2 1.4-2 2.9" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round"/>
+              <circle cx="60" cy="39.5" r="2" fill="#2563eb"/>
+            </svg></span>
+            <h2 class="card-title">Cờ Nước Nào?</h2>
+            <p class="card-desc">Nhìn lá cờ rồi gõ đúng tên nước đó, có dấu đầy đủ bằng kiểu gõ Telex; gõ đúng biết thêm thủ đô</p>
+            <span class="card-badge">Gõ phím · Thế giới</span>
+        </a>
+
+    </div>
+
+    <footer class="footer">
+        <p>Thiết kế bởi <strong>Bùi Thị Phương Trúc</strong></p>
+        <p>Trường Trung-Tiểu học Pétrus Ký</p>
+    </footer>
+</body>
+</html>

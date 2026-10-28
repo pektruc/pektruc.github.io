@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Rô Bốt Chạy</title>
+<style>
+  :root{--road1:#3a4257;--road2:#333a4d;--gold:#ffd23b}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  .hide{display:none !important}
+  html,body{margin:0;padding:0;height:100%}
+  body{font-family:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#fff;
+    background:linear-gradient(160deg,#20264a,#12172e 60%,#0b1020);
+    min-height:100%;overflow:hidden;user-select:none;touch-action:none}
+  .back-home{position:fixed;top:10px;left:10px;z-index:40;color:#cdd6ea;text-decoration:none;font-size:13px;font-weight:800;
+    background:rgba(255,255,255,.1);padding:7px 13px;border-radius:18px;border:1px solid rgba(255,255,255,.16)}
+  .wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:44px 8px 8px}
+
+  #hud{width:min(94vw,460px);display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  #hearts{display:flex;gap:3px}
+  #hearts svg{width:26px;height:26px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+  #hud .spacer{flex:1}
+  .chip{background:rgba(0,0,0,.35);border-radius:12px;padding:5px 11px;font-weight:800;font-size:.9rem}
+  .chip b{color:var(--gold);margin-left:5px}
+  .sbtn{border:none;background:rgba(255,255,255,.12);color:#cdd6ea;width:38px;height:38px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .sbtn.off{opacity:.5}
+
+  #stage{position:relative;width:min(94vw,460px);flex:1;max-height:80vh;border-radius:20px;overflow:hidden;
+    background:repeating-linear-gradient(180deg,var(--road1) 0 46px,var(--road2) 46px 92px);
+    box-shadow:0 12px 34px rgba(0,0,0,.5);border:3px solid rgba(255,255,255,.06)}
+  .lane-line{position:absolute;top:-40px;bottom:-40px;width:6px;margin-left:-3px;
+    background:repeating-linear-gradient(180deg,#f4d06a 0 26px,transparent 26px 58px);opacity:.9}
+  .curb{position:absolute;top:0;bottom:0;width:10px;background:repeating-linear-gradient(180deg,#e05a6e 0 26px,#f2f2f2 26px 52px);opacity:.85}
+  .curb.l{left:0}.curb.r{right:0}
+
+  .runner{position:absolute;width:19%;left:50%;bottom:9%;transform:translateX(-50%);transition:left .12s ease-out;z-index:6}
+  .runner svg{width:100%;height:auto;display:block;filter:drop-shadow(0 5px 5px rgba(0,0,0,.45))}
+  .runner.bob{animation:bob .5s infinite}
+  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5%)}}
+  .runner.inv{animation:bob .5s infinite,blink .28s steps(2) infinite}
+  @keyframes blink{50%{opacity:.35}}
+
+  .item{position:absolute;width:15%;transform:translate(-50%,-50%);z-index:4;will-change:top}
+  .item svg{width:100%;height:auto;display:block;filter:drop-shadow(0 3px 4px rgba(0,0,0,.4))}
+  .item.pop{animation:pop .3s forwards}
+  @keyframes pop{to{transform:translate(-50%,-50%) scale(1.7);opacity:0}}
+
+  .overlay{position:absolute;inset:0;z-index:30;background:rgba(9,13,28,.72);backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;padding:16px}
+  .overlay.hide{display:none}
+  .card{background:#171d38;border:1px solid rgba(255,255,255,.1);border-radius:24px;max-width:400px;width:100%;padding:22px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+  .card h2{margin:6px 0 2px;font-size:1.7rem}
+  .card p{color:#aeb8d4;margin:6px 0 0;line-height:1.5;font-size:.92rem}
+  .ribbon{display:inline-block;background:linear-gradient(90deg,#f97316,#facc15);color:#3a2a00;font-weight:900;padding:5px 16px;border-radius:16px;font-size:.85rem}
+  .bigbtn{display:block;width:100%;border:none;cursor:pointer;color:#3a2a00;font-weight:900;font-size:1.15rem;padding:14px;border-radius:16px;margin-top:12px;
+    background:linear-gradient(180deg,#ffd84d,#f5b62a);box-shadow:0 6px 0 #c78a12}
+  .bigbtn:active{transform:translateY(3px);box-shadow:0 3px 0 #c78a12}
+  .bigbtn.g{background:linear-gradient(180deg,#67e0a3,#39c07a);color:#093;box-shadow:0 6px 0 #2a9159}
+  .gradepick{display:flex;gap:8px;justify-content:center;margin-top:10px}
+  .gradepick button{border:none;cursor:pointer;font-weight:800;font-size:.95rem;padding:9px 16px;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;border:2px solid rgba(255,255,255,.4)}
+  .gradepick button.on{background:#fff;color:#20264a}
+  .mascot{width:90px;height:90px;margin:0 auto}
+  .hintrow{display:flex;gap:16px;justify-content:center;margin-top:12px;color:#aeb8d4;font-size:.85rem;font-weight:700}
+  .hintrow span{display:flex;align-items:center;gap:5px}
+</style>
+</head>
+<body>
+<a href="../../index.html" class="back-home" id="backLink" onclick="return goBack()">← Quay lại</a>
+<div class="wrap">
+  <div id="hud">
+    <div id="hearts"></div>
+    <div class="spacer"></div>
+    <span class="chip">Điểm<b id="scoreN">0</b></span>
+    <span class="chip">Cao nhất<b id="bestN">0</b></span>
+    <button class="sbtn" id="soundBtn"></button>
+  </div>
+
+  <div id="stage">
+    <div class="curb l"></div><div class="curb r"></div>
+    <div class="lane-line" id="ll1"></div>
+    <div class="lane-line" id="ll2"></div>
+    <div class="runner bob" id="runner"></div>
+
+    <!-- START -->
+    <div class="overlay" id="startOv">
+      <div class="card">
+        <div id="mascotStart" class="mascot"></div>
+        <div class="ribbon">Chạy vượt chướng ngại</div>
+        <h2>Rô Bốt Chạy</h2>
+        <p>Điều khiển rô bốt sang trái/phải để <b>ăn thiết bị máy tính</b> (được điểm) và <b>né bom, chướng ngại</b>. Có <b>5 mạng</b>, nhặt được trái tim để thêm mạng!</p>
+        <div class="hintrow">
+          <span>Máy tính: phím ← →</span><span>Điện thoại: chạm/vuốt</span>
+        </div>
+        <div class="gradepick" id="gradePick">
+          <button data-g="2">Lớp 2</button><button data-g="3">Lớp 3</button><button data-g="4">Lớp 4</button>
+        </div>
+        <button class="bigbtn" onclick="startGame()">CHƠI</button>
+      </div>
+    </div>
+
+    <!-- GAME OVER -->
+    <div class="overlay hide" id="overOv">
+      <div class="card">
+        <div class="ribbon" style="background:linear-gradient(90deg,#ef4444,#f97316);color:#fff">Hết mạng rồi!</div>
+        <h2 id="overTitle">Chơi lại nhé!</h2>
+        <p id="overText">Em được 0 điểm.</p>
+        <button class="bigbtn" onclick="startGame()">CHƠI LẠI</button>
+        <button class="bigbtn g" onclick="showStart()">TRANG CHỦ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let grade=3;
+(function(){const m=(location.search.match(/lop=(\d)/)||[])[1];if(m==='2'||m==='3'||m==='4')grade=+m;})();
+function goBack(){if(history.length>1){history.back();return false;}location.href=grade===2?'../../lop-2/index.html':grade===4?'../../lop-4/index.html':'../../lop-3/index.html';return false;}
+
+/* ---------- art ---------- */
+const OUT='#2b3350';
+function wrap(v){return `<svg viewBox="0 0 100 100">${v}</svg>`;}
+const DEVICES=[
+ {id:'manhinh',name:'màn hình',svg:wrap(`<rect x="12" y="22" width="76" height="48" rx="7" fill="#3b7dd8" stroke="${OUT}" stroke-width="3.5"/><rect x="18" y="28" width="64" height="36" rx="3" fill="#cfe6ff"/><rect x="44" y="70" width="12" height="10" fill="#8892a3" stroke="${OUT}" stroke-width="3"/><rect x="33" y="80" width="34" height="7" rx="3.5" fill="#8892a3" stroke="${OUT}" stroke-width="3"/>`)},
+ {id:'banphim',name:'bàn phím',svg:(function(){let k='';for(let r=0;r<3;r++)for(let c=0;c<7;c++)k+=`<rect x="${17+c*9.6}" y="${41+r*8}" width="7.6" height="6" rx="1.6" fill="#fff" stroke="#9aa3b5" stroke-width="1.1"/>`;return wrap(`<rect x="10" y="34" width="80" height="34" rx="7" fill="#c9d3e4" stroke="${OUT}" stroke-width="3.5"/>${k}`);})()},
+ {id:'chuot',name:'con chuột',svg:wrap(`<path d="M50 16 C33 16 27 34 27 54 C27 74 37 86 50 86 C63 86 73 74 73 54 C73 34 67 16 50 16 Z" fill="#eef2f8" stroke="${OUT}" stroke-width="3.5"/><line x1="50" y1="18" x2="50" y2="48" stroke="${OUT}" stroke-width="3"/><rect x="45" y="26" width="10" height="16" rx="5" fill="#7cc4ff" stroke="${OUT}" stroke-width="2.4"/>`)},
+ {id:'loa',name:'cái loa',svg:wrap(`<rect x="30" y="14" width="40" height="72" rx="8" fill="#33415c" stroke="${OUT}" stroke-width="3.5"/><circle cx="50" cy="38" r="14" fill="#c7d0e0" stroke="${OUT}" stroke-width="2.6"/><circle cx="50" cy="38" r="6" fill="#5b6478"/><circle cx="50" cy="66" r="9" fill="#c7d0e0" stroke="${OUT}" stroke-width="2.6"/><circle cx="50" cy="66" r="3.4" fill="#5b6478"/>`)},
+ {id:'tainghe',name:'tai nghe',svg:wrap(`<path d="M22 58 A28 28 0 0 1 78 58" fill="none" stroke="${OUT}" stroke-width="6.5" stroke-linecap="round"/><rect x="15" y="52" width="17" height="28" rx="7" fill="#7c5cff" stroke="${OUT}" stroke-width="3"/><rect x="68" y="52" width="17" height="28" rx="7" fill="#7c5cff" stroke="${OUT}" stroke-width="3"/>`)},
+ {id:'micro',name:'micro',svg:(function(){let g='';for(let i=0;i<3;i++)g+=`<line x1="41" y1="${24+i*7}" x2="59" y2="${24+i*7}" stroke="#33415c" stroke-width="2.2"/>`;return wrap(`<rect x="40" y="14" width="20" height="40" rx="10" fill="#8892a3" stroke="${OUT}" stroke-width="3.5"/>${g}<path d="M32 50 A18 18 0 0 0 68 50" fill="none" stroke="${OUT}" stroke-width="3.4"/><line x1="50" y1="60" x2="50" y2="76" stroke="${OUT}" stroke-width="4.4"/><rect x="36" y="78" width="28" height="7" rx="3.5" fill="#33415c"/>`);})()},
+ {id:'usb',name:'USB',svg:wrap(`<rect x="30" y="40" width="42" height="26" rx="6" fill="#3b7dd8" stroke="${OUT}" stroke-width="3.5"/><rect x="43" y="20" width="14" height="22" rx="2.5" fill="#c7d0e0" stroke="${OUT}" stroke-width="2.6"/><rect x="35" y="49" width="22" height="5" rx="2.5" fill="#cfe6ff"/>`)},
+ {id:'cpu',name:'thùng máy',svg:wrap(`<rect x="30" y="12" width="40" height="76" rx="7" fill="#6b7896" stroke="${OUT}" stroke-width="3.5"/><circle cx="50" cy="24" r="4.6" fill="#7dc242" stroke="${OUT}" stroke-width="2"/><rect x="38" y="36" width="24" height="4.5" rx="2" fill="#cfd6e4"/><rect x="38" y="45" width="24" height="4.5" rx="2" fill="#cfd6e4"/><rect x="40" y="64" width="20" height="16" rx="3" fill="#33415c"/>`)},
+];
+const BOMB=wrap(`<circle cx="50" cy="58" r="30" fill="#2b2f3a" stroke="#0d0f16" stroke-width="3"/><ellipse cx="40" cy="48" rx="9" ry="6" fill="#4a4f5e"/><rect x="46" y="18" width="8" height="14" rx="3" fill="#5b6478"/><path d="M54 22 q12 -6 14 -16" fill="none" stroke="#b9863a" stroke-width="4" stroke-linecap="round"/><g fill="#ffcf3a"><circle cx="70" cy="6" r="4"/><circle cx="76" cy="10" r="2.5"/><circle cx="66" cy="2" r="2"/></g>`);
+const CONE=wrap(`<polygon points="50,16 70,84 30,84" fill="#f97316" stroke="#b0480c" stroke-width="3" stroke-linejoin="round"/><rect x="24" y="82" width="52" height="10" rx="3" fill="#e0640f" stroke="#b0480c" stroke-width="2.5"/><rect x="36" y="44" width="28" height="10" fill="#fff" opacity=".9"/><rect x="40" y="60" width="20" height="8" fill="#fff" opacity=".9"/>`);
+const HEART=wrap(`<path d="M50 84 C18 60 22 30 42 30 C50 30 50 40 50 40 C50 40 50 30 58 30 C78 30 82 60 50 84 Z" fill="#ff5a6e" stroke="#c22b45" stroke-width="3.5" stroke-linejoin="round"/><ellipse cx="40" cy="44" rx="6" ry="4" fill="#fff" opacity=".55"/>`);
+function robotSVG(){return `<svg viewBox="0 0 100 120">
+  <line x1="50" y1="8" x2="50" y2="20" stroke="#8892a3" stroke-width="4"/><circle cx="50" cy="7" r="6" fill="#ff5a5a" stroke="${OUT}" stroke-width="2"/>
+  <rect x="24" y="18" width="52" height="40" rx="9" fill="#ffd23b" stroke="${OUT}" stroke-width="4"/>
+  <g stroke="none"><ellipse cx="40" cy="36" rx="8" ry="8" fill="#fff"/><ellipse cx="60" cy="36" rx="8" ry="8" fill="#fff"/><circle cx="40" cy="37" r="4" fill="#2b2f45"/><circle cx="60" cy="37" r="4" fill="#2b2f45"/><path d="M40 48 Q50 56 60 48" stroke="#c94f6a" stroke-width="3.4" fill="none" stroke-linecap="round"/></g>
+  <rect x="20" y="60" width="60" height="40" rx="10" fill="#3b7dd8" stroke="${OUT}" stroke-width="4"/>
+  <polygon points="50,68 55,80 63,80 57,86 60,96 50,90 40,96 43,86 37,80 45,80" fill="#ffd23b" stroke="${OUT}" stroke-width="1.6" stroke-linejoin="round"/>
+  <rect x="8" y="64" width="10" height="24" rx="4" fill="#7dc242" stroke="${OUT}" stroke-width="3"/>
+  <rect x="82" y="64" width="10" height="24" rx="4" fill="#7dc242" stroke="${OUT}" stroke-width="3"/>
+  <rect x="34" y="100" width="12" height="16" rx="4" fill="#b7c0cc" stroke="${OUT}" stroke-width="3"/>
+  <rect x="54" y="100" width="12" height="16" rx="4" fill="#b7c0cc" stroke="${OUT}" stroke-width="3"/>
+</svg>`;}
+$('runner').innerHTML=robotSVG();
+$('mascotStart').innerHTML=robotSVG();
+
+/* hearts */
+function heartMini(full){return `<svg viewBox="0 0 24 24"><path d="M12 21C4 15 5 7 10 7c2 0 2 2.5 2 2.5S12 7 14 7c5 0 6 8-2 14z" fill="${full?'#ff5a6e':'#3a4257'}" stroke="${full?'#c22b45':'#4a566e'}" stroke-width="1.4" stroke-linejoin="round"/></svg>`;}
+function renderHearts(){let h='';const show=Math.max(lives,0);for(let i=0;i<Math.max(5,show);i++)h+=heartMini(i<lives);$('hearts').innerHTML=h;}
+
+/* ---------- sound ---------- */
+let soundOn=true,actx=null,viVoice=null,lastSay=0;
+function AC(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}return actx;}
+function tone(f,f2,d,t,v){if(!soundOn)return;const a=AC();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=t||'sine';o.frequency.setValueAtTime(f,a.currentTime);if(f2)o.frequency.exponentialRampToValueAtTime(f2,a.currentTime+d);g.gain.setValueAtTime(v||.12,a.currentTime);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d);}
+function sGet(){tone(720,1080,.12,'triangle',.11);}
+function sHit(){tone(240,70,.3,'sawtooth',.16);}
+function sLife(){tone(600,1200,.2,'sine',.13);setTimeout(()=>tone(1000,1500,.18,'sine',.11),90);}
+function sOver(){tone(400,120,.5,'sawtooth',.15);}
+function pv(){const vs=speechSynthesis.getVoices();viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||vs.find(v=>/vietnam/i.test(v.name))||null;}
+if('speechSynthesis'in window){pv();speechSynthesis.onvoiceschanged=pv;}
+function say(t){if(!soundOn||!('speechSynthesis'in window))return;const now=performance.now();if(now-lastSay<650)return;lastSay=now;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=1.08;speechSynthesis.speak(u);}catch(e){}}
+const SND_ON='<svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 8.5a4.5 4.5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const SND_OFF='<svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function setSnd(){$('soundBtn').innerHTML=soundOn?SND_ON:SND_OFF;$('soundBtn').classList.toggle('off',!soundOn);}
+
+/* ---------- game ---------- */
+const LANES=[22,50,78], ROBOT_Y=88, HITBAND=10;
+let lives=5, score=0, best=0, lane=1, items=[], running=false, raf=0, lastTs=0;
+let speed=34, spawnAcc=0, scrollY=0, invUntil=0, distScore=0, conf={}, collected=0;
+const GRADE={2:{sp:26,bomb:.16,ramp:.35},3:{sp:33,bomb:.24,ramp:.55},4:{sp:40,bomb:.32,ramp:.72}};
+
+function loadBest(){best=parseInt(localStorage.getItem('robotchay_best_'+grade)||'0')||0;$('bestN').textContent=best;}
+function markGrade(){document.querySelectorAll('#gradePick button').forEach(b=>b.classList.toggle('on',+b.dataset.g===grade));}
+function showStart(){stop();$('overOv').classList.add('hide');$('startOv').classList.remove('hide');markGrade();loadBest();}
+function stop(){running=false;cancelAnimationFrame(raf);if('speechSynthesis'in window)speechSynthesis.cancel();}
+
+function startGame(){
+  conf=GRADE[grade];
+  $('startOv').classList.add('hide');$('overOv').classList.add('hide');
+  items.forEach(it=>it.el.remove());items=[];
+  lives=5;score=0;lane=1;speed=conf.sp;spawnAcc=0;scrollY=0;invUntil=0;distScore=0;collected=0;
+  loadBest();renderHearts();$('scoreN').textContent='0';
+  placeRunner();
+  const rn=$('runner');rn.className='runner bob';
+  running=true;AC();lastTs=performance.now();raf=requestAnimationFrame(loop);
+}
+function placeRunner(){$('runner').style.left=LANES[lane]+'%';}
+function setLane(d){if(!running)return;lane=Math.max(0,Math.min(2,lane+d));placeRunner();}
+
+function spawn(){
+  const st=$('stage');
+  let type,dev=null,svg;
+  const r=Math.random();
+  const heartP=(lives<6)?0.05:0;
+  if(r<heartP){type='heart';svg=HEART;}
+  else if(r<heartP+conf.bomb){type='bad';svg=Math.random()<0.5?BOMB:CONE;}
+  else{type='good';dev=DEVICES[Math.floor(Math.random()*DEVICES.length)];svg=dev.svg;}
+  const el=document.createElement('div');el.className='item';el.innerHTML=svg;
+  const ln=Math.floor(Math.random()*3);
+  el.style.left=LANES[ln]+'%';el.style.top='-8%';
+  st.appendChild(el);
+  items.push({el,lane:ln,y:-8,type,dev,done:false});
+}
+
+function loop(ts){
+  if(!running)return;
+  const dt=Math.min(0.05,(ts-lastTs)/1000);lastTs=ts;
+  // speed ramp
+  speed+=conf.ramp*dt;
+  // background motion
+  scrollY=(scrollY+speed*dt*9)%92;
+  $('stage').style.backgroundPosition='0 '+scrollY.toFixed(1)+'px';
+  const lp=(scrollY*0.63)%58;
+  $('ll1').style.left='39%';$('ll1').style.backgroundPosition='0 '+lp.toFixed(1)+'px';
+  $('ll2').style.left='61%';$('ll2').style.backgroundPosition='0 '+lp.toFixed(1)+'px';
+  // distance score
+  distScore+=speed*dt*0.14;
+  score=Math.floor(distScore)+collected*10;
+  $('scoreN').textContent=score;
+  // spawn
+  spawnAcc+=dt;
+  const interval=Math.max(0.42,0.95-(speed-conf.sp)*0.006);
+  if(spawnAcc>=interval){spawnAcc=0;spawn();}
+  // move + collide
+  const inv=ts<invUntil;
+  $('runner').classList.toggle('inv',inv);
+  for(const it of items){
+    if(it.done)continue;
+    it.y+=speed*dt;
+    it.el.style.top=it.y+'%';
+    if(!it.done && it.y>=ROBOT_Y-HITBAND && it.y<=ROBOT_Y+HITBAND && it.lane===lane){
+      if(it.type==='good'){it.done=true;collected++;sGet();say(it.dev.name);pop(it);}
+      else if(it.type==='heart'){it.done=true;lives=Math.min(6,lives+1);renderHearts();sLife();pop(it);}
+      else if(it.type==='bad'&&!inv){it.done=true;lives--;renderHearts();sHit();invUntil=ts+1200;flash();it.el.remove();if(lives<=0){gameOver();return;}}
+    }
+    if(it.y>112){it.done=true;it.el.remove();}
+  }
+  items=items.filter(it=>it.el.isConnected);
+  raf=requestAnimationFrame(loop);
+}
+function pop(it){it.el.classList.add('pop');const e=it.el;setTimeout(()=>e.remove(),300);}
+function flash(){const st=$('stage');st.animate?st.animate([{filter:'brightness(2.2)'},{filter:'brightness(1)'}],{duration:280}):0;}
+
+function gameOver(){
+  stop();
+  if(score>best){best=score;localStorage.setItem('robotchay_best_'+grade,String(best));}
+  $('bestN').textContent=best;
+  $('overText').textContent='Em được '+score+' điểm. Kỷ lục: '+best+'.';
+  $('overOv').classList.remove('hide');
+  sOver();say('Hết mạng rồi! Em được '+score+' điểm.');
+}
+
+/* input */
+document.querySelectorAll('#gradePick button').forEach(b=>b.onclick=()=>{grade=+b.dataset.g;markGrade();loadBest();});
+window.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A'){setLane(-1);e.preventDefault();}
+  else if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){setLane(1);e.preventDefault();}
+});
+let pd=null;
+const stg=$('stage');
+stg.addEventListener('pointerdown',e=>{pd={x:e.clientX,y:e.clientY};});
+stg.addEventListener('pointerup',e=>{
+  if(!pd)return;const dx=e.clientX-pd.x;const r=stg.getBoundingClientRect();
+  if(Math.abs(dx)>24){setLane(dx>0?1:-1);}
+  else{setLane((e.clientX-r.left)<r.width/2?-1:1);}
+  pd=null;
+});
+$('soundBtn').onclick=function(){soundOn=!soundOn;setSnd();if(!soundOn&&'speechSynthesis'in window)speechSynthesis.cancel();else sGet();};
+
+/* init */
+setSnd();markGrade();loadBest();renderHearts();placeRunner();
+</script>
+</body>
+</html>

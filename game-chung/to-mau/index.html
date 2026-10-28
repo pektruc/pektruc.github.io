@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tô Màu Ngộ Nghĩnh</title>
+<style>
+  :root{ --ink:#2b3a55; }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Nunito',sans-serif;
+    background:linear-gradient(160deg,#e0f2fe,#f0fdfa 55%,#fff);color:var(--ink);min-height:100vh;
+    overflow-x:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;padding:12px}
+  #app{max-width:960px;margin:0 auto}
+  .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .back{color:#3d5273;text-decoration:none;font-weight:700;font-size:.95rem;background:#fff;padding:9px 16px;border-radius:16px;box-shadow:0 3px 8px rgba(43,58,85,.1);border:none;cursor:pointer}
+  .back:active{transform:translateY(2px)}
+  #sound{border:none;background:#fff;font-size:1.2rem;width:44px;height:44px;border-radius:14px;cursor:pointer;box-shadow:0 3px 8px rgba(43,58,85,.1);margin-left:auto}
+  h1{font-size:clamp(1.5rem,5vw,2.1rem);text-align:center;margin:6px 0 2px;
+    background:linear-gradient(90deg,#06b6d4,#db2777);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lead{text-align:center;color:#475569;font-weight:700;margin-bottom:14px;font-size:clamp(.95rem,3.4vw,1.15rem)}
+
+  /* GALLERY */
+  .gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:760px){.gallery{grid-template-columns:repeat(2,1fr)}}
+  .pick{background:#fff;border-radius:22px;padding:12px 10px 10px;cursor:pointer;border:4px solid #fff;
+    box-shadow:0 6px 16px rgba(43,58,85,.12);transition:transform .12s,border-color .12s;text-align:center}
+  .pick:hover{transform:translateY(-4px)}
+  .pick:active{transform:scale(.97)}
+  .pick svg{width:100%;height:120px;display:block}
+  .pick .nm{font-weight:800;margin-top:6px;font-size:clamp(.95rem,3.4vw,1.1rem)}
+  .pick[data-cat="trai-cay"]{border-color:#fecdd3}
+  .pick[data-cat="con-vat"]{border-color:#bbf7d0}
+  .pick[data-cat="do-vat"]{border-color:#bfdbfe}
+  .pick[data-cat="cay-coi"]{border-color:#bbf7d0}
+  .pick[data-cat="bong-hoa"]{border-color:#fbcfe8}
+  .pick[data-cat="phuong-tien"]{border-color:#fde68a}
+  .pick[data-cat="phong-canh"]{border-color:#c7d2fe}
+  .cat{display:inline-block;font-size:.72rem;font-weight:800;color:#fff;background:#94a3b8;border-radius:20px;padding:2px 10px;margin-top:4px}
+  .lvl{display:inline-block;font-size:.7rem;font-weight:800;color:#f59e0b;margin-top:4px;letter-spacing:1px}
+  .lvl b{color:#64748b;font-weight:800}
+
+  /* COLORING */
+  .stage{display:grid;grid-template-columns:1fr 220px;gap:16px;align-items:start}
+  @media(max-width:760px){.stage{grid-template-columns:1fr}}
+  .canvas{background:#fff;border-radius:24px;padding:14px;box-shadow:0 8px 22px rgba(43,58,85,.14);position:relative}
+  .canvas svg{width:100%;height:auto;display:block;max-height:60vh}
+  .fillable{cursor:pointer;transition:fill .15s}
+  .side{display:flex;flex-direction:column;gap:12px}
+  .hintbox{background:#fff;border-radius:20px;padding:10px;box-shadow:0 6px 16px rgba(43,58,85,.12);text-align:center}
+  .hintbox .ht{font-weight:800;color:#0891b2;font-size:.95rem;margin-bottom:6px}
+  .hintbox svg{width:100%;height:auto;max-height:150px}
+  @media(max-width:760px){.hintbox svg{max-height:120px}}
+
+  .palette{background:#fff;border-radius:20px;padding:12px;box-shadow:0 6px 16px rgba(43,58,85,.12)}
+  .swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .sw{width:100%;aspect-ratio:1;border-radius:50%;border:4px solid #fff;box-shadow:0 3px 7px rgba(43,58,85,.2);cursor:pointer;transition:transform .1s}
+  .sw:active{transform:scale(.9)}
+  .sw.sel{border-color:var(--ink);transform:scale(1.12);box-shadow:0 5px 12px rgba(43,58,85,.35)}
+  .sw.eraser{background:#fff!important;display:flex;align-items:center;justify-content:center;font-size:1.3rem;border:4px dashed #cbd5e1}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:1rem;padding:12px 18px;border-radius:16px;flex:1;min-width:120px;
+    background:linear-gradient(180deg,#67e28c,#25c15c);box-shadow:0 5px 0 #189745}
+  .btn:active{transform:translateY(4px);box-shadow:0 1px 0 #189745}
+  .btn.gray{background:linear-gradient(180deg,#cbd5e1,#94a3b8);box-shadow:0 5px 0 #64748b;color:#1e293b}
+  .btn.gray:active{box-shadow:0 1px 0 #64748b}
+  .btn.pink{background:linear-gradient(180deg,#f9a8d4,#ec4899);box-shadow:0 5px 0 #be185d}
+  .btn.pink:active{box-shadow:0 1px 0 #be185d}
+
+  /* completion overlay */
+  .win{position:fixed;inset:0;background:rgba(15,23,42,.42);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .wincard{background:#fff;border-radius:26px;padding:22px 20px;text-align:center;max-width:360px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3);animation:pop .35s}
+  .wincard .big{font-size:2.6rem}
+  .wincard .msg{font-size:clamp(1.2rem,4.6vw,1.6rem);font-weight:900;color:#16a34a;margin:6px 0 14px}
+  @keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.06)}100%{transform:scale(1)}}
+
+  /* celebration animation on the picture */
+  @keyframes wiggle{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-4deg) scale(1.03)}50%{transform:rotate(0) scale(1.06)}75%{transform:rotate(4deg) scale(1.03)}}
+  .celebrate svg{animation:wiggle 1s ease-in-out 3;transform-origin:center}
+  .googly{animation:eyepop .4s ease-out}
+  @keyframes eyepop{0%{transform:scale(0)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+
+  .burst{position:fixed;z-index:60;pointer-events:none;font-size:1.6rem;animation:fly 1.1s ease-out forwards}
+  @keyframes fly{0%{opacity:1;transform:translate(0,0) scale(.6) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3) rotate(var(--rot))}}
+  .credit{text-align:center;color:#6b7c99;font-size:.82rem;padding:16px 0 4px;font-weight:600}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <button class="back" id="topBack">← Thư viện</button>
+    <button id="sound" title="Bật/tắt âm thanh">🔊</button>
+  </div>
+
+  <!-- GALLERY SCREEN -->
+  <section id="galleryScreen">
+    <h1>🎨 Tô Màu Ngộ Nghĩnh</h1>
+    <p class="lead">Chọn một hình để tô màu nào!</p>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <!-- COLORING SCREEN -->
+  <section id="colorScreen" hidden>
+    <h1 id="colorTitle">Tô màu</h1>
+    <p class="lead">Chọn một màu rồi chạm vào hình để tô 🖌️</p>
+    <div class="stage">
+      <div class="canvas" id="canvas"></div>
+      <div class="side">
+        <div class="hintbox">
+          <div class="ht">Mẫu gợi ý</div>
+          <div id="hint"></div>
+        </div>
+        <div class="palette">
+          <div class="swatches" id="swatches"></div>
+        </div>
+        <div class="row">
+          <button class="btn gray" id="resetBtn">🧽 Xóa hết</button>
+        </div>
+        <div class="row">
+          <button class="btn pink" id="backBtn">← Thư viện</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="credit">Thiết kế bởi Bùi Thị Phương Trúc · Trường Trung-Tiểu học Pétrus Ký</div>
+
+<!-- WIN OVERLAY -->
+<div class="win" id="winBox" hidden>
+  <div class="wincard">
+    <div class="big" id="winFace">🎉</div>
+    <div class="msg" id="winMsg">Đẹp quá!</div>
+    <div class="row">
+      <button class="btn" id="againBtn">🔄 Tô lại</button>
+      <button class="btn pink" id="otherBtn">🖼️ Chọn hình khác</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== default (unfilled) fill for regions ===== */
+const BLANK='#ffffff';
+
+/* ===== palette ===== */
+const COLORS=['#ef4444','#f97316','#facc15','#22c55e','#0ea5e9','#3b82f6','#8b5cf6','#ec4899','#a16207','#78716c','#000000'];
+
+/* ===== pictures =====
+   Each picture: name, category, viewBox, and a builder(fill) that returns SVG markup.
+   fill: a function region->color used to draw the sample hint (completed) version.
+   For the blank canvas we pass ()=>BLANK. Fillable shapes get class="fillable" + data-k.
+   Non fillable details (eyes/outlines/stems drawn as strokes) are plain (not fillable). */
+
+function P(k,def){ /* helper: a fillable attr string */ return ''; }
+
+const PICTURES=[
+  { id:'tao', name:'Quả táo', cat:'trai-cay', catName:'Trái cây', vb:'0 0 100 100',
+    build:(f)=>`
+      <path class="fillable" data-k="body" fill="${f('body')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M50 30 C30 22 16 40 20 60 C23 82 40 92 50 90 C60 92 77 82 80 60 C84 40 70 22 50 30 Z"/>
+      <path class="fillable" data-k="leaf" fill="${f('leaf')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M52 28 C58 14 74 12 80 16 C74 28 62 32 52 28 Z"/>
+      <path fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round" d="M50 30 C50 22 50 16 55 10"/>
+    `,
+    sample:{body:'#ef4444',leaf:'#22c55e'} },
+
+  { id:'ca', name:'Con cá', cat:'con-vat', catName:'Con vật', vb:'0 0 120 90',
+    build:(f)=>`
+      <path class="fillable" data-k="body" fill="${f('body')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M18 45 C35 20 80 20 92 45 C80 70 35 70 18 45 Z"/>
+      <path class="fillable" data-k="tail" fill="${f('tail')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M92 45 C104 32 110 30 112 28 C108 45 108 45 112 62 C110 60 104 58 92 45 Z"/>
+      <path class="fillable" data-k="fin" fill="${f('fin')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M46 30 C52 16 66 16 70 24 C60 26 52 28 46 30 Z"/>
+      <circle class="fillable" data-k="eye" fill="${f('eye')||BLANK}" stroke="#1e293b" stroke-width="3" cx="36" cy="42" r="7"/>
+      <circle fill="#1e293b" cx="36" cy="42" r="2.4"/>
+    `,
+    sample:{body:'#0ea5e9',tail:'#f97316',fin:'#facc15',eye:'#ffffff'} },
+
+  { id:'buom', name:'Con bướm', cat:'con-vat', catName:'Con vật', vb:'0 0 110 100',
+    build:(f)=>`
+      <path class="fillable" data-k="wingTL" fill="${f('wingTL')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M55 50 C40 20 12 18 14 38 C16 56 38 54 55 50 Z"/>
+      <path class="fillable" data-k="wingTR" fill="${f('wingTR')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M55 50 C70 20 98 18 96 38 C94 56 72 54 55 50 Z"/>
+      <path class="fillable" data-k="wingBL" fill="${f('wingBL')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M55 50 C42 74 20 82 20 66 C20 52 40 52 55 50 Z"/>
+      <path class="fillable" data-k="wingBR" fill="${f('wingBR')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M55 50 C68 74 90 82 90 66 C90 52 70 52 55 50 Z"/>
+      <ellipse class="fillable" data-k="body" fill="${f('body')||BLANK}" stroke="#1e293b" stroke-width="3" cx="55" cy="50" rx="6" ry="26"/>
+      <path fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" d="M55 26 C50 16 44 12 40 12 M55 26 C60 16 66 12 70 12"/>
+    `,
+    sample:{wingTL:'#ec4899',wingTR:'#f97316',wingBL:'#8b5cf6',wingBR:'#facc15',body:'#78716c'} },
+
+  { id:'meo', name:'Con mèo', cat:'con-vat', catName:'Con vật', vb:'0 0 100 100',
+    build:(f)=>`
+      <path class="fillable" data-k="earL" fill="${f('earL')||BLANK}" stroke="#1e293b" stroke-width="3" d="M26 34 L20 12 L42 26 Z"/>
+      <path class="fillable" data-k="earR" fill="${f('earR')||BLANK}" stroke="#1e293b" stroke-width="3" d="M74 34 L80 12 L58 26 Z"/>
+      <circle class="fillable" data-k="head" fill="${f('head')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="52" r="30"/>
+      <path class="fillable" data-k="nose" fill="${f('nose')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M45 54 L55 54 L50 60 Z"/>
+      <circle fill="#1e293b" cx="40" cy="48" r="3.5"/>
+      <circle fill="#1e293b" cx="60" cy="48" r="3.5"/>
+      <path fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round" d="M50 60 C50 66 45 68 40 66 M50 60 C50 66 55 68 60 66"/>
+      <path fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" d="M20 52 H36 M20 58 H36 M64 52 H80 M64 58 H80"/>
+    `,
+    sample:{earL:'#f97316',earR:'#f97316',head:'#facc15',nose:'#ec4899'} },
+
+  { id:'nha', name:'Ngôi nhà', cat:'do-vat', catName:'Đồ vật', vb:'0 0 100 100',
+    build:(f)=>`
+      <rect class="fillable" data-k="wall" fill="${f('wall')||BLANK}" stroke="#1e293b" stroke-width="3" x="20" y="46" width="60" height="42"/>
+      <path class="fillable" data-k="roof" fill="${f('roof')||BLANK}" stroke="#1e293b" stroke-width="3" d="M14 48 L50 18 L86 48 Z"/>
+      <rect class="fillable" data-k="door" fill="${f('door')||BLANK}" stroke="#1e293b" stroke-width="3" x="42" y="62" width="18" height="26"/>
+      <rect class="fillable" data-k="window" fill="${f('window')||BLANK}" stroke="#1e293b" stroke-width="3" x="26" y="54" width="14" height="14"/>
+    `,
+    sample:{wall:'#facc15',roof:'#ef4444',door:'#a16207',window:'#0ea5e9'} },
+
+  { id:'o', name:'Cái ô', cat:'do-vat', catName:'Đồ vật', vb:'0 0 100 100',
+    build:(f)=>`
+      <path class="fillable" data-k="left" fill="${f('left')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 24 C30 24 16 40 12 54 L50 54 Z"/>
+      <path class="fillable" data-k="mid" fill="${f('mid')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 24 C42 24 40 40 40 54 L60 54 C60 40 58 24 50 24 Z"/>
+      <path class="fillable" data-k="right" fill="${f('right')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 24 C70 24 84 40 88 54 L50 54 Z"/>
+      <path fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round" d="M50 54 V82 C50 90 40 90 40 82"/>
+    `,
+    sample:{left:'#ef4444',mid:'#facc15',right:'#0ea5e9'} },
+
+  { id:'cay', name:'Cây xanh', cat:'cay-coi', catName:'Cây cối', vb:'0 0 100 100',
+    build:(f)=>`
+      <rect class="fillable" data-k="trunk" fill="${f('trunk')||BLANK}" stroke="#1e293b" stroke-width="3" x="44" y="58" width="12" height="30"/>
+      <circle class="fillable" data-k="leafL" fill="${f('leafL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="34" cy="44" r="20"/>
+      <circle class="fillable" data-k="leafR" fill="${f('leafR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="66" cy="44" r="20"/>
+      <circle class="fillable" data-k="leafT" fill="${f('leafT')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="30" r="22"/>
+    `,
+    sample:{trunk:'#a16207',leafL:'#22c55e',leafR:'#22c55e',leafT:'#16a34a'} },
+
+  { id:'hoa', name:'Bông hoa', cat:'bong-hoa', catName:'Bông hoa', vb:'0 0 100 100',
+    build:(f)=>`
+      <ellipse class="fillable" data-k="pTop" fill="${f('pTop')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="26" rx="12" ry="16"/>
+      <ellipse class="fillable" data-k="pRight" fill="${f('pRight')||BLANK}" stroke="#1e293b" stroke-width="3" cx="70" cy="42" rx="16" ry="12"/>
+      <ellipse class="fillable" data-k="pLeft" fill="${f('pLeft')||BLANK}" stroke="#1e293b" stroke-width="3" cx="30" cy="42" rx="16" ry="12"/>
+      <ellipse class="fillable" data-k="pBR" fill="${f('pBR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="62" cy="58" rx="13" ry="15"/>
+      <ellipse class="fillable" data-k="pBL" fill="${f('pBL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="38" cy="58" rx="13" ry="15"/>
+      <circle class="fillable" data-k="center" fill="${f('center')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="44" r="12"/>
+      <path fill="none" stroke="#16a34a" stroke-width="4" stroke-linecap="round" d="M50 56 V92"/>
+      <path class="fillable" data-k="leaf" fill="${f('leaf')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 74 C64 68 74 74 74 82 C62 86 52 82 50 74 Z"/>
+    `,
+    sample:{pTop:'#ec4899',pRight:'#f472b6',pLeft:'#f472b6',pBR:'#ec4899',pBL:'#ec4899',center:'#facc15',leaf:'#22c55e'} },
+
+  { id:'mattroi', name:'Ông mặt trời', cat:'bong-hoa', catName:'Bầu trời', vb:'0 0 100 100',
+    build:(f)=>`
+      <path class="fillable" data-k="rays" fill="${f('rays')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M50 6 L57 22 L74 15 L69 32 L88 34 L74 45 L88 56 L69 58 L74 75 L57 68 L50 84 L43 68 L26 75 L31 58 L12 56 L26 45 L12 34 L31 32 L26 15 L43 22 Z"/>
+      <circle class="fillable" data-k="face" fill="${f('face')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="45" r="22"/>
+      <circle fill="#1e293b" cx="42" cy="42" r="3.2"/>
+      <circle fill="#1e293b" cx="58" cy="42" r="3.2"/>
+      <path fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" d="M40 52 C45 60 55 60 60 52"/>
+    `,
+    sample:{rays:'#f97316',face:'#facc15'} },
+
+  /* ===== NEW PICTURES (simple -> complex) ===== */
+
+  /* 1 · Dâu tây — 5 regions */
+  { id:'dautay', name:'Quả dâu tây', cat:'trai-cay', catName:'Trái cây', vb:'0 0 100 100',
+    build:(f)=>`
+      <path class="fillable" data-k="body" fill="${f('body')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M28 40 C28 34 40 32 50 38 C60 32 72 34 72 40 C72 66 58 88 50 88 C42 88 28 66 28 40 Z"/>
+      <path class="fillable" data-k="leafL" fill="${f('leafL')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 38 L34 26 L48 30 Z"/>
+      <path class="fillable" data-k="leafM" fill="${f('leafM')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 38 L44 22 L56 22 Z"/>
+      <path class="fillable" data-k="leafR" fill="${f('leafR')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 38 L66 26 L52 30 Z"/>
+      <path fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round" d="M50 24 V16"/>
+      <circle class="fillable" data-k="seeds" fill="${f('seeds')||BLANK}" stroke="#1e293b" stroke-width="2" cx="42" cy="52" r="2.5"/>
+      <circle fill="none" stroke="#1e293b" stroke-width="2" cx="58" cy="52" r="2.5"/>
+      <circle fill="none" stroke="#1e293b" stroke-width="2" cx="50" cy="60" r="2.5"/>
+      <circle fill="none" stroke="#1e293b" stroke-width="2" cx="40" cy="66" r="2.5"/>
+      <circle fill="none" stroke="#1e293b" stroke-width="2" cx="60" cy="66" r="2.5"/>
+      <circle fill="none" stroke="#1e293b" stroke-width="2" cx="50" cy="74" r="2.5"/>
+    `,
+    sample:{body:'#ef4444',leafL:'#22c55e',leafM:'#16a34a',leafR:'#22c55e',seeds:'#facc15'} },
+
+  /* 2 · Dưa hấu — 5 regions */
+  { id:'duahau', name:'Quả dưa hấu', cat:'trai-cay', catName:'Trái cây', vb:'0 0 100 100',
+    build:(f)=>`
+      <path class="fillable" data-k="rind" fill="${f('rind')||BLANK}" stroke="#1e293b" stroke-width="3" d="M8 34 A50 50 0 0 0 92 34 Z"/>
+      <path class="fillable" data-k="white" fill="${f('white')||BLANK}" stroke="#1e293b" stroke-width="3" d="M15 36 A42 42 0 0 0 85 36 Z"/>
+      <path class="fillable" data-k="flesh" fill="${f('flesh')||BLANK}" stroke="#1e293b" stroke-width="3" d="M20 38 A37 37 0 0 0 80 38 Z"/>
+      <path class="fillable" data-k="stripeL" fill="${f('stripeL')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M8 34 A50 50 0 0 0 26 68 L18 40 Z"/>
+      <path class="fillable" data-k="stripeR" fill="${f('stripeR')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M92 34 A50 50 0 0 1 74 68 L82 40 Z"/>
+      <ellipse fill="#1e293b" cx="42" cy="50" rx="2" ry="3.4"/>
+      <ellipse fill="#1e293b" cx="58" cy="50" rx="2" ry="3.4"/>
+      <ellipse fill="#1e293b" cx="50" cy="60" rx="2" ry="3.4"/>
+      <ellipse fill="#1e293b" cx="34" cy="44" rx="2" ry="3.4"/>
+      <ellipse fill="#1e293b" cx="66" cy="44" rx="2" ry="3.4"/>
+    `,
+    sample:{rind:'#16a34a',white:'#ecfccb',flesh:'#f43f5e',stripeL:'#166534',stripeR:'#166534'} },
+
+  /* 3 · Cái cốc — 5 regions */
+  { id:'coc', name:'Cái cốc', cat:'do-vat', catName:'Đồ vật', vb:'0 0 100 100',
+    build:(f)=>`
+      <path class="fillable" data-k="cup" fill="${f('cup')||BLANK}" stroke="#1e293b" stroke-width="3" d="M26 40 H74 L70 86 A4 4 0 0 1 66 90 H34 A4 4 0 0 1 30 86 Z"/>
+      <ellipse class="fillable" data-k="drink" fill="${f('drink')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="40" rx="24" ry="7"/>
+      <path class="fillable" data-k="handle" fill="${f('handle')||BLANK}" stroke="#1e293b" stroke-width="3" d="M74 50 C90 50 90 74 74 74 L74 68 C82 68 82 56 74 56 Z"/>
+      <rect class="fillable" data-k="band" fill="${f('band')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="30" y="60" width="40" height="10"/>
+      <path class="fillable" data-k="steam" fill="${f('steam')||BLANK}" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round"
+        d="M44 30 C40 24 48 22 44 16 M56 30 C52 24 60 22 56 16 Z"/>
+    `,
+    sample:{cup:'#0ea5e9',drink:'#a16207',handle:'#0ea5e9',band:'#facc15',steam:'#e2e8f0'} },
+
+  /* 4 · Cầu vồng — 6 regions */
+  { id:'cauvong', name:'Cầu vồng', cat:'phong-canh', catName:'Phong cảnh', vb:'0 0 120 80',
+    build:(f)=>`
+      <path class="fillable" data-k="c1" fill="${f('c1')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M10 74 A50 50 0 0 1 110 74 L100 74 A40 40 0 0 0 20 74 Z"/>
+      <path class="fillable" data-k="c2" fill="${f('c2')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M20 74 A40 40 0 0 1 100 74 L90 74 A30 30 0 0 0 30 74 Z"/>
+      <path class="fillable" data-k="c3" fill="${f('c3')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M30 74 A30 30 0 0 1 90 74 L80 74 A20 20 0 0 0 40 74 Z"/>
+      <path class="fillable" data-k="c4" fill="${f('c4')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M40 74 A20 20 0 0 1 80 74 L72 74 A12 12 0 0 0 48 74 Z"/>
+      <ellipse class="fillable" data-k="cloudL" fill="${f('cloudL')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="16" cy="74" rx="14" ry="7"/>
+      <ellipse class="fillable" data-k="cloudR" fill="${f('cloudR')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="104" cy="74" rx="14" ry="7"/>
+    `,
+    sample:{c1:'#ef4444',c2:'#f97316',c3:'#facc15',c4:'#22c55e',cloudL:'#e0f2fe',cloudR:'#e0f2fe'} },
+
+  /* 5 · Chùm nho — 8 regions */
+  { id:'nho', name:'Chùm nho', cat:'trai-cay', catName:'Trái cây', vb:'0 0 100 100',
+    build:(f)=>`
+      <path class="fillable" data-k="leaf" fill="${f('leaf')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 20 C36 12 24 20 26 30 C34 34 46 30 50 20 Z"/>
+      <path fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round" d="M50 20 V32"/>
+      <circle class="fillable" data-k="g1" fill="${f('g1')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="38" cy="42" r="9"/>
+      <circle class="fillable" data-k="g2" fill="${f('g2')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="62" cy="42" r="9"/>
+      <circle class="fillable" data-k="g3" fill="${f('g3')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="50" cy="52" r="9"/>
+      <circle class="fillable" data-k="g4" fill="${f('g4')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="34" cy="60" r="9"/>
+      <circle class="fillable" data-k="g5" fill="${f('g5')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="66" cy="60" r="9"/>
+      <circle class="fillable" data-k="g6" fill="${f('g6')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="50" cy="72" r="9"/>
+      <circle class="fillable" data-k="g7" fill="${f('g7')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="50" cy="88" r="8"/>
+    `,
+    sample:{leaf:'#22c55e',g1:'#8b5cf6',g2:'#8b5cf6',g3:'#a855f7',g4:'#8b5cf6',g5:'#8b5cf6',g6:'#a855f7',g7:'#7c3aed'} },
+
+  /* 6 · Con gà — 7 regions */
+  { id:'ga', name:'Con gà', cat:'con-vat', catName:'Con vật', vb:'0 0 100 100',
+    build:(f)=>`
+      <ellipse class="fillable" data-k="body" fill="${f('body')||BLANK}" stroke="#1e293b" stroke-width="3" cx="52" cy="60" rx="30" ry="24"/>
+      <circle class="fillable" data-k="head" fill="${f('head')||BLANK}" stroke="#1e293b" stroke-width="3" cx="30" cy="40" r="16"/>
+      <path class="fillable" data-k="comb" fill="${f('comb')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M22 26 C22 18 28 18 28 24 C30 16 36 18 34 26 Z"/>
+      <path class="fillable" data-k="beak" fill="${f('beak')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M14 40 L4 44 L14 48 Z"/>
+      <path class="fillable" data-k="wattle" fill="${f('wattle')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M18 50 C16 58 22 58 22 50 Z"/>
+      <path class="fillable" data-k="wing" fill="${f('wing')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M52 54 C64 50 74 56 72 66 C62 68 54 64 52 54 Z"/>
+      <path class="fillable" data-k="tail" fill="${f('tail')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M80 52 C92 40 96 48 90 58 C96 60 92 70 82 64 Z"/>
+      <circle fill="#1e293b" cx="28" cy="38" r="3"/>
+      <path fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" d="M44 84 V92 M60 84 V92"/>
+    `,
+    sample:{body:'#facc15',head:'#fde047',comb:'#ef4444',beak:'#f97316',wattle:'#ef4444',wing:'#f59e0b',tail:'#a16207'} },
+
+  /* 7 · Con ong — 7 regions */
+  { id:'ong', name:'Con ong', cat:'con-vat', catName:'Con vật', vb:'0 0 110 90',
+    build:(f)=>`
+      <path class="fillable" data-k="wingL" fill="${f('wingL')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M48 32 C36 12 18 14 22 30 C26 42 40 40 48 42 Z"/>
+      <path class="fillable" data-k="wingR" fill="${f('wingR')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M60 32 C72 12 90 14 86 30 C82 42 68 40 60 42 Z"/>
+      <ellipse class="fillable" data-k="s1" fill="${f('s1')||BLANK}" stroke="#1e293b" stroke-width="3" cx="42" cy="58" rx="16" ry="18"/>
+      <path class="fillable" data-k="s2" fill="${f('s2')||BLANK}" stroke="#1e293b" stroke-width="3" d="M52 44 A18 18 0 0 1 52 72 Z"/>
+      <path class="fillable" data-k="s3" fill="${f('s3')||BLANK}" stroke="#1e293b" stroke-width="3" d="M62 46 A16 14 0 0 1 62 70 Z"/>
+      <circle class="fillable" data-k="head" fill="${f('head')||BLANK}" stroke="#1e293b" stroke-width="3" cx="26" cy="58" r="12"/>
+      <path class="fillable" data-k="sting" fill="${f('sting')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M74 58 L86 54 L82 62 Z"/>
+      <circle fill="#1e293b" cx="22" cy="56" r="2.6"/>
+      <path fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round" d="M20 48 C16 42 12 42 10 44 M28 46 C26 40 22 38 20 40"/>
+    `,
+    sample:{wingL:'#bae6fd',wingR:'#bae6fd',s1:'#facc15',s2:'#1e293b',s3:'#facc15',head:'#1e293b',sting:'#78716c'} },
+
+  /* 8 · Bông hướng dương — 10 regions */
+  { id:'huongduong', name:'Hoa hướng dương', cat:'bong-hoa', catName:'Bông hoa', vb:'0 0 100 110',
+    build:(f)=>`
+      <path class="fillable" data-k="pT" fill="${f('pT')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M50 14 L44 34 L56 34 Z"/>
+      <path class="fillable" data-k="pTR" fill="${f('pTR')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M76 22 L58 30 L64 40 Z"/>
+      <path class="fillable" data-k="pR" fill="${f('pR')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M86 48 L66 44 L66 56 Z"/>
+      <path class="fillable" data-k="pBR" fill="${f('pBR')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M76 74 L58 62 L64 72 Z"/>
+      <path class="fillable" data-k="pB" fill="${f('pB')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M50 82 L44 62 L56 62 Z"/>
+      <path class="fillable" data-k="pBL" fill="${f('pBL')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M24 74 L42 62 L36 72 Z"/>
+      <path class="fillable" data-k="pL" fill="${f('pL')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M14 48 L34 44 L34 56 Z"/>
+      <path class="fillable" data-k="pTL" fill="${f('pTL')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M24 22 L42 30 L36 40 Z"/>
+      <circle class="fillable" data-k="center" fill="${f('center')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="48" r="18"/>
+      <path fill="none" stroke="#16a34a" stroke-width="4" stroke-linecap="round" d="M50 66 V104"/>
+      <path class="fillable" data-k="leaf" fill="${f('leaf')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M50 84 C66 78 78 84 76 94 C62 98 52 92 50 84 Z"/>
+    `,
+    sample:{pT:'#facc15',pTR:'#facc15',pR:'#facc15',pBR:'#facc15',pB:'#facc15',pBL:'#facc15',pL:'#facc15',pTL:'#facc15',center:'#a16207',leaf:'#22c55e'} },
+
+  /* 9 · Chậu xương rồng — 8 regions */
+  { id:'xuongrong', name:'Chậu xương rồng', cat:'cay-coi', catName:'Cây cối', vb:'0 0 100 110',
+    build:(f)=>`
+      <path class="fillable" data-k="mid" fill="${f('mid')||BLANK}" stroke="#1e293b" stroke-width="3" d="M40 30 C40 20 60 20 60 30 L60 80 L40 80 Z"/>
+      <path class="fillable" data-k="armL" fill="${f('armL')||BLANK}" stroke="#1e293b" stroke-width="3" d="M40 44 C24 44 22 40 22 30 C22 22 30 22 30 30 C30 36 34 36 40 36 Z"/>
+      <path class="fillable" data-k="armR" fill="${f('armR')||BLANK}" stroke="#1e293b" stroke-width="3" d="M60 52 C76 52 78 48 78 38 C78 30 70 30 70 38 C70 44 66 44 60 44 Z"/>
+      <path class="fillable" data-k="flowerL" fill="${f('flowerL')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M26 26 A5 5 0 1 1 26 25.5 Z"/>
+      <path class="fillable" data-k="flowerM" fill="${f('flowerM')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M50 24 A5 5 0 1 1 50 23.5 Z"/>
+      <path class="fillable" data-k="flowerR" fill="${f('flowerR')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M74 34 A5 5 0 1 1 74 33.5 Z"/>
+      <path class="fillable" data-k="pot" fill="${f('pot')||BLANK}" stroke="#1e293b" stroke-width="3" d="M30 82 H70 L64 104 H36 Z"/>
+      <rect class="fillable" data-k="rim" fill="${f('rim')||BLANK}" stroke="#1e293b" stroke-width="3" x="26" y="76" width="48" height="8"/>
+    `,
+    sample:{mid:'#22c55e',armL:'#16a34a',armR:'#16a34a',flowerL:'#ec4899',flowerM:'#f472b6',flowerR:'#ec4899',pot:'#f97316',rim:'#ea580c'} },
+
+  /* 10 · Cây thông Noel — 9 regions */
+  { id:'thongnoel', name:'Cây thông Noel', cat:'cay-coi', catName:'Cây cối', vb:'0 0 100 120',
+    build:(f)=>`
+      <path class="fillable" data-k="star" fill="${f('star')||BLANK}" stroke="#1e293b" stroke-width="2" d="M50 4 L54 16 L66 16 L56 24 L60 36 L50 28 L40 36 L44 24 L34 16 L46 16 Z"/>
+      <path class="fillable" data-k="top" fill="${f('top')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 34 L34 58 L66 58 Z"/>
+      <path class="fillable" data-k="mid" fill="${f('mid')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 52 L28 80 L72 80 Z"/>
+      <path class="fillable" data-k="bot" fill="${f('bot')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 72 L22 102 L78 102 Z"/>
+      <rect class="fillable" data-k="trunk" fill="${f('trunk')||BLANK}" stroke="#1e293b" stroke-width="3" x="44" y="102" width="12" height="14"/>
+      <circle class="fillable" data-k="b1" fill="${f('b1')||BLANK}" stroke="#1e293b" stroke-width="2" cx="44" cy="66" r="4"/>
+      <circle class="fillable" data-k="b2" fill="${f('b2')||BLANK}" stroke="#1e293b" stroke-width="2" cx="58" cy="74" r="4"/>
+      <circle class="fillable" data-k="b3" fill="${f('b3')||BLANK}" stroke="#1e293b" stroke-width="2" cx="38" cy="92" r="4"/>
+      <circle class="fillable" data-k="b4" fill="${f('b4')||BLANK}" stroke="#1e293b" stroke-width="2" cx="60" cy="94" r="4"/>
+    `,
+    sample:{star:'#facc15',top:'#22c55e',mid:'#16a34a',bot:'#15803d',trunk:'#a16207',b1:'#ef4444',b2:'#3b82f6',b3:'#f97316',b4:'#ec4899'} },
+
+  /* 11 · Con cú — 10 regions */
+  { id:'cu', name:'Con cú', cat:'con-vat', catName:'Con vật', vb:'0 0 100 120',
+    build:(f)=>`
+      <path class="fillable" data-k="tuftL" fill="${f('tuftL')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M28 24 L22 6 L38 20 Z"/>
+      <path class="fillable" data-k="tuftR" fill="${f('tuftR')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M72 24 L78 6 L62 20 Z"/>
+      <ellipse class="fillable" data-k="body" fill="${f('body')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="66" rx="34" ry="42"/>
+      <path class="fillable" data-k="belly" fill="${f('belly')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M50 48 C68 48 74 76 60 96 C50 104 50 104 40 96 C26 76 32 48 50 48 Z"/>
+      <circle class="fillable" data-k="eyeL" fill="${f('eyeL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="36" cy="44" r="13"/>
+      <circle class="fillable" data-k="eyeR" fill="${f('eyeR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="64" cy="44" r="13"/>
+      <path class="fillable" data-k="beak" fill="${f('beak')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M50 52 L44 62 L56 62 Z"/>
+      <path class="fillable" data-k="wingL" fill="${f('wingL')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M20 60 C12 74 14 88 22 96 C24 82 22 70 20 60 Z"/>
+      <path class="fillable" data-k="wingR" fill="${f('wingR')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M80 60 C88 74 86 88 78 96 C76 82 78 70 80 60 Z"/>
+      <path class="fillable" data-k="feet" fill="${f('feet')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M38 108 L34 116 M44 108 L44 116 M56 108 L56 116 M62 108 L66 116"/>
+      <circle fill="#1e293b" cx="36" cy="44" r="4"/>
+      <circle fill="#1e293b" cx="64" cy="44" r="4"/>
+    `,
+    sample:{tuftL:'#a16207',tuftR:'#a16207',body:'#b45309',belly:'#fde68a',eyeL:'#ffffff',eyeR:'#ffffff',beak:'#f97316',wingL:'#92400e',wingR:'#92400e',feet:'#f97316'} },
+
+  /* 12 · Cái ô tô — 10 regions */
+  { id:'oto', name:'Cái ô tô', cat:'phuong-tien', catName:'Phương tiện', vb:'0 0 130 90',
+    build:(f)=>`
+      <path class="fillable" data-k="body" fill="${f('body')||BLANK}" stroke="#1e293b" stroke-width="3" d="M10 62 L18 44 H108 L120 62 L120 72 H10 Z"/>
+      <path class="fillable" data-k="cabin" fill="${f('cabin')||BLANK}" stroke="#1e293b" stroke-width="3" d="M32 44 L40 24 H82 L92 44 Z"/>
+      <rect class="fillable" data-k="winL" fill="${f('winL')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="42" y="28" width="18" height="14" rx="2"/>
+      <rect class="fillable" data-k="winR" fill="${f('winR')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="64" y="28" width="18" height="14" rx="2"/>
+      <rect class="fillable" data-k="door" fill="${f('door')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="52" y="48" width="26" height="18" rx="2"/>
+      <circle class="fillable" data-k="tyreL" fill="${f('tyreL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="38" cy="72" r="12"/>
+      <circle class="fillable" data-k="tyreR" fill="${f('tyreR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="96" cy="72" r="12"/>
+      <circle class="fillable" data-k="hubL" fill="${f('hubL')||BLANK}" stroke="#1e293b" stroke-width="2" cx="38" cy="72" r="4"/>
+      <circle class="fillable" data-k="hubR" fill="${f('hubR')||BLANK}" stroke="#1e293b" stroke-width="2" cx="96" cy="72" r="4"/>
+      <circle class="fillable" data-k="light" fill="${f('light')||BLANK}" stroke="#1e293b" stroke-width="2" cx="115" cy="56" r="4"/>
+    `,
+    sample:{body:'#ef4444',cabin:'#dc2626',winL:'#bae6fd',winR:'#bae6fd',door:'#dc2626',tyreL:'#1e293b',tyreR:'#1e293b',hubL:'#e2e8f0',hubR:'#e2e8f0',light:'#facc15'} },
+
+  /* 13 · Con robot — 11 regions */
+  { id:'robot', name:'Con robot', cat:'do-vat', catName:'Đồ vật', vb:'0 0 100 120',
+    build:(f)=>`
+      <rect class="fillable" data-k="head" fill="${f('head')||BLANK}" stroke="#1e293b" stroke-width="3" x="28" y="18" width="44" height="34" rx="6"/>
+      <path fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" d="M50 18 V8"/>
+      <circle class="fillable" data-k="antenna" fill="${f('antenna')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="50" cy="6" r="4"/>
+      <circle class="fillable" data-k="eyeL" fill="${f('eyeL')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="40" cy="32" r="6"/>
+      <circle class="fillable" data-k="eyeR" fill="${f('eyeR')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="60" cy="32" r="6"/>
+      <rect class="fillable" data-k="mouth" fill="${f('mouth')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="38" y="42" width="24" height="6" rx="2"/>
+      <rect class="fillable" data-k="body" fill="${f('body')||BLANK}" stroke="#1e293b" stroke-width="3" x="24" y="54" width="52" height="40" rx="6"/>
+      <rect class="fillable" data-k="panel" fill="${f('panel')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="38" y="64" width="24" height="18" rx="3"/>
+      <rect class="fillable" data-k="armL" fill="${f('armL')||BLANK}" stroke="#1e293b" stroke-width="3" x="10" y="58" width="12" height="30" rx="4"/>
+      <rect class="fillable" data-k="armR" fill="${f('armR')||BLANK}" stroke="#1e293b" stroke-width="3" x="78" y="58" width="12" height="30" rx="4"/>
+      <rect class="fillable" data-k="legL" fill="${f('legL')||BLANK}" stroke="#1e293b" stroke-width="3" x="32" y="96" width="14" height="22" rx="4"/>
+      <rect class="fillable" data-k="legR" fill="${f('legR')||BLANK}" stroke="#1e293b" stroke-width="3" x="54" y="96" width="14" height="22" rx="4"/>
+    `,
+    sample:{head:'#38bdf8',antenna:'#ef4444',eyeL:'#facc15',eyeR:'#facc15',mouth:'#1e293b',body:'#0ea5e9',panel:'#94a3b8',armL:'#0284c7',armR:'#0284c7',legL:'#64748b',legR:'#64748b'} },
+
+  /* 14 · Xe buýt — 12 regions */
+  { id:'buyt', name:'Xe buýt', cat:'phuong-tien', catName:'Phương tiện', vb:'0 0 140 90',
+    build:(f)=>`
+      <rect class="fillable" data-k="body" fill="${f('body')||BLANK}" stroke="#1e293b" stroke-width="3" x="10" y="18" width="120" height="52" rx="10"/>
+      <rect class="fillable" data-k="stripe" fill="${f('stripe')||BLANK}" stroke="#1e293b" stroke-width="2" x="10" y="46" width="120" height="8"/>
+      <rect class="fillable" data-k="win1" fill="${f('win1')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="18" y="26" width="18" height="16" rx="2"/>
+      <rect class="fillable" data-k="win2" fill="${f('win2')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="42" y="26" width="18" height="16" rx="2"/>
+      <rect class="fillable" data-k="win3" fill="${f('win3')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="66" y="26" width="18" height="16" rx="2"/>
+      <rect class="fillable" data-k="win4" fill="${f('win4')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="90" y="26" width="18" height="16" rx="2"/>
+      <rect class="fillable" data-k="door" fill="${f('door')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="112" y="26" width="12" height="36" rx="2"/>
+      <circle class="fillable" data-k="tyreL" fill="${f('tyreL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="40" cy="72" r="12"/>
+      <circle class="fillable" data-k="tyreR" fill="${f('tyreR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="102" cy="72" r="12"/>
+      <circle class="fillable" data-k="hubL" fill="${f('hubL')||BLANK}" stroke="#1e293b" stroke-width="2" cx="40" cy="72" r="4"/>
+      <circle class="fillable" data-k="hubR" fill="${f('hubR')||BLANK}" stroke="#1e293b" stroke-width="2" cx="102" cy="72" r="4"/>
+      <circle class="fillable" data-k="light" fill="${f('light')||BLANK}" stroke="#1e293b" stroke-width="2" cx="16" cy="60" r="4"/>
+    `,
+    sample:{body:'#f59e0b',stripe:'#b45309',win1:'#bae6fd',win2:'#bae6fd',win3:'#bae6fd',win4:'#bae6fd',door:'#78716c',tyreL:'#1e293b',tyreR:'#1e293b',hubL:'#e2e8f0',hubR:'#e2e8f0',light:'#fef08a'} },
+
+  /* 15 · Tàu hỏa — 13 regions */
+  { id:'tauhoa', name:'Tàu hỏa', cat:'phuong-tien', catName:'Phương tiện', vb:'0 0 150 90',
+    build:(f)=>`
+      <path class="fillable" data-k="engine" fill="${f('engine')||BLANK}" stroke="#1e293b" stroke-width="3" d="M8 66 V34 H30 L38 22 H60 V66 Z"/>
+      <rect class="fillable" data-k="cab" fill="${f('cab')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="40" y="28" width="16" height="16" rx="2"/>
+      <rect class="fillable" data-k="chimney" fill="${f('chimney')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="14" y="20" width="10" height="16" rx="2"/>
+      <ellipse class="fillable" data-k="smoke" fill="${f('smoke')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="19" cy="12" rx="10" ry="7"/>
+      <circle class="fillable" data-k="light" fill="${f('light')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="12" cy="52" r="5"/>
+      <rect class="fillable" data-k="car1" fill="${f('car1')||BLANK}" stroke="#1e293b" stroke-width="3" x="66" y="40" width="34" height="26" rx="4"/>
+      <rect class="fillable" data-k="car2" fill="${f('car2')||BLANK}" stroke="#1e293b" stroke-width="3" x="106" y="40" width="34" height="26" rx="4"/>
+      <rect class="fillable" data-k="c1win" fill="${f('c1win')||BLANK}" stroke="#1e293b" stroke-width="2" x="72" y="46" width="10" height="10" rx="1.5"/>
+      <rect class="fillable" data-k="c2win" fill="${f('c2win')||BLANK}" stroke="#1e293b" stroke-width="2" x="112" y="46" width="10" height="10" rx="1.5"/>
+      <circle class="fillable" data-k="w1" fill="${f('w1')||BLANK}" stroke="#1e293b" stroke-width="3" cx="24" cy="72" r="9"/>
+      <circle class="fillable" data-k="w2" fill="${f('w2')||BLANK}" stroke="#1e293b" stroke-width="3" cx="48" cy="72" r="9"/>
+      <circle class="fillable" data-k="w3" fill="${f('w3')||BLANK}" stroke="#1e293b" stroke-width="3" cx="82" cy="72" r="9"/>
+      <circle class="fillable" data-k="w4" fill="${f('w4')||BLANK}" stroke="#1e293b" stroke-width="3" cx="122" cy="72" r="9"/>
+      <path fill="none" stroke="#1e293b" stroke-width="2.5" d="M4 81 H146"/>
+    `,
+    sample:{engine:'#ef4444',cab:'#bae6fd',chimney:'#1e293b',smoke:'#e2e8f0',light:'#facc15',car1:'#22c55e',car2:'#8b5cf6',c1win:'#bae6fd',c2win:'#bae6fd',w1:'#334155',w2:'#334155',w3:'#334155',w4:'#334155'} },
+
+  /* 16 · Con khủng long — 11 regions */
+  { id:'khunglong', name:'Con khủng long', cat:'con-vat', catName:'Con vật', vb:'0 0 140 110',
+    build:(f)=>`
+      <path class="fillable" data-k="body" fill="${f('body')||BLANK}" stroke="#1e293b" stroke-width="3"
+        d="M40 78 C30 50 44 34 62 34 C82 34 92 50 88 72 C110 66 122 78 124 92 C112 90 104 92 96 96 L48 96 C42 96 40 88 40 78 Z"/>
+      <path class="fillable" data-k="head" fill="${f('head')||BLANK}" stroke="#1e293b" stroke-width="3" d="M62 34 C58 16 40 12 28 20 C22 26 26 38 40 40 C50 42 58 40 62 34 Z"/>
+      <path class="fillable" data-k="belly" fill="${f('belly')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M48 92 C56 78 78 78 90 88 C82 96 58 96 48 92 Z"/>
+      <path class="fillable" data-k="plate1" fill="${f('plate1')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M56 34 L60 18 L68 32 Z"/>
+      <path class="fillable" data-k="plate2" fill="${f('plate2')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M68 32 L76 16 L82 32 Z"/>
+      <path class="fillable" data-k="plate3" fill="${f('plate3')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M82 32 L92 20 L94 40 Z"/>
+      <path class="fillable" data-k="tail" fill="${f('tail')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M124 92 C130 82 138 84 138 92 C138 98 130 96 124 92 Z"/>
+      <rect class="fillable" data-k="legL" fill="${f('legL')||BLANK}" stroke="#1e293b" stroke-width="3" x="50" y="90" width="14" height="18" rx="4"/>
+      <rect class="fillable" data-k="legR" fill="${f('legR')||BLANK}" stroke="#1e293b" stroke-width="3" x="78" y="90" width="14" height="18" rx="4"/>
+      <path class="fillable" data-k="armF" fill="${f('armF')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M46 58 C40 64 40 72 46 74 C48 68 48 62 50 58 Z"/>
+      <circle class="fillable" data-k="eye" fill="${f('eye')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="38" cy="26" r="4"/>
+      <circle fill="#1e293b" cx="38" cy="26" r="1.6"/>
+    `,
+    sample:{body:'#22c55e',head:'#16a34a',belly:'#bbf7d0',plate1:'#f97316',plate2:'#f59e0b',plate3:'#f97316',tail:'#16a34a',legL:'#15803d',legR:'#15803d',armF:'#16a34a',eye:'#ffffff'} },
+
+  /* 17 · Con công — 13 regions */
+  { id:'cong', name:'Con công', cat:'con-vat', catName:'Con vật', vb:'0 0 130 120',
+    build:(f)=>`
+      <path class="fillable" data-k="fanBG" fill="${f('fanBG')||BLANK}" stroke="#1e293b" stroke-width="3" d="M65 78 A54 54 0 0 1 11 24 A54 54 0 0 1 119 24 A54 54 0 0 1 65 78 Z"/>
+      <path class="fillable" data-k="f1" fill="${f('f1')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M65 78 L20 42 A44 44 0 0 1 34 26 Z"/>
+      <path class="fillable" data-k="f2" fill="${f('f2')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M65 78 L36 24 A44 44 0 0 1 54 16 Z"/>
+      <path class="fillable" data-k="f3" fill="${f('f3')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M65 78 L56 15 A44 44 0 0 1 74 15 Z"/>
+      <path class="fillable" data-k="f4" fill="${f('f4')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M65 78 L76 16 A44 44 0 0 1 94 24 Z"/>
+      <path class="fillable" data-k="f5" fill="${f('f5')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M65 78 L96 26 A44 44 0 0 1 110 42 Z"/>
+      <circle class="fillable" data-k="e1" fill="${f('e1')||BLANK}" stroke="#1e293b" stroke-width="1.6" cx="30" cy="40" r="4"/>
+      <circle class="fillable" data-k="e2" fill="${f('e2')||BLANK}" stroke="#1e293b" stroke-width="1.6" cx="47" cy="26" r="4"/>
+      <circle class="fillable" data-k="e3" fill="${f('e3')||BLANK}" stroke="#1e293b" stroke-width="1.6" cx="65" cy="21" r="4"/>
+      <circle class="fillable" data-k="e4" fill="${f('e4')||BLANK}" stroke="#1e293b" stroke-width="1.6" cx="83" cy="26" r="4"/>
+      <circle class="fillable" data-k="e5" fill="${f('e5')||BLANK}" stroke="#1e293b" stroke-width="1.6" cx="100" cy="40" r="4"/>
+      <ellipse class="fillable" data-k="body" fill="${f('body')||BLANK}" stroke="#1e293b" stroke-width="3" cx="65" cy="90" rx="14" ry="20"/>
+      <circle class="fillable" data-k="head" fill="${f('head')||BLANK}" stroke="#1e293b" stroke-width="3" cx="65" cy="70" r="9"/>
+      <path fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round" d="M65 61 V54 M62 54 L60 50 M68 54 L70 50"/>
+      <path fill="#f97316" stroke="#1e293b" stroke-width="1.6" d="M65 74 L60 78 L65 80 Z"/>
+      <circle fill="#1e293b" cx="62" cy="68" r="2"/>
+    `,
+    sample:{fanBG:'#0ea5e9',f1:'#22c55e',f2:'#14b8a6',f3:'#3b82f6',f4:'#14b8a6',f5:'#22c55e',e1:'#8b5cf6',e2:'#8b5cf6',e3:'#8b5cf6',e4:'#8b5cf6',e5:'#8b5cf6',body:'#1d4ed8',head:'#2563eb'} },
+
+  /* 18 · Vườn hoa — 13 regions */
+  { id:'vuonhoa', name:'Vườn hoa', cat:'bong-hoa', catName:'Bông hoa', vb:'0 0 130 100',
+    build:(f)=>`
+      <rect class="fillable" data-k="sky" fill="${f('sky')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="4" y="4" width="122" height="60" rx="6"/>
+      <rect class="fillable" data-k="grass" fill="${f('grass')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="4" y="60" width="122" height="34" rx="6"/>
+      <circle class="fillable" data-k="sun" fill="${f('sun')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="108" cy="20" r="11"/>
+      <g>
+        <path fill="none" stroke="#15803d" stroke-width="3" stroke-linecap="round" d="M26 92 V66"/>
+        <circle class="fillable" data-k="fA1" fill="${f('fA1')||BLANK}" stroke="#1e293b" stroke-width="2" cx="26" cy="56" r="6"/>
+        <circle class="fillable" data-k="fA2" fill="${f('fA2')||BLANK}" stroke="#1e293b" stroke-width="2" cx="18" cy="62" r="6"/>
+        <circle class="fillable" data-k="fA3" fill="${f('fA3')||BLANK}" stroke="#1e293b" stroke-width="2" cx="34" cy="62" r="6"/>
+        <circle class="fillable" data-k="cA" fill="${f('cA')||BLANK}" stroke="#1e293b" stroke-width="2" cx="26" cy="62" r="5"/>
+      </g>
+      <g>
+        <path fill="none" stroke="#15803d" stroke-width="3" stroke-linecap="round" d="M65 94 V64"/>
+        <circle class="fillable" data-k="fB1" fill="${f('fB1')||BLANK}" stroke="#1e293b" stroke-width="2" cx="65" cy="52" r="7"/>
+        <circle class="fillable" data-k="fB2" fill="${f('fB2')||BLANK}" stroke="#1e293b" stroke-width="2" cx="55" cy="60" r="7"/>
+        <circle class="fillable" data-k="fB3" fill="${f('fB3')||BLANK}" stroke="#1e293b" stroke-width="2" cx="75" cy="60" r="7"/>
+        <circle class="fillable" data-k="cB" fill="${f('cB')||BLANK}" stroke="#1e293b" stroke-width="2" cx="65" cy="60" r="6"/>
+      </g>
+      <g>
+        <path fill="none" stroke="#15803d" stroke-width="3" stroke-linecap="round" d="M104 92 V66"/>
+        <circle class="fillable" data-k="fC1" fill="${f('fC1')||BLANK}" stroke="#1e293b" stroke-width="2" cx="104" cy="56" r="6"/>
+        <circle class="fillable" data-k="cC" fill="${f('cC')||BLANK}" stroke="#1e293b" stroke-width="2" cx="104" cy="62" r="5"/>
+      </g>
+    `,
+    sample:{sky:'#bae6fd',grass:'#86efac',sun:'#facc15',fA1:'#ef4444',fA2:'#ef4444',fA3:'#ef4444',cA:'#facc15',fB1:'#ec4899',fB2:'#f472b6',fB3:'#f472b6',cB:'#facc15',fC1:'#8b5cf6',cC:'#facc15'} },
+
+  /* 19 · Lâu đài — 14 regions */
+  { id:'laudai', name:'Lâu đài', cat:'phong-canh', catName:'Phong cảnh', vb:'0 0 130 120',
+    build:(f)=>`
+      <rect class="fillable" data-k="towerL" fill="${f('towerL')||BLANK}" stroke="#1e293b" stroke-width="3" x="12" y="40" width="26" height="72"/>
+      <rect class="fillable" data-k="towerR" fill="${f('towerR')||BLANK}" stroke="#1e293b" stroke-width="3" x="92" y="40" width="26" height="72"/>
+      <rect class="fillable" data-k="center" fill="${f('center')||BLANK}" stroke="#1e293b" stroke-width="3" x="42" y="56" width="46" height="56"/>
+      <path class="fillable" data-k="roofL" fill="${f('roofL')||BLANK}" stroke="#1e293b" stroke-width="3" d="M8 40 L25 14 L42 40 Z"/>
+      <path class="fillable" data-k="roofR" fill="${f('roofR')||BLANK}" stroke="#1e293b" stroke-width="3" d="M88 40 L105 14 L122 40 Z"/>
+      <path class="fillable" data-k="roofC" fill="${f('roofC')||BLANK}" stroke="#1e293b" stroke-width="3" d="M38 56 L65 24 L92 56 Z"/>
+      <path class="fillable" data-k="door" fill="${f('door')||BLANK}" stroke="#1e293b" stroke-width="3" d="M55 112 V80 A10 10 0 0 1 75 80 V112 Z"/>
+      <rect class="fillable" data-k="winL" fill="${f('winL')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="18" y="58" width="14" height="18" rx="6"/>
+      <rect class="fillable" data-k="winR" fill="${f('winR')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="98" y="58" width="14" height="18" rx="6"/>
+      <rect class="fillable" data-k="winC" fill="${f('winC')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="58" y="64" width="14" height="14" rx="6"/>
+      <path class="fillable" data-k="flagL" fill="${f('flagL')||BLANK}" stroke="#1e293b" stroke-width="2" d="M25 14 L25 2 L36 6 L25 10 Z"/>
+      <path class="fillable" data-k="flagR" fill="${f('flagR')||BLANK}" stroke="#1e293b" stroke-width="2" d="M105 14 L105 2 L116 6 L105 10 Z"/>
+      <path class="fillable" data-k="flagC" fill="${f('flagC')||BLANK}" stroke="#1e293b" stroke-width="2" d="M65 24 L65 10 L77 15 L65 20 Z"/>
+      <rect class="fillable" data-k="ground" fill="${f('ground')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="4" y="112" width="122" height="6"/>
+    `,
+    sample:{towerL:'#e2e8f0',towerR:'#e2e8f0',center:'#f1f5f9',roofL:'#8b5cf6',roofR:'#8b5cf6',roofC:'#7c3aed',door:'#a16207',winL:'#38bdf8',winR:'#38bdf8',winC:'#38bdf8',flagL:'#ef4444',flagR:'#ef4444',flagC:'#facc15',ground:'#86efac'} },
+
+  /* 20 · Phong cảnh nhà-cây-mặt trời — 15 regions */
+  { id:'phongcanh', name:'Phong cảnh', cat:'phong-canh', catName:'Phong cảnh', vb:'0 0 140 110',
+    build:(f)=>`
+      <rect class="fillable" data-k="sky" fill="${f('sky')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="4" y="4" width="132" height="66" rx="6"/>
+      <path class="fillable" data-k="ground" fill="${f('ground')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M4 70 H136 V100 A6 6 0 0 1 130 106 H10 A6 6 0 0 1 4 100 Z"/>
+      <circle class="fillable" data-k="sun" fill="${f('sun')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="118" cy="22" r="12"/>
+      <ellipse class="fillable" data-k="cloudA" fill="${f('cloudA')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="34" cy="22" rx="16" ry="8"/>
+      <ellipse class="fillable" data-k="cloudB" fill="${f('cloudB')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="72" cy="16" rx="13" ry="7"/>
+      <rect class="fillable" data-k="wall" fill="${f('wall')||BLANK}" stroke="#1e293b" stroke-width="3" x="20" y="62" width="46" height="34"/>
+      <path class="fillable" data-k="roof" fill="${f('roof')||BLANK}" stroke="#1e293b" stroke-width="3" d="M14 62 L43 38 L72 62 Z"/>
+      <rect class="fillable" data-k="door" fill="${f('door')||BLANK}" stroke="#1e293b" stroke-width="3" x="36" y="76" width="14" height="20"/>
+      <rect class="fillable" data-k="window" fill="${f('window')||BLANK}" stroke="#1e293b" stroke-width="2.5" x="24" y="68" width="12" height="12"/>
+      <rect class="fillable" data-k="trunk" fill="${f('trunk')||BLANK}" stroke="#1e293b" stroke-width="3" x="98" y="72" width="12" height="26"/>
+      <circle class="fillable" data-k="treeL" fill="${f('treeL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="92" cy="62" r="14"/>
+      <circle class="fillable" data-k="treeR" fill="${f('treeR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="116" cy="62" r="14"/>
+      <circle class="fillable" data-k="treeT" fill="${f('treeT')||BLANK}" stroke="#1e293b" stroke-width="3" cx="104" cy="50" r="15"/>
+      <path class="fillable" data-k="path" fill="${f('path')||BLANK}" stroke="#1e293b" stroke-width="2.5" d="M40 96 L46 96 L58 106 L28 106 Z"/>
+      <ellipse class="fillable" data-k="bush" fill="${f('bush')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="14" cy="96" rx="12" ry="8"/>
+    `,
+    sample:{sky:'#bae6fd',ground:'#86efac',sun:'#facc15',cloudA:'#f8fafc',cloudB:'#f8fafc',wall:'#fde68a',roof:'#ef4444',door:'#a16207',window:'#38bdf8',trunk:'#a16207',treeL:'#22c55e',treeR:'#22c55e',treeT:'#16a34a',path:'#d6b98c',bush:'#4ade80'} },
+
+  { id:'robothop', name:'Rô-bốt hộp', cat:'do-vat', catName:'Rô-bốt', vb:'0 0 100 125',
+    build:(f)=>`
+      <rect class="fillable" data-k="tayL" fill="${f('tayL')||BLANK}" stroke="#1e293b" stroke-width="3" x="9" y="62" width="13" height="32" rx="6"/>
+      <rect class="fillable" data-k="tayR" fill="${f('tayR')||BLANK}" stroke="#1e293b" stroke-width="3" x="78" y="62" width="13" height="32" rx="6"/>
+      <rect class="fillable" data-k="chanL" fill="${f('chanL')||BLANK}" stroke="#1e293b" stroke-width="3" x="31" y="104" width="15" height="18" rx="3"/>
+      <rect class="fillable" data-k="chanR" fill="${f('chanR')||BLANK}" stroke="#1e293b" stroke-width="3" x="54" y="104" width="15" height="18" rx="3"/>
+      <rect class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" x="24" y="58" width="52" height="46" rx="6"/>
+      <rect class="fillable" data-k="nguc" fill="${f('nguc')||BLANK}" stroke="#1e293b" stroke-width="3" x="37" y="66" width="26" height="22" rx="3"/>
+      <rect class="fillable" data-k="dau" fill="${f('dau')||BLANK}" stroke="#1e293b" stroke-width="3" x="26" y="22" width="48" height="34" rx="8"/>
+      <circle class="fillable" data-k="matL" fill="${f('matL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="40" cy="36" r="6"/>
+      <circle class="fillable" data-k="matR" fill="${f('matR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="60" cy="36" r="6"/>
+      <circle fill="#1e293b" cx="40" cy="36" r="2.3"/>
+      <circle fill="#1e293b" cx="60" cy="36" r="2.3"/>
+      <rect class="fillable" data-k="mieng" fill="${f('mieng')||BLANK}" stroke="#1e293b" stroke-width="3" x="38" y="46" width="24" height="6" rx="3"/>
+      <path fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" d="M50 22 L50 10"/>
+      <circle class="fillable" data-k="anten" fill="${f('anten')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="8" r="5"/>
+    `,
+    sample:{tayL:'#a78bfa',tayR:'#a78bfa',chanL:'#0ea5e9',chanR:'#0ea5e9',than:'#fbbf24',nguc:'#f472b6',dau:'#7dd3fc',matL:'#22c55e',matR:'#22c55e',mieng:'#f97316',anten:'#ef4444'} },
+
+  { id:'robottron', name:'Rô-bốt tròn', cat:'do-vat', catName:'Rô-bốt', vb:'0 0 110 110',
+    build:(f)=>`
+      <ellipse class="fillable" data-k="canhL" fill="${f('canhL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="16" cy="62" rx="12" ry="18"/>
+      <ellipse class="fillable" data-k="canhR" fill="${f('canhR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="94" cy="62" rx="12" ry="18"/>
+      <circle class="fillable" data-k="tayL" fill="${f('tayL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="28" cy="94" r="7"/>
+      <circle class="fillable" data-k="tayR" fill="${f('tayR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="82" cy="94" r="7"/>
+      <circle class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" cx="55" cy="60" r="36"/>
+      <rect class="fillable" data-k="matkinh" fill="${f('matkinh')||BLANK}" stroke="#1e293b" stroke-width="3" x="30" y="46" width="50" height="20" rx="10"/>
+      <circle fill="#1e293b" cx="45" cy="56" r="4"/>
+      <circle fill="#1e293b" cx="65" cy="56" r="4"/>
+      <circle class="fillable" data-k="nut" fill="${f('nut')||BLANK}" stroke="#1e293b" stroke-width="3" cx="55" cy="82" r="6"/>
+      <path fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" d="M55 24 L55 9"/>
+      <circle class="fillable" data-k="anten" fill="${f('anten')||BLANK}" stroke="#1e293b" stroke-width="3" cx="55" cy="7" r="5"/>
+    `,
+    sample:{canhL:'#f97316',canhR:'#f97316',tayL:'#94a3b8',tayR:'#94a3b8',than:'#38bdf8',matkinh:'#e2e8f0',nut:'#22c55e',anten:'#ef4444'} },
+
+  { id:'robotnut', name:'Rô-bốt nút bấm', cat:'do-vat', catName:'Rô-bốt', vb:'0 0 100 125',
+    build:(f)=>`
+      <rect class="fillable" data-k="tayL" fill="${f('tayL')||BLANK}" stroke="#1e293b" stroke-width="3" x="8" y="58" width="12" height="34" rx="6"/>
+      <rect class="fillable" data-k="tayR" fill="${f('tayR')||BLANK}" stroke="#1e293b" stroke-width="3" x="80" y="58" width="12" height="34" rx="6"/>
+      <rect class="fillable" data-k="chanL" fill="${f('chanL')||BLANK}" stroke="#1e293b" stroke-width="3" x="31" y="104" width="15" height="18" rx="3"/>
+      <rect class="fillable" data-k="chanR" fill="${f('chanR')||BLANK}" stroke="#1e293b" stroke-width="3" x="54" y="104" width="15" height="18" rx="3"/>
+      <rect class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" x="22" y="54" width="56" height="50" rx="6"/>
+      <rect class="fillable" data-k="dau" fill="${f('dau')||BLANK}" stroke="#1e293b" stroke-width="3" x="28" y="20" width="44" height="30" rx="7"/>
+      <circle class="fillable" data-k="matL" fill="${f('matL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="41" cy="33" r="5"/>
+      <circle class="fillable" data-k="matR" fill="${f('matR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="59" cy="33" r="5"/>
+      <circle fill="#1e293b" cx="41" cy="33" r="2"/>
+      <circle fill="#1e293b" cx="59" cy="33" r="2"/>
+      <rect class="fillable" data-k="mieng" fill="${f('mieng')||BLANK}" stroke="#1e293b" stroke-width="3" x="40" y="42" width="20" height="5" rx="2"/>
+      <circle class="fillable" data-k="nutA" fill="${f('nutA')||BLANK}" stroke="#1e293b" stroke-width="3" cx="37" cy="68" r="6"/>
+      <circle class="fillable" data-k="nutB" fill="${f('nutB')||BLANK}" stroke="#1e293b" stroke-width="3" cx="63" cy="68" r="6"/>
+      <circle class="fillable" data-k="nutC" fill="${f('nutC')||BLANK}" stroke="#1e293b" stroke-width="3" cx="37" cy="88" r="6"/>
+      <circle class="fillable" data-k="nutD" fill="${f('nutD')||BLANK}" stroke="#1e293b" stroke-width="3" cx="63" cy="88" r="6"/>
+      <path fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" d="M50 20 L50 8"/>
+      <circle class="fillable" data-k="anten" fill="${f('anten')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="6" r="5"/>
+    `,
+    sample:{tayL:'#64748b',tayR:'#64748b',chanL:'#475569',chanR:'#475569',than:'#38bdf8',dau:'#a78bfa',matL:'#fbbf24',matR:'#fbbf24',mieng:'#f97316',nutA:'#ef4444',nutB:'#22c55e',nutC:'#facc15',nutD:'#ec4899',anten:'#ef4444'} },
+
+  { id:'robotmeo', name:'Rô-bốt mèo', cat:'do-vat', catName:'Rô-bốt', vb:'0 0 100 120',
+    build:(f)=>`
+      <polygon class="fillable" data-k="taiL" fill="${f('taiL')||BLANK}" stroke="#1e293b" stroke-width="3" points="30,28 40,10 50,28"/>
+      <polygon class="fillable" data-k="taiR" fill="${f('taiR')||BLANK}" stroke="#1e293b" stroke-width="3" points="50,28 60,10 70,28"/>
+      <rect class="fillable" data-k="tayL" fill="${f('tayL')||BLANK}" stroke="#1e293b" stroke-width="3" x="10" y="64" width="12" height="30" rx="6"/>
+      <rect class="fillable" data-k="tayR" fill="${f('tayR')||BLANK}" stroke="#1e293b" stroke-width="3" x="78" y="64" width="12" height="30" rx="6"/>
+      <rect class="fillable" data-k="chanL" fill="${f('chanL')||BLANK}" stroke="#1e293b" stroke-width="3" x="33" y="104" width="14" height="16" rx="3"/>
+      <rect class="fillable" data-k="chanR" fill="${f('chanR')||BLANK}" stroke="#1e293b" stroke-width="3" x="53" y="104" width="14" height="16" rx="3"/>
+      <rect class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" x="26" y="60" width="48" height="44" rx="6"/>
+      <rect class="fillable" data-k="dau" fill="${f('dau')||BLANK}" stroke="#1e293b" stroke-width="3" x="28" y="26" width="44" height="32" rx="8"/>
+      <circle class="fillable" data-k="matL" fill="${f('matL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="41" cy="40" r="5"/>
+      <circle class="fillable" data-k="matR" fill="${f('matR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="59" cy="40" r="5"/>
+      <circle fill="#1e293b" cx="41" cy="40" r="2"/><circle fill="#1e293b" cx="59" cy="40" r="2"/>
+      <polygon class="fillable" data-k="mui" fill="${f('mui')||BLANK}" stroke="#1e293b" stroke-width="2.5" points="46,47 54,47 50,53"/>
+      <path fill="none" stroke="#1e293b" stroke-width="2" stroke-linecap="round" d="M30 48 L18 46 M30 52 L18 54 M70 48 L82 46 M70 52 L82 54"/>
+    `,
+    sample:{taiL:'#fbbf24',taiR:'#fbbf24',dau:'#fde68a',matL:'#22c55e',matR:'#22c55e',mui:'#ec4899',than:'#38bdf8',tayL:'#a78bfa',tayR:'#a78bfa',chanL:'#0ea5e9',chanR:'#0ea5e9'} },
+
+  { id:'robotxe', name:'Rô-bốt bánh xe', cat:'do-vat', catName:'Rô-bốt', vb:'0 0 110 110',
+    build:(f)=>`
+      <circle class="fillable" data-k="banhL" fill="${f('banhL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="38" cy="92" r="14"/>
+      <circle class="fillable" data-k="banhR" fill="${f('banhR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="72" cy="92" r="14"/>
+      <rect class="fillable" data-k="tayL" fill="${f('tayL')||BLANK}" stroke="#1e293b" stroke-width="3" x="12" y="50" width="14" height="12" rx="6"/>
+      <rect class="fillable" data-k="tayR" fill="${f('tayR')||BLANK}" stroke="#1e293b" stroke-width="3" x="84" y="50" width="14" height="12" rx="6"/>
+      <rect class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" x="30" y="46" width="50" height="34" rx="6"/>
+      <rect class="fillable" data-k="dau" fill="${f('dau')||BLANK}" stroke="#1e293b" stroke-width="3" x="35" y="16" width="40" height="26" rx="7"/>
+      <circle class="fillable" data-k="matL" fill="${f('matL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="47" cy="29" r="5"/>
+      <circle class="fillable" data-k="matR" fill="${f('matR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="63" cy="29" r="5"/>
+      <circle fill="#1e293b" cx="47" cy="29" r="2"/><circle fill="#1e293b" cx="63" cy="29" r="2"/>
+      <circle fill="#1e293b" cx="38" cy="92" r="4"/><circle fill="#1e293b" cx="72" cy="92" r="4"/>
+      <path fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" d="M55 16 L55 6"/>
+      <circle class="fillable" data-k="anten" fill="${f('anten')||BLANK}" stroke="#1e293b" stroke-width="3" cx="55" cy="4" r="4"/>
+    `,
+    sample:{anten:'#ef4444',dau:'#f472b6',matL:'#facc15',matR:'#facc15',than:'#22c55e',tayL:'#94a3b8',tayR:'#94a3b8',banhL:'#334155',banhR:'#334155'} },
+
+  { id:'robotcua', name:'Rô-bốt càng cua', cat:'do-vat', catName:'Rô-bốt', vb:'0 0 120 115',
+    build:(f)=>`
+      <ellipse class="fillable" data-k="cangL" fill="${f('cangL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="18" cy="52" rx="12" ry="8"/>
+      <ellipse class="fillable" data-k="cangR" fill="${f('cangR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="102" cy="52" rx="12" ry="8"/>
+      <rect class="fillable" data-k="chanL" fill="${f('chanL')||BLANK}" stroke="#1e293b" stroke-width="3" x="48" y="84" width="12" height="26" rx="3"/>
+      <rect class="fillable" data-k="chanR" fill="${f('chanR')||BLANK}" stroke="#1e293b" stroke-width="3" x="60" y="84" width="12" height="26" rx="3"/>
+      <rect class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" x="42" y="44" width="36" height="42" rx="6"/>
+      <rect class="fillable" data-k="dau" fill="${f('dau')||BLANK}" stroke="#1e293b" stroke-width="3" x="45" y="16" width="30" height="24" rx="6"/>
+      <rect class="fillable" data-k="matkinh" fill="${f('matkinh')||BLANK}" stroke="#1e293b" stroke-width="3" x="50" y="24" width="20" height="8" rx="4"/>
+      <circle fill="#1e293b" cx="56" cy="28" r="2.2"/><circle fill="#1e293b" cx="64" cy="28" r="2.2"/>
+      <path fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" d="M42 54 L30 52 M78 54 L90 52 M60 16 L60 6"/>
+      <circle class="fillable" data-k="anten" fill="${f('anten')||BLANK}" stroke="#1e293b" stroke-width="3" cx="60" cy="4" r="4"/>
+    `,
+    sample:{anten:'#ef4444',dau:'#0ea5e9',matkinh:'#e2e8f0',than:'#f97316',cangL:'#ef4444',cangR:'#ef4444',chanL:'#475569',chanR:'#475569'} },
+
+  { id:'robotmini', name:'Rô-bốt tí hon', cat:'do-vat', catName:'Rô-bốt', vb:'0 0 90 100',
+    build:(f)=>`
+      <circle class="fillable" data-k="tayL" fill="${f('tayL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="24" cy="68" r="6"/>
+      <circle class="fillable" data-k="tayR" fill="${f('tayR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="66" cy="68" r="6"/>
+      <rect class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" x="30" y="60" width="30" height="22" rx="5"/>
+      <rect class="fillable" data-k="chanL" fill="${f('chanL')||BLANK}" stroke="#1e293b" stroke-width="3" x="34" y="82" width="9" height="14" rx="3"/>
+      <rect class="fillable" data-k="chanR" fill="${f('chanR')||BLANK}" stroke="#1e293b" stroke-width="3" x="47" y="82" width="9" height="14" rx="3"/>
+      <rect class="fillable" data-k="dau" fill="${f('dau')||BLANK}" stroke="#1e293b" stroke-width="3" x="18" y="18" width="54" height="40" rx="10"/>
+      <circle class="fillable" data-k="matL" fill="${f('matL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="36" cy="36" r="7"/>
+      <circle class="fillable" data-k="matR" fill="${f('matR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="54" cy="36" r="7"/>
+      <circle fill="#1e293b" cx="36" cy="36" r="3"/><circle fill="#1e293b" cx="54" cy="36" r="3"/>
+      <rect class="fillable" data-k="mieng" fill="${f('mieng')||BLANK}" stroke="#1e293b" stroke-width="3" x="38" y="47" width="14" height="4" rx="2"/>
+      <path fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" d="M30 18 L24 8 M60 18 L66 8"/>
+      <circle class="fillable" data-k="antenL" fill="${f('antenL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="23" cy="6" r="4"/>
+      <circle class="fillable" data-k="antenR" fill="${f('antenR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="67" cy="6" r="4"/>
+    `,
+    sample:{dau:'#a78bfa',matL:'#38bdf8',matR:'#38bdf8',mieng:'#ef4444',antenL:'#ef4444',antenR:'#ef4444',than:'#fbbf24',chanL:'#0ea5e9',chanR:'#0ea5e9',tayL:'#22c55e',tayR:'#22c55e'} },
+
+  { id:'robotsieu', name:'Rô-bốt siêu nhân', cat:'do-vat', catName:'Rô-bốt', vb:'0 0 100 120',
+    build:(f)=>`
+      <polygon class="fillable" data-k="aochoang" fill="${f('aochoang')||BLANK}" stroke="#1e293b" stroke-width="3" points="30,52 70,52 84,112 50,98 16,112"/>
+      <rect class="fillable" data-k="tayL" fill="${f('tayL')||BLANK}" stroke="#1e293b" stroke-width="3" x="12" y="56" width="13" height="30" rx="6"/>
+      <rect class="fillable" data-k="tayR" fill="${f('tayR')||BLANK}" stroke="#1e293b" stroke-width="3" x="75" y="56" width="13" height="30" rx="6"/>
+      <rect class="fillable" data-k="chanL" fill="${f('chanL')||BLANK}" stroke="#1e293b" stroke-width="3" x="33" y="100" width="14" height="18" rx="3"/>
+      <rect class="fillable" data-k="chanR" fill="${f('chanR')||BLANK}" stroke="#1e293b" stroke-width="3" x="53" y="100" width="14" height="18" rx="3"/>
+      <rect class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" x="28" y="52" width="44" height="48" rx="6"/>
+      <rect class="fillable" data-k="dau" fill="${f('dau')||BLANK}" stroke="#1e293b" stroke-width="3" x="30" y="18" width="40" height="30" rx="8"/>
+      <circle class="fillable" data-k="matL" fill="${f('matL')||BLANK}" stroke="#1e293b" stroke-width="3" cx="41" cy="31" r="5"/>
+      <circle class="fillable" data-k="matR" fill="${f('matR')||BLANK}" stroke="#1e293b" stroke-width="3" cx="59" cy="31" r="5"/>
+      <circle fill="#1e293b" cx="41" cy="31" r="2"/><circle fill="#1e293b" cx="59" cy="31" r="2"/>
+      <circle class="fillable" data-k="huyhieu" fill="${f('huyhieu')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="70" r="10"/>
+      <path fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" d="M50 18 L50 8"/>
+      <circle class="fillable" data-k="anten" fill="${f('anten')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="6" r="4"/>
+    `,
+    sample:{anten:'#ef4444',dau:'#38bdf8',matL:'#facc15',matR:'#facc15',aochoang:'#ef4444',than:'#2563eb',huyhieu:'#facc15',tayL:'#1d4ed8',tayR:'#1d4ed8',chanL:'#1e40af',chanR:'#1e40af'} },
+
+  { id:'tenlua', name:'Tên lửa', cat:'phuong-tien', catName:'Vũ trụ', vb:'0 0 80 120',
+    build:(f)=>`
+      <polygon class="fillable" data-k="lua" fill="${f('lua')||BLANK}" stroke="#1e293b" stroke-width="3" points="30,86 50,86 46,104 40,96 34,104"/>
+      <polygon class="fillable" data-k="canhL" fill="${f('canhL')||BLANK}" stroke="#1e293b" stroke-width="3" points="26,72 12,96 26,88"/>
+      <polygon class="fillable" data-k="canhR" fill="${f('canhR')||BLANK}" stroke="#1e293b" stroke-width="3" points="54,72 68,96 54,88"/>
+      <rect class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" x="26" y="34" width="28" height="52" rx="4"/>
+      <path class="fillable" data-k="mui" fill="${f('mui')||BLANK}" stroke="#1e293b" stroke-width="3" d="M40 8 C30 8 26 24 26 34 L54 34 C54 24 50 8 40 8 Z"/>
+      <circle class="fillable" data-k="cuaso" fill="${f('cuaso')||BLANK}" stroke="#1e293b" stroke-width="3" cx="40" cy="52" r="8"/>
+    `,
+    sample:{mui:'#ef4444',than:'#e2e8f0',cuaso:'#38bdf8',canhL:'#f97316',canhR:'#f97316',lua:'#facc15'} },
+
+  { id:'diabay', name:'Đĩa bay', cat:'phuong-tien', catName:'Vũ trụ', vb:'0 0 120 95',
+    build:(f)=>`
+      <polygon class="fillable" data-k="tia" fill="${f('tia')||BLANK}" stroke="#1e293b" stroke-width="2.5" points="48,58 72,58 90,90 30,90"/>
+      <ellipse class="fillable" data-k="dia" fill="${f('dia')||BLANK}" stroke="#1e293b" stroke-width="3" cx="60" cy="48" rx="46" ry="14"/>
+      <path class="fillable" data-k="vom" fill="${f('vom')||BLANK}" stroke="#1e293b" stroke-width="3" d="M42 44 C42 22 78 22 78 44 Z"/>
+      <circle class="fillable" data-k="den1" fill="${f('den1')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="40" cy="55" r="4"/>
+      <circle class="fillable" data-k="den2" fill="${f('den2')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="60" cy="57" r="4"/>
+      <circle class="fillable" data-k="den3" fill="${f('den3')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="80" cy="55" r="4"/>
+    `,
+    sample:{vom:'#7dd3fc',dia:'#94a3b8',den1:'#ef4444',den2:'#22c55e',den3:'#facc15',tia:'#fde68a'} },
+
+  { id:'contho', name:'Tàu con thoi', cat:'phuong-tien', catName:'Vũ trụ', vb:'0 0 100 120',
+    build:(f)=>`
+      <polygon class="fillable" data-k="lua" fill="${f('lua')||BLANK}" stroke="#1e293b" stroke-width="3" points="42,90 58,90 54,108 50,100 46,108"/>
+      <polygon class="fillable" data-k="canhL" fill="${f('canhL')||BLANK}" stroke="#1e293b" stroke-width="3" points="40,70 18,96 40,88"/>
+      <polygon class="fillable" data-k="canhR" fill="${f('canhR')||BLANK}" stroke="#1e293b" stroke-width="3" points="60,70 82,96 60,88"/>
+      <path class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" d="M50 8 C42 8 40 24 40 40 L40 90 L60 90 L60 40 C60 24 58 8 50 8 Z"/>
+      <rect class="fillable" data-k="soc" fill="${f('soc')||BLANK}" stroke="#1e293b" stroke-width="3" x="40" y="46" width="20" height="8"/>
+      <circle class="fillable" data-k="cuaso" fill="${f('cuaso')||BLANK}" stroke="#1e293b" stroke-width="3" cx="50" cy="30" r="7"/>
+    `,
+    sample:{than:'#e2e8f0',cuaso:'#38bdf8',canhL:'#ef4444',canhR:'#ef4444',soc:'#f97316',lua:'#facc15'} },
+
+  { id:'phithuyen', name:'Phi thuyền', cat:'phuong-tien', catName:'Vũ trụ', vb:'0 0 130 100',
+    build:(f)=>`
+      <circle class="fillable" data-k="sao1" fill="${f('sao1')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="20" cy="20" r="5"/>
+      <circle class="fillable" data-k="sao2" fill="${f('sao2')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="112" cy="18" r="5"/>
+      <circle class="fillable" data-k="hanhtinh" fill="${f('hanhtinh')||BLANK}" stroke="#1e293b" stroke-width="3" cx="106" cy="76" r="13"/>
+      <polygon class="fillable" data-k="lua" fill="${f('lua')||BLANK}" stroke="#1e293b" stroke-width="2.5" points="31,50 14,44 18,50 14,56"/>
+      <polygon class="fillable" data-k="canh" fill="${f('canh')||BLANK}" stroke="#1e293b" stroke-width="3" points="50,62 82,62 74,78 58,78"/>
+      <ellipse class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" cx="66" cy="50" rx="34" ry="16"/>
+      <circle class="fillable" data-k="kinh" fill="${f('kinh')||BLANK}" stroke="#1e293b" stroke-width="3" cx="80" cy="44" r="10"/>
+    `,
+    sample:{than:'#38bdf8',kinh:'#e2e8f0',canh:'#f97316',lua:'#facc15',sao1:'#fde047',sao2:'#fde047',hanhtinh:'#a78bfa'} },
+
+  { id:'tenluakhonggian', name:'Tên lửa vào không gian', cat:'phuong-tien', catName:'Vũ trụ', vb:'0 0 120 130',
+    build:(f)=>`
+      <circle class="fillable" data-k="sao1" fill="${f('sao1')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="18" cy="24" r="4"/>
+      <circle class="fillable" data-k="sao2" fill="${f('sao2')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="104" cy="82" r="4"/>
+      <circle class="fillable" data-k="sao3" fill="${f('sao3')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="26" cy="100" r="4"/>
+      <ellipse class="fillable" data-k="vong" fill="${f('vong')||BLANK}" stroke="#1e293b" stroke-width="2.5" cx="96" cy="30" rx="22" ry="7" transform="rotate(-20 96 30)"/>
+      <circle class="fillable" data-k="hanhtinh" fill="${f('hanhtinh')||BLANK}" stroke="#1e293b" stroke-width="3" cx="96" cy="30" r="14"/>
+      <polygon class="fillable" data-k="lua" fill="${f('lua')||BLANK}" stroke="#1e293b" stroke-width="3" points="40,86 56,86 52,106 48,98 44,106"/>
+      <polygon class="fillable" data-k="canhL" fill="${f('canhL')||BLANK}" stroke="#1e293b" stroke-width="3" points="36,72 22,94 36,86"/>
+      <polygon class="fillable" data-k="canhR" fill="${f('canhR')||BLANK}" stroke="#1e293b" stroke-width="3" points="60,72 74,94 60,86"/>
+      <rect class="fillable" data-k="than" fill="${f('than')||BLANK}" stroke="#1e293b" stroke-width="3" x="36" y="38" width="24" height="48" rx="4"/>
+      <path class="fillable" data-k="mui" fill="${f('mui')||BLANK}" stroke="#1e293b" stroke-width="3" d="M48 14 C40 14 36 28 36 38 L60 38 C60 28 56 14 48 14 Z"/>
+      <circle class="fillable" data-k="cuaso" fill="${f('cuaso')||BLANK}" stroke="#1e293b" stroke-width="3" cx="48" cy="54" r="7"/>
+    `,
+    sample:{mui:'#ef4444',than:'#e2e8f0',cuaso:'#38bdf8',canhL:'#f97316',canhR:'#f97316',lua:'#facc15',hanhtinh:'#a78bfa',vong:'#fbbf24',sao1:'#fde047',sao2:'#fde047',sao3:'#fde047'} },
+];
+
+/* ===== state ===== */
+let soundOn=true, actx=null;
+let current=null;         // current picture object
+let selColor=COLORS[0];   // selected color
+let filled={};            // data-k -> color
+
+/* ===== audio ===== */
+function ensa(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}}
+function tone(k){if(!soundOn)return;ensa();if(!actx)return;const n=actx.currentTime;
+  const F=k==='tap'?[520,760]:k==='win'?[660,880,1100,1320,1560]:[440];
+  F.forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type='triangle';o.frequency.value=f;
+    const t=n+i*0.09;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.22,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.16);
+    o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.18);});}
+let viVoice=null;function pv(){const vs=window.speechSynthesis?speechSynthesis.getVoices():[];viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||null;}
+if(window.speechSynthesis){pv();speechSynthesis.onvoiceschanged=pv;}
+function speak(t){if(!soundOn||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=.98;u.pitch=1.15;speechSynthesis.speak(u);}catch(e){}}
+
+/* ===== gallery ===== */
+function svgFor(pic,fillFn){return `<svg viewBox="${pic.vb}" xmlns="http://www.w3.org/2000/svg">${pic.build(fillFn)}</svg>`;}
+
+function regionCount(pic){ return (pic.build(()=>BLANK).match(/class="fillable"/g)||[]).length; }
+function stars(n){ const lv = n<=6?1 : n<=10?2 : 3; return '★'.repeat(lv)+'<b>'+'★'.repeat(3-lv)+'</b>'; }
+
+function buildGallery(){
+  const g=document.getElementById('gallery'); g.innerHTML='';
+  PICTURES.forEach(pic=>{
+    const d=document.createElement('div'); d.className='pick'; d.dataset.cat=pic.cat;
+    const n=regionCount(pic);
+    d.innerHTML = svgFor(pic, ()=>BLANK) + `<div class="nm">${pic.name}</div><div class="cat">${pic.catName}</div><div class="lvl" title="${n} ô để tô">${stars(n)}</div>`;
+    d.addEventListener('click',()=>openPicture(pic));
+    g.appendChild(d);
+  });
+}
+
+/* ===== palette ===== */
+function buildPalette(){
+  const s=document.getElementById('swatches'); s.innerHTML='';
+  COLORS.forEach(c=>{
+    const b=document.createElement('div'); b.className='sw'; b.style.background=c; b.dataset.color=c;
+    if(c===selColor) b.classList.add('sel');
+    b.addEventListener('click',()=>selectColor(c,b));
+    s.appendChild(b);
+  });
+  // eraser (paint back to blank)
+  const e=document.createElement('div'); e.className='sw eraser'; e.textContent='🧽'; e.dataset.color=BLANK;
+  e.addEventListener('click',()=>selectColor(BLANK,e));
+  s.appendChild(e);
+}
+function selectColor(c,el){
+  selColor=c;
+  document.querySelectorAll('.sw').forEach(x=>x.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+/* ===== coloring ===== */
+function openPicture(pic){
+  current=pic; filled={};
+  document.getElementById('galleryScreen').hidden=true;
+  document.getElementById('colorScreen').hidden=false;
+  document.getElementById('colorTitle').textContent='Tô màu: '+pic.name;
+  // hint = completed sample
+  document.getElementById('hint').innerHTML = svgFor(pic, k=>pic.sample[k]||'#e2e8f0');
+  // blank canvas
+  const canvas=document.getElementById('canvas');
+  canvas.className='canvas';
+  canvas.innerHTML = svgFor(pic, ()=>BLANK);
+  canvas.querySelectorAll('.fillable').forEach(sh=>{
+    sh.addEventListener('click',()=>paint(sh));
+  });
+  buildPalette();
+  window.scrollTo(0,0);
+}
+
+function paint(shape){
+  const k=shape.getAttribute('data-k');
+  shape.setAttribute('fill', selColor);
+  if(selColor===BLANK){ delete filled[k]; }
+  else { filled[k]=selColor; }
+  tone('tap');
+  checkDone();
+}
+
+function totalRegions(){ return document.querySelectorAll('#canvas .fillable').length; }
+function filledCount(){
+  let n=0;
+  document.querySelectorAll('#canvas .fillable').forEach(sh=>{
+    const f=(sh.getAttribute('fill')||'').toLowerCase();
+    if(f && f!==BLANK) n++;
+  });
+  return n;
+}
+function checkDone(){
+  if(filledCount()>=totalRegions()) celebrate();
+}
+
+/* ===== completion ===== */
+const PRAISE=['Đẹp quá!','Tuyệt vời!','Giỏi lắm!','Hoan hô!','Bức tranh xinh ghê!'];
+function celebrate(){
+  const canvas=document.getElementById('canvas');
+  addGooglyEyes(canvas);
+  canvas.classList.add('celebrate');
+  confetti();
+  tone('win');
+  const msg=PRAISE[Math.floor(Math.random()*PRAISE.length)];
+  const faces=['🎉','🥳','🌈','⭐','🎨'];
+  document.getElementById('winFace').textContent=faces[Math.floor(Math.random()*faces.length)];
+  document.getElementById('winMsg').textContent=msg;
+  speak(msg+' Em tô màu rất giỏi.');
+  setTimeout(()=>{ document.getElementById('winBox').hidden=false; }, 900);
+}
+
+/* add cute googly eyes + smile on top of the picture */
+function addGooglyEyes(canvas){
+  const svg=canvas.querySelector('svg'); if(!svg||svg.querySelector('.googlyG')) return;
+  const vb=(current.vb||'0 0 100 100').split(/\s+/).map(Number);
+  const w=vb[2]||100, h=vb[3]||100, cx=w/2, cy=h*0.44, r=Math.min(w,h)*0.07;
+  const NS='http://www.w3.org/2000/svg';
+  const gr=document.createElementNS(NS,'g'); gr.setAttribute('class','googlyG');
+  function eye(ex){
+    const e=document.createElementNS(NS,'circle'); e.setAttribute('cx',ex); e.setAttribute('cy',cy); e.setAttribute('r',r);
+    e.setAttribute('fill','#fff'); e.setAttribute('stroke','#1e293b'); e.setAttribute('stroke-width','2.5'); e.setAttribute('class','googly');
+    const p=document.createElementNS(NS,'circle'); p.setAttribute('cx',ex+r*0.25); p.setAttribute('cy',cy+r*0.25); p.setAttribute('r',r*0.45);
+    p.setAttribute('fill','#1e293b'); p.setAttribute('class','googly');
+    gr.appendChild(e); gr.appendChild(p);
+  }
+  eye(cx-r*1.6); eye(cx+r*1.6);
+  const smile=document.createElementNS(NS,'path');
+  smile.setAttribute('d',`M${cx-r*1.8} ${cy+r*2} Q ${cx} ${cy+r*4.4} ${cx+r*1.8} ${cy+r*2}`);
+  smile.setAttribute('fill','none'); smile.setAttribute('stroke','#1e293b'); smile.setAttribute('stroke-width','3'); smile.setAttribute('stroke-linecap','round');
+  smile.setAttribute('class','googly');
+  gr.appendChild(smile);
+  svg.appendChild(gr);
+}
+
+function confetti(){
+  const ic=['⭐','✨','🌟','🎉','🌈','💖','🎈'];
+  const cx=window.innerWidth/2, cy=window.innerHeight*0.4;
+  for(let i=0;i<26;i++){
+    const s=document.createElement('div'); s.className='burst'; s.textContent=ic[i%ic.length];
+    s.style.left=cx+'px'; s.style.top=cy+'px';
+    const a=Math.PI*2*i/26, d=120+Math.random()*160;
+    s.style.setProperty('--dx',(Math.cos(a)*d)+'px');
+    s.style.setProperty('--dy',(Math.sin(a)*d-40)+'px');
+    s.style.setProperty('--rot',(Math.random()*360)+'deg');
+    document.body.appendChild(s); setTimeout(()=>s.remove(),1150);
+  }
+}
+
+/* ===== controls ===== */
+function resetPicture(){
+  if(!current) return;
+  filled={};
+  document.getElementById('winBox').hidden=true;
+  openPicture(current);
+}
+function toGallery(){
+  document.getElementById('winBox').hidden=true;
+  document.getElementById('colorScreen').hidden=true;
+  document.getElementById('galleryScreen').hidden=false;
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  window.scrollTo(0,0);
+}
+
+document.getElementById('resetBtn').addEventListener('click',resetPicture);
+document.getElementById('backBtn').addEventListener('click',toGallery);
+document.getElementById('topBack').addEventListener('click',()=>{
+  if(document.getElementById('colorScreen').hidden) location.href='../../index.html';
+  else toGallery();
+});
+document.getElementById('againBtn').addEventListener('click',resetPicture);
+document.getElementById('otherBtn').addEventListener('click',toGallery);
+document.getElementById('sound').addEventListener('click',()=>{
+  soundOn=!soundOn; document.getElementById('sound').textContent=soundOn?'🔊':'🔇';
+  if(!soundOn&&window.speechSynthesis) speechSynthesis.cancel();
+});
+
+buildGallery();
+</script>
+</body>
+</html>

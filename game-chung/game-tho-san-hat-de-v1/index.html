@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thợ Săn Hạt Dẻ V1 - Quiz Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url('https://i.postimg.cc/RZ0cw4R1/background-forest.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            border: 3px solid #8B4513;
+        }
+
+        .header { text-align: center; margin-bottom: 25px; }
+        .title { font-size: 2rem; color: #5D4037; margin-bottom: 10px; }
+
+        .timer-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #A5D6A7 0%, #81C784 100%);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #4CAF50;
+        }
+
+        .timer { font-size: 1.3rem; color: #B71C1C; font-weight: bold; }
+        .score { font-size: 1.3rem; color: #1B5E20; font-weight: bold; }
+        .progress { font-size: 1rem; color: #33691E; font-weight: 600; }
+
+        .question-number { font-size: 0.9rem; color: #795548; margin-bottom: 10px; font-weight: 600; }
+        .question {
+            font-size: 1.3rem; color: #3E2723; margin-bottom: 15px; line-height: 1.5;
+            background: #FFF8E1; padding: 15px; border-radius: 10px; border: 2px dashed #FF8F00;
+        }
+        .question-icon {
+            display: block; margin: 15px auto; max-height: 60px;
+            background: #FFECB3; padding: 10px; border-radius: 8px; border: 2px solid #FFA000;
+        }
+
+        .answers { display: grid; gap: 12px; }
+        .answer-btn {
+            display: flex; align-items: center; padding: 15px 20px;
+            background: linear-gradient(135deg, #FFF9C4 0%, #FFF59D 100%);
+            border: 2px solid #F9A825; border-radius: 12px; cursor: pointer;
+            transition: all 0.3s ease; font-size: 1.1rem;
+        }
+        .answer-btn:hover:not(.disabled) {
+            background: linear-gradient(135deg, #FFEE58 0%, #FDD835 100%);
+            border-color: #F57F17; transform: translateX(5px);
+        }
+        .answer-btn.correct { background: linear-gradient(135deg, #A5D6A7 0%, #66BB6A 100%); border-color: #2E7D32; }
+        .answer-btn.wrong { background: linear-gradient(135deg, #EF9A9A 0%, #E57373 100%); border-color: #C62828; }
+        .answer-btn.disabled { cursor: not-allowed; opacity: 0.7; }
+        .answer-label {
+            font-weight: bold; margin-right: 15px;
+            background: linear-gradient(135deg, #8D6E63 0%, #5D4037 100%);
+            color: white; width: 35px; height: 35px;
+            display: flex; align-items: center; justify-content: center; border-radius: 50%;
+        }
+
+        .start-screen, .result-screen { text-align: center; padding: 40px 20px; }
+        .start-btn, .restart-btn {
+            background: linear-gradient(135deg, #8D6E63 0%, #5D4037 100%);
+            color: white; border: 3px solid #3E2723; padding: 15px 40px;
+            font-size: 1.2rem; border-radius: 30px; cursor: pointer;
+            transition: transform 0.3s; margin-top: 20px;
+        }
+        .start-btn:hover, .restart-btn:hover { transform: scale(1.05); }
+
+        .mascot { font-size: 4rem; margin-bottom: 15px; }
+        .subtitle { color: #5D4037; margin: 15px 0; font-size: 1.1rem; }
+        .info-text { color: #795548; font-weight: 500; }
+        .hidden { display: none !important; }
+
+        .dialog-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: flex;
+            justify-content: center; align-items: center; z-index: 1000;
+        }
+        .dialog-box {
+            background: white; border-radius: 20px; padding: 40px;
+            max-width: 450px; width: 90%; text-align: center;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.4); border: 4px solid #8D6E63;
+            animation: popIn 0.3s ease;
+        }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .result-icon { font-size: 4rem; margin-bottom: 20px; }
+        .result-title { font-size: 1.8rem; color: #3E2723; margin-bottom: 15px; }
+        .result-stats {
+            background: linear-gradient(135deg, #C8E6C9 0%, #A5D6A7 100%);
+            padding: 20px; border-radius: 15px; margin: 20px 0; border: 2px solid #4CAF50;
+        }
+        .stat-item {
+            display: flex; justify-content: space-between; padding: 10px 0;
+            border-bottom: 1px solid #81C784; color: #1B5E20; font-weight: 500;
+        }
+        .stat-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="startScreen" class="start-screen">
+            <div class="mascot">🐿️</div>
+            <h1 class="title">Thợ Săn Hạt Dẻ</h1>
+            <p class="subtitle">Trả lời các câu hỏi về phần mềm máy tính</p>
+            <p class="info-text">🌰 3 câu hỏi trắc nghiệm</p>
+            <button class="start-btn" onclick="startQuiz()">Bắt Đầu 🚀</button>
+        </div>
+
+        <div id="quizScreen" class="hidden">
+            <div class="header"><h1 class="title">🐿️ Thợ Săn Hạt Dẻ</h1></div>
+            <div class="timer-score">
+                <div class="timer">⏱️ <span id="timer">00:00</span></div>
+                <div class="progress">Câu <span id="currentQ">1</span>/3</div>
+                <div class="score">🌰 <span id="score">0</span> điểm</div>
+            </div>
+            <div class="question-container">
+                <div class="question-number" id="questionNumber">Câu hỏi 1</div>
+                <div class="question" id="questionText"></div>
+                <img id="questionIcon" class="question-icon hidden" src="" alt="Icon">
+                <div class="answers" id="answersContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultDialog" class="dialog-overlay hidden">
+        <div class="dialog-box">
+            <div class="result-icon" id="resultIcon">🎉</div>
+            <h2 class="result-title" id="resultTitle">Hoàn thành!</h2>
+            <div class="result-stats">
+                <div class="stat-item"><span>📝 Số câu đúng:</span><span id="correctCount">0/3</span></div>
+                <div class="stat-item"><span>🌰 Điểm số:</span><span id="finalScore">0</span></div>
+                <div class="stat-item"><span>⏱️ Thời gian:</span><span id="finalTime">00:00</span></div>
+            </div>
+            <button class="restart-btn" onclick="restartQuiz()">Chơi Lại 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Phần mềm nào giúp em xem video để tìm hiểu về truyền thống văn hóa, lịch sử một cách trực quan, sinh động hơn?",
+                icon: null,
+                answers: [
+                    { label: "A", text: "Windows Media Player", correct: true },
+                    { label: "B", text: "UniKey", correct: false },
+                    { label: "C", text: "Kiran's Typing Tutor", correct: false },
+                    { label: "D", text: "Word 2016", correct: false }
+                ]
+            },
+            {
+                question: "Nút điều khiển trên phần mềm Windows Media Player dùng để?",
+                icon: "data:image/png;base64,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",
+                answers: [
+                    { label: "A", text: "Tạm dừng video", correct: false },
+                    { label: "B", text: "Phát video", correct: true },
+                    { label: "C", text: "Điều chỉnh âm thanh", correct: false },
+                    { label: "D", text: "Xem đoạn video sắp đến", correct: false }
+                ]
+            },
+            {
+                question: "Nút điều khiển trên phần mềm Windows Media Player dùng để?",
+                icon: "data:image/png;base64,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",
+                answers: [
+                    { label: "A", text: "Tạm dừng video", correct: false },
+                    { label: "B", text: "Chạy video", correct: false },
+                    { label: "C", text: "Điều chỉnh âm thanh", correct: true },
+                    { label: "D", text: "Xem đoạn video sắp đến", correct: false }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let timerInterval = null;
+        let seconds = 0;
+
+        function startQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            correctAnswers = 0;
+            seconds = 0;
+
+            document.getElementById('score').textContent = '0';
+            document.getElementById('timer').textContent = '00:00';
+
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(function() {
+                seconds++;
+                var mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                var secs = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer').textContent = mins + ':' + secs;
+            }, 1000);
+
+            showQuestion();
+        }
+
+        function showQuestion() {
+            var q = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = 'Câu hỏi ' + (currentQuestion + 1);
+            document.getElementById('currentQ').textContent = currentQuestion + 1;
+            document.getElementById('questionText').textContent = q.question;
+
+            var iconEl = document.getElementById('questionIcon');
+            if (q.icon) {
+                iconEl.src = q.icon;
+                iconEl.classList.remove('hidden');
+            } else {
+                iconEl.classList.add('hidden');
+            }
+
+            var container = document.getElementById('answersContainer');
+            container.innerHTML = '';
+
+            for (var i = 0; i < q.answers.length; i++) {
+                (function(index, answer) {
+                    var btn = document.createElement('div');
+                    btn.className = 'answer-btn';
+                    btn.innerHTML = '<span class="answer-label">' + answer.label + '</span><span>' + answer.text + '</span>';
+                    btn.onclick = function() { selectAnswer(index, answer.correct); };
+                    container.appendChild(btn);
+                })(i, q.answers[i]);
+            }
+        }
+
+        function selectAnswer(index, isCorrect) {
+            var buttons = document.querySelectorAll('.answer-btn');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.add('disabled');
+                buttons[i].onclick = null;
+            }
+
+            if (isCorrect) {
+                buttons[index].classList.add('correct');
+                score++;
+                correctAnswers++;
+                document.getElementById('score').textContent = score;
+            } else {
+                buttons[index].classList.add('wrong');
+                for (var j = 0; j < questions[currentQuestion].answers.length; j++) {
+                    if (questions[currentQuestion].answers[j].correct) {
+                        buttons[j].classList.add('correct');
+                    }
+                }
+            }
+
+            setTimeout(function() {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1500);
+        }
+
+        function showResult() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+
+            document.getElementById('correctCount').textContent = correctAnswers + '/3';
+            document.getElementById('finalScore').textContent = score + ' điểm';
+
+            var mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+            var secs = (seconds % 60).toString().padStart(2, '0');
+            document.getElementById('finalTime').textContent = mins + ':' + secs;
+
+            if (correctAnswers === 3) {
+                document.getElementById('resultIcon').textContent = '🏆';
+                document.getElementById('resultTitle').textContent = 'Xuất sắc! Bạn trả lời đúng tất cả!';
+            } else if (correctAnswers >= 2) {
+                document.getElementById('resultIcon').textContent = '🎉';
+                document.getElementById('resultTitle').textContent = 'Tốt lắm!';
+            } else {
+                document.getElementById('resultIcon').textContent = '💪';
+                document.getElementById('resultTitle').textContent = 'Cố gắng hơn nhé!';
+            }
+
+            document.getElementById('resultDialog').classList.remove('hidden');
+        }
+
+        function restartQuiz() {
+            document.getElementById('resultDialog').classList.add('hidden');
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

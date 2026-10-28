@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bảo Vệ Thông Tin Cá Nhân - Trắc nghiệm</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --do:#C00000; --navy:#002060; --kem:#F7F1E9;
+  --hong:#d94267; --tim:#a86ce5; --cam:#f49e48;
+}
+html,body{height:100%}
+body{font-family:Arial,Helvetica,'Segoe UI',sans-serif;background:#fff;color:var(--navy);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:14px;overflow-x:hidden}
+
+/* ===== trang trí góc giống slide ===== */
+.deco{position:fixed;pointer-events:none;z-index:0;user-select:none}
+.d-tl{top:-6%;left:-7%;width:230px;transform:rotate(12deg)}
+.d-tr{top:-8%;right:-6%;width:250px;transform:rotate(-140deg)}
+.d-bl{bottom:-8%;left:-7%;width:230px;transform:rotate(140deg)}
+.d-br{bottom:-7%;right:-7%;width:215px;transform:rotate(-20deg)}
+.d-s1{top:9%;left:4%;width:180px}
+.d-s2{bottom:11%;right:4%;width:150px}
+@media(max-width:820px){.deco{opacity:.55}.d-tl,.d-tr,.d-bl,.d-br{width:190px}.d-s1,.d-s2{display:none}}
+
+.wrap{position:relative;z-index:1;width:100%;max-width:1060px}
+
+/* ===== khung "slide" ===== */
+.slide{background:var(--kem);border:5px solid #fff;border-radius:38px;
+  box-shadow:0 18px 50px rgba(0,32,96,.18);padding:26px 30px 30px;position:relative}
+
+.chip{display:inline-block;background:var(--do);color:#fff;font-weight:bold;letter-spacing:2px;
+  padding:7px 26px;border-radius:30px;font-size:16px;box-shadow:0 5px 0 #8d0000}
+.head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{background:#fff;border:3px solid var(--tim);border-radius:26px;padding:6px 16px;font-weight:bold;color:var(--navy);font-size:15px}
+.pill.diem{border-color:var(--cam);color:#b35b00}
+.btn-ico{background:#fff;border:3px solid var(--navy);border-radius:50%;width:44px;height:44px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--navy)}
+.btn-ico:hover{background:#e9f0ff}
+
+.bar{height:14px;background:#fff;border:3px solid #d9cfc0;border-radius:20px;margin:16px 0 4px;overflow:hidden}
+.bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cam),var(--hong));transition:width .35s}
+
+h1.title{color:var(--do);text-align:center;font-size:clamp(22px,3.4vw,40px);line-height:1.25;margin:10px 0 6px;text-transform:uppercase}
+.sub{text-align:center;color:var(--navy);font-size:clamp(14px,1.7vw,19px);margin-bottom:14px}
+
+.qbox{background:#fff;border:4px solid var(--tim);border-radius:30px;padding:18px 22px;margin:14px 0 18px;
+  display:flex;gap:14px;align-items:flex-start}
+.qnum{flex:none;background:var(--tim);color:#fff;font-weight:bold;border-radius:50%;width:46px;height:46px;
+  display:flex;align-items:center;justify-content:center;font-size:19px}
+.qtext{font-size:clamp(17px,2.2vw,25px);font-weight:bold;color:var(--navy);line-height:1.4}
+
+.opts{display:grid;gap:12px}
+.opt{display:flex;align-items:center;gap:14px;background:#fff;border:4px solid var(--navy);border-radius:999px;
+  padding:13px 22px;font-size:clamp(15px,1.9vw,21px);font-weight:bold;color:var(--navy);cursor:pointer;
+  text-align:left;width:100%;font-family:inherit;transition:transform .12s,background .2s}
+.opt:hover:not(:disabled){background:#eaf1ff;transform:translateX(6px)}
+.opt .k{flex:none;width:38px;height:38px;border-radius:50%;background:var(--navy);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:18px}
+.opts.ds2{grid-template-columns:1fr 1fr}
+.opt.tf{justify-content:center;font-size:clamp(20px,3vw,28px);padding:20px 10px}
+.opt.tfY{border-color:#2e7d32;color:#1b5e20}
+.opt.tfY .k{background:#2e7d32}
+.opt.tfN{border-color:#c62828;color:#8e0000}
+.opt.tfN .k{background:#c62828}
+.opt.tf:hover:not(:disabled){transform:translateY(-4px)}
+.phan{text-align:center;font-weight:bold;letter-spacing:1.5px;font-size:14px;color:#a0651b;
+  text-transform:uppercase;margin-top:10px}
+.opt.dung{background:#dff5dd;border-color:#2e7d32;color:#1b5e20}
+.opt.dung .k{background:#2e7d32}
+.opt.sai{background:#ffe1e1;border-color:#c62828;color:#8e0000;opacity:.75}
+.opt.sai .k{background:#c62828}
+.opt:disabled{cursor:default}
+
+.giaithich{margin-top:16px;background:#fffbe6;border:4px dashed var(--cam);border-radius:24px;padding:14px 20px;
+  font-size:clamp(14px,1.8vw,19px);line-height:1.5;color:var(--navy);display:none}
+.giaithich b{color:var(--do)}
+.giaithich.show{display:block;animation:pop .3s}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+
+.hang{display:flex;justify-content:center;gap:14px;margin-top:18px;flex-wrap:wrap}
+.btn{background:var(--do);color:#fff;border:none;border-radius:999px;padding:14px 38px;font-size:19px;font-weight:bold;
+  font-family:inherit;cursor:pointer;box-shadow:0 6px 0 #8d0000}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #8d0000}
+.btn.xanh{background:#1d6f3c;box-shadow:0 6px 0 #0f4524}
+.btn.xanh:active{box-shadow:0 2px 0 #0f4524}
+.btn.tim{background:var(--tim);box-shadow:0 6px 0 #7b46b0}
+.btn.tim:active{box-shadow:0 2px 0 #7b46b0}
+.btn.nho{padding:11px 26px;font-size:16px}
+.btn[hidden]{display:none}
+
+.lopbtns{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin:8px 0 6px}
+.lopbtn{background:#fff;border:5px solid var(--tim);border-radius:30px;padding:20px 36px;cursor:pointer;
+  font-family:inherit;font-weight:bold;color:var(--navy);text-align:center;min-width:190px}
+.lopbtn:hover{background:#f3ebff;transform:translateY(-4px)}
+.lopbtn .big{display:block;font-size:34px;color:var(--do)}
+.lopbtn .small{display:block;font-size:14px;margin-top:6px;color:#4a5a7a;font-weight:normal}
+.lopbtn.cam{border-color:var(--cam)}
+.lopbtn.cam:hover{background:#fff3e4}
+
+.ghinho{background:#fff;border:4px solid var(--hong);border-radius:28px;padding:16px 22px;margin:14px auto 0;max-width:860px;
+  font-size:clamp(14px,1.8vw,18px);line-height:1.55;text-align:center}
+.ghinho b{color:var(--do)}
+
+.ketqua{text-align:center}
+.sao{font-size:52px;letter-spacing:6px;margin:6px 0}
+.diemto{font-size:clamp(34px,6vw,64px);color:var(--do);font-weight:bold}
+.loikhen{font-size:clamp(17px,2.4vw,26px);font-weight:bold;margin:8px 0 4px}
+.saibang{text-align:left;max-width:860px;margin:16px auto 0;background:#fff;border:4px solid var(--navy);
+  border-radius:24px;padding:14px 20px;font-size:15px;line-height:1.5;max-height:230px;overflow:auto}
+.saibang h3{color:var(--do);font-size:17px;margin-bottom:8px}
+.saibang li{margin:8px 0 8px 18px}
+
+.back{position:fixed;top:12px;left:12px;z-index:5;background:#fff;border:3px solid var(--navy);color:var(--navy);
+  text-decoration:none;font-weight:bold;padding:8px 16px;border-radius:24px;font-size:14px}
+.back:hover{background:#e9f0ff}
+
+.confetti{position:fixed;top:-20px;width:12px;height:18px;z-index:9;pointer-events:none;border-radius:3px}
+@keyframes roi{to{transform:translateY(105vh) rotate(720deg);opacity:0}}
+
+@media(max-width:600px){
+  .slide{padding:18px 14px 22px;border-radius:26px}
+  .qbox{padding:14px;border-radius:22px}
+  .opt{padding:11px 14px;border-radius:26px}
+  .opt .k{width:32px;height:32px;font-size:15px}
+  .back{position:static;display:inline-block;margin-bottom:10px}
+}
+</style>
+</head>
+<body>
+
+<!-- trang trí: vệt màu + nét sóng lấy đúng từ bộ slide bài giảng -->
+<svg class="deco d-tl" viewBox="31.1 72.8 369.4 328.5" aria-hidden="true"><path fill="#d94267" d="M 312.136719 210.585938 C 311.605469 205.328125 342.519531 140.4375 336.773438 101.515625 C 336.253906 97.957031 334.15625 96.140625 330.519531 96.421875 C 308.734375 98.113281 301.980469 107.058594 270.640625 126.78125 C 246.65625 141.878906 238.757812 149.992188 234.097656 151.636719 C 231.15625 152.679688 229.523438 151.128906 225.949219 147.132812 C 201.152344 119.472656 152.453125 72.753906 147.179688 107.566406 C 136.039062 181.167969 153.765625 183.785156 141.351562 190.628906 C 99.199219 213.890625 31.101562 219.796875 66.722656 251.777344 C 101.859375 283.316406 112.613281 276.726562 148.929688 291.191406 C 156.1875 294.085938 164.488281 292.144531 164.488281 318.128906 C 163.957031 333.289062 164.46875 373.085938 170.242188 387.191406 C 172.996094 393.933594 180.171875 401.21875 193.21875 388.164062 C 224.945312 356.4375 228.636719 338.171875 259.664062 312.144531 C 265.625 307.140625 269.953125 304.027344 277.089844 302.890625 C 286.984375 301.304688 302.273438 303.511719 334.804688 309.730469 C 389.105469 320.074219 400.464844 313.480469 396.738281 304.363281 C 376.78125 255.476562 313.382812 222.808594 312.136719 210.585938"/></svg>
+<svg class="deco d-tr" viewBox="31.1 72.8 369.4 328.5" aria-hidden="true"><path fill="#a86ce5" d="M 312.136719 210.585938 C 311.605469 205.328125 342.519531 140.4375 336.773438 101.515625 C 336.253906 97.957031 334.15625 96.140625 330.519531 96.421875 C 308.734375 98.113281 301.980469 107.058594 270.640625 126.78125 C 246.65625 141.878906 238.757812 149.992188 234.097656 151.636719 C 231.15625 152.679688 229.523438 151.128906 225.949219 147.132812 C 201.152344 119.472656 152.453125 72.753906 147.179688 107.566406 C 136.039062 181.167969 153.765625 183.785156 141.351562 190.628906 C 99.199219 213.890625 31.101562 219.796875 66.722656 251.777344 C 101.859375 283.316406 112.613281 276.726562 148.929688 291.191406 C 156.1875 294.085938 164.488281 292.144531 164.488281 318.128906 C 163.957031 333.289062 164.46875 373.085938 170.242188 387.191406 C 172.996094 393.933594 180.171875 401.21875 193.21875 388.164062 C 224.945312 356.4375 228.636719 338.171875 259.664062 312.144531 C 265.625 307.140625 269.953125 304.027344 277.089844 302.890625 C 286.984375 301.304688 302.273438 303.511719 334.804688 309.730469 C 389.105469 320.074219 400.464844 313.480469 396.738281 304.363281 C 376.78125 255.476562 313.382812 222.808594 312.136719 210.585938"/></svg>
+<svg class="deco d-bl" viewBox="31.1 72.8 369.4 328.5" aria-hidden="true"><path fill="#f49e48" d="M 312.136719 210.585938 C 311.605469 205.328125 342.519531 140.4375 336.773438 101.515625 C 336.253906 97.957031 334.15625 96.140625 330.519531 96.421875 C 308.734375 98.113281 301.980469 107.058594 270.640625 126.78125 C 246.65625 141.878906 238.757812 149.992188 234.097656 151.636719 C 231.15625 152.679688 229.523438 151.128906 225.949219 147.132812 C 201.152344 119.472656 152.453125 72.753906 147.179688 107.566406 C 136.039062 181.167969 153.765625 183.785156 141.351562 190.628906 C 99.199219 213.890625 31.101562 219.796875 66.722656 251.777344 C 101.859375 283.316406 112.613281 276.726562 148.929688 291.191406 C 156.1875 294.085938 164.488281 292.144531 164.488281 318.128906 C 163.957031 333.289062 164.46875 373.085938 170.242188 387.191406 C 172.996094 393.933594 180.171875 401.21875 193.21875 388.164062 C 224.945312 356.4375 228.636719 338.171875 259.664062 312.144531 C 265.625 307.140625 269.953125 304.027344 277.089844 302.890625 C 286.984375 301.304688 302.273438 303.511719 334.804688 309.730469 C 389.105469 320.074219 400.464844 313.480469 396.738281 304.363281 C 376.78125 255.476562 313.382812 222.808594 312.136719 210.585938"/></svg>
+<svg class="deco d-br" viewBox="31.1 72.8 369.4 328.5" aria-hidden="true"><path fill="#d94267" d="M 312.136719 210.585938 C 311.605469 205.328125 342.519531 140.4375 336.773438 101.515625 C 336.253906 97.957031 334.15625 96.140625 330.519531 96.421875 C 308.734375 98.113281 301.980469 107.058594 270.640625 126.78125 C 246.65625 141.878906 238.757812 149.992188 234.097656 151.636719 C 231.15625 152.679688 229.523438 151.128906 225.949219 147.132812 C 201.152344 119.472656 152.453125 72.753906 147.179688 107.566406 C 136.039062 181.167969 153.765625 183.785156 141.351562 190.628906 C 99.199219 213.890625 31.101562 219.796875 66.722656 251.777344 C 101.859375 283.316406 112.613281 276.726562 148.929688 291.191406 C 156.1875 294.085938 164.488281 292.144531 164.488281 318.128906 C 163.957031 333.289062 164.46875 373.085938 170.242188 387.191406 C 172.996094 393.933594 180.171875 401.21875 193.21875 388.164062 C 224.945312 356.4375 228.636719 338.171875 259.664062 312.144531 C 265.625 307.140625 269.953125 304.027344 277.089844 302.890625 C 286.984375 301.304688 302.273438 303.511719 334.804688 309.730469 C 389.105469 320.074219 400.464844 313.480469 396.738281 304.363281 C 376.78125 255.476562 313.382812 222.808594 312.136719 210.585938"/></svg>
+<svg class="deco d-s1" viewBox="-2.3 -0.5 281.5 65.2" aria-hidden="true"><g fill="#a86ce5"><path d="M143.94,36.44c-8.47-.65-18.63,4-25.92,8.78C109.55,50.74,99.45,60.34,89.29,63c-6.32,1.68-14.72,1.3-22.22-1.41-13.56-4.89-17.23-9.74-29.46-13.73-9.71-3.17-20.19-1.06-29.14,7.23-2.82,2.61-6.16,6.07-6.26,6.17-2.1,2-4.53-1.72,2.22-9.73C10,44.94,15.53,41.22,24.16,39.87,48.38,36.09,65.16,62.7,88,56.12c13.1-3.77,25.57-21.36,47.11-25.89,23.19-4.88,34.66,13.19,53.42,15.62,10,1.29,14.64-1.15,24.23,2.24.66.23,1.48.44,1.46,1.33s-.8.91-1.33,1.21a24.71,24.71,0,0,1-11.21,2.74C169.33,54.71,164.87,38,143.94,36.44Z"/><path d="M235,25.37c-8.71,5-16,8.42-25,9.21-9.93.88-20.88-3.55-29.32-8.84C163,14.67,154.05-.47,128.7,11.35c-10.12,4.73-18,11.13-29.52,12.81C89.06,25.64,80,23.43,72.51,16,61.89,5.46,65,1.33,66.67,2.51c2.78,2,9.86,12.88,23.59,14.93C108.85,20.22,122.19.88,144.71,0c12.59-.48,21.15,6.25,32.34,14.76,36.76,28,47.95,2.51,72-2.81,5.38-1.19,9.15-1.14,18.94-1.05,4.46.05,9.21,1.9,11,3.34a.7.7,0,0,1,0,1.05c-2.58,1.59-7.21,2.48-10.27,2.5C255.61,17.91,249.73,16.89,235,25.37Z"/></g></svg>
+<svg class="deco d-s2" viewBox="-0.1 -0.4 146.1 43.4" aria-hidden="true"><g fill="#f49e48"><path d="M1.84,32a22.64,22.64,0,0,0,2.83-1.71,53.27,53.27,0,0,1,7.63-4.89c12.43-6.53,26.44-6.13,40-3.15a147.65,147.65,0,0,0,14.74,2.76c14.26,1.62,29-.78,42.54-5.58A169.13,169.13,0,0,0,135.31,7.54a32.13,32.13,0,0,0,2.95-1.83,3.14,3.14,0,0,0,1.1-4.21A3.15,3.15,0,0,0,135.14.39c-2.79,1.42-6.55,4.08-12.12,7-16.59,8.68-35,14.61-53.65,13.33C59.48,20,51,16.9,40.27,16.1c-13.5-1-24.91,2.13-33.22,7.43a30.52,30.52,0,0,0-2.74,2A12.23,12.23,0,0,0,.15,30.36,1.24,1.24,0,0,0,1.84,32Z"/><path d="M3.33,42.8c1-.46,2-.94,3-1.42,3.88-1.84,9.85-6.19,21.18-9.38a67.14,67.14,0,0,1,26.17-2.23c14.44,1.69,28.2,8.74,44.8,5.4a67.14,67.14,0,0,0,14.37-5c4.88-2.2,22.58-11.07,31.58-15.58a3,3,0,0,0,1.07-4.11,3.07,3.07,0,0,0-4.11-1.08c-6.49,3.35-27.81,14.36-34.52,17.11A65.43,65.43,0,0,1,96.43,30c-2.14.48-3.85.68-3.14.59a49.85,49.85,0,0,1-12.85-.19l-.19,0c-7.89-1.12-15.82-3.42-24.32-4.44A73.87,73.87,0,0,0,16.19,32.1c-3.71,1.71-8.55,4.27-11.48,7.14-.79.79-1.53,1.59-2.24,2.45A.71.71,0,0,0,3.33,42.8Z"/></g></svg>
+
+<a class="back" id="backLink" href="../../lop-4/">&#8592; Quay lại</a>
+
+<div class="wrap">
+
+  <!-- ====== MÀN HÌNH BẮT ĐẦU ====== -->
+  <section class="slide" id="manDau">
+    <div style="text-align:center"><span class="chip">CHỦ ĐỀ D</span></div>
+    <h1 class="title">Bảo vệ thông tin cá nhân</h1>
+    <p class="sub">Đạo đức, pháp luật và văn hoá trong môi trường số<br><b>Trắc nghiệm ôn tập bài học</b></p>
+    <div class="ghinho">
+      <b>GHI NHỚ:</b> Em cần bảo vệ thông tin cá nhân khi giao tiếp qua máy tính. Người xấu có thể lấy cắp
+      những thông tin đó để <b>giả mạo, lừa đảo, bắt cóc</b>, gây hại cho em và gia đình.
+    </div>
+    <p class="sub" style="margin-top:18px"><b>Em đang học lớp mấy?</b></p>
+    <div class="lopbtns">
+      <button class="lopbtn" data-lop="3"><span class="big">Lớp 3</span><span class="small" id="sl3">10 câu &#8226; mức dễ</span></button>
+      <button class="lopbtn cam" data-lop="4"><span class="big">Lớp 4</span><span class="small" id="sl4">16 câu &#8226; đầy đủ</span></button>
+    </div>
+  </section>
+
+  <!-- ====== MÀN HÌNH CHƠI ====== -->
+  <section class="slide" id="manChoi" hidden>
+    <div class="head">
+      <span class="chip" id="chipLop">LUYỆN TẬP</span>
+      <div class="hud">
+        <span class="pill" id="pCau">Câu 1/16</span>
+        <span class="pill diem" id="pDiem">0 điểm</span>
+        <button class="btn-ico" id="btnLoa" title="Đọc lại câu hỏi" aria-label="Đọc lại câu hỏi">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </button>
+        <button class="btn-ico" id="btnAm" title="Bật/tắt âm thanh" aria-label="Bật hoặc tắt âm thanh">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4z"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="bar"><i id="barIn"></i></div>
+
+    <p class="phan" id="phan"></p>
+    <div class="qbox">
+      <span class="qnum" id="qNum">1</span>
+      <p class="qtext" id="qText">...</p>
+    </div>
+    <div class="opts" id="opts"></div>
+    <div class="giaithich" id="giai"></div>
+    <div class="hang">
+      <button class="btn xanh" id="btnTiep" hidden>Câu tiếp theo &#8594;</button>
+    </div>
+  </section>
+
+  <!-- ====== MÀN HÌNH KẾT QUẢ ====== -->
+  <section class="slide ketqua" id="manCuoi" hidden>
+    <div style="text-align:center"><span class="chip">KẾT QUẢ</span></div>
+    <h1 class="title" id="kqTieuDe">Hoàn thành!</h1>
+    <div class="sao" id="kqSao">&#11088;&#11088;&#11088;</div>
+    <div class="diemto" id="kqDiem">0 điểm</div>
+    <p class="loikhen" id="kqKhen"></p>
+    <p class="sub" id="kqTiLe"></p>
+    <div class="ghinho">
+      <b>GHI NHỚ:</b> Khi giao tiếp trên Internet, em <b>không tuỳ tiện cung cấp</b> họ tên, địa chỉ nhà,
+      số điện thoại, tên các thành viên trong gia đình hay thẻ thanh toán. Gặp người lạ hỏi thông tin,
+      hãy <b>báo ngay cho bố mẹ, thầy cô</b>.
+    </div>
+    <div class="saibang" id="kqSai" hidden></div>
+    <div class="hang">
+      <button class="btn" id="btnLai">Chơi lại</button>
+      <button class="btn tim nho" id="btnDoiLop">Đổi lớp</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ===================== DỮ LIỆU CÂU HỎI =====================
+   lv:1 = câu dễ (Lớp 3 và Lớp 4 đều dùng)
+   lv:2 = câu nâng cao (chỉ Lớp 4)                            */
+const NGANHANG = [
+  /* ===== ĐÃ BẬT ĐẦY ĐỦ 20 CÂU: Phần 1 (6 câu Đúng/Sai) + Phần 2 (8 câu chọn đáp án) đều lv:1 (Lớp 3 & 4 cùng dùng);
+     Phần 3 (6 câu thử thách) lv:2 chỉ dành cho Lớp 4. Muốn tạm ẩn câu nào thì thêm // ở đầu mỗi dòng của câu đó. ===== */
+
+  /* ---------- PHẦN 1: ĐÚNG HAY SAI (dễ nhất - Lớp 3 & 4) ---------- */
+  { lv:1, t:'ds', s:'Phần 1 - Đúng hay Sai', a:true,
+    q:'Địa chỉ nhà của em là thông tin cá nhân.',
+    e:'Đúng. Địa chỉ nhà, họ tên, ngày sinh, số điện thoại... đều là thông tin cá nhân của em.' },
+
+  { lv:1, t:'ds', s:'Phần 1 - Đúng hay Sai', a:true,
+  q:'Máy tính và điện thoại giúp gia đình em lưu ảnh kỉ niệm.',
+  e:'Đúng. Nhờ máy tính, gia đình có thể lưu trữ ảnh kỉ niệm, video các sự kiện và gửi cho nhau.' },
+
+  { lv:1, t:'ds', s:'Phần 1 - Đúng hay Sai', a:false,
+    q:'Em có thể cho người lạ trên mạng biết số điện thoại của bố mẹ.',
+    e:'Sai. Số điện thoại của bố mẹ là thông tin riêng của gia đình, không cho người lạ biết.' },
+
+  { lv:1, t:'ds', s:'Phần 1 - Đúng hay Sai', a:false,
+  q:'Người lạ trên Internet ai cũng tốt bụng và đáng tin.',
+  e:'Sai. Em cần đề cao cảnh giác vì không biết thật sự người đó là ai.' },
+
+  { lv:1, t:'ds', s:'Phần 1 - Đúng hay Sai', a:true,
+  q:'Khi có người lạ hỏi thông tin của gia đình, em phải kể ngay cho bố mẹ biết.',
+  e:'Đúng. Gặp chuyện lạ trên mạng, em hãy báo ngay cho bố mẹ hoặc thầy cô.' },
+
+  { lv:1, t:'ds', s:'Phần 1 - Đúng hay Sai', a:false,
+  q:'Chụp ảnh thẻ căn cước của bố mẹ rồi đăng lên mạng là việc nên làm.',
+  e:'Sai. Thẻ căn cước chứa thông tin rất quan trọng, kẻ xấu lấy được sẽ dùng để giả mạo, lừa đảo.' },
+
+  /* ---------- PHẦN 2: CHỌN ĐÁP ÁN ĐÚNG (mức dễ - Lớp 3 & 4) ---------- */
+  { lv:1, s:'Phần 2 - Chọn đáp án đúng', q:'Thông tin cá nhân của em là những thông tin nào?',
+    o:['Họ tên, ngày sinh, địa chỉ nhà, số điện thoại của em','Tên của các con vật em yêu thích','Tên các trò chơi em hay chơi','Màu sắc em thích nhất'],
+    a:0, e:'Thông tin cá nhân là những thông tin riêng gắn với mỗi người, ví dụ họ tên, ngày sinh, địa chỉ nhà, số điện thoại.' },
+
+  { lv:1, s:'Phần 2 - Chọn đáp án đúng', q:'Nhờ có máy tính, mọi người trong gia đình có thể làm gì?',
+  o:['Lưu trữ và gửi thông tin cho nhau','Chỉ xem phim hoạt hình','Không làm được gì cả','Chỉ nghe nhạc'],
+  a:0, e:'Thông tin cá nhân và gia đình có thể được lưu trữ, trao đổi nhờ máy tính: số điện thoại, ảnh kỉ niệm, video các sự kiện của gia đình...' },
+
+  { lv:1, s:'Phần 2 - Chọn đáp án đúng', q:'Thông tin nào sau đây em KHÔNG nên đưa lên Internet?',
+    o:['Địa chỉ nhà và số điện thoại của bố mẹ','Bài thơ em vừa học thuộc','Bức tranh em tự vẽ','Tên một quyển sách hay'],
+    a:0, e:'Địa chỉ nhà, số điện thoại, thẻ căn cước, số tài khoản... là những thông tin không nên đưa lên mạng Internet.' },
+
+  { lv:1, s:'Phần 2 - Chọn đáp án đúng', q:'Trong các thông tin sau, đâu là thông tin cá nhân và gia đình?',
+  o:['Số điện thoại của bố, mẹ em','Địa chỉ của trường em','Tên nước Việt Nam','Tên thành phố em đang sống'],
+  a:0, e:'Số điện thoại của bố mẹ là thông tin riêng của gia đình. Còn địa chỉ trường học là thông tin chung, ai cũng biết được.' },
+
+  { lv:1, s:'Phần 2 - Chọn đáp án đúng', q:'Một người lạ nhắn tin trên mạng hỏi: "Nhà em ở đâu? Bố mẹ em tên gì?". Em nên làm gì?',
+    o:['Không trả lời và kể ngay cho bố mẹ, thầy cô biết','Trả lời thật đầy đủ cho lịch sự','Gửi kèm cả ảnh ngôi nhà của em','Nhắn địa chỉ để người đó tới chơi'],
+    a:0, e:'Em cần đề cao cảnh giác với người lạ trên Internet và luôn báo cho người lớn khi có ai hỏi thông tin riêng.' },
+
+  { lv:1, s:'Phần 2 - Chọn đáp án đúng', q:'Trước khi cung cấp thông tin gì đó trên mạng, em nên hỏi ý kiến ai?',
+  o:['Bố mẹ hoặc thầy cô giáo','Người lạ vừa quen trên mạng','Không cần hỏi ai cả','Bạn cùng chơi game'],
+  a:0, e:'Người lớn đáng tin cậy như bố mẹ, thầy cô sẽ giúp em biết thông tin nào an toàn để chia sẻ.' },
+
+  { lv:1, s:'Phần 2 - Chọn đáp án đúng', q:'Kẻ xấu lấy cắp được thông tin cá nhân thì có thể làm gì gây hại cho em?',
+    o:['Giả mạo, lừa đảo, bắt cóc để tống tiền bố mẹ','Giúp em học giỏi hơn','Tặng quà cho gia đình em','Không làm gì được cả'],
+    a:0, e:'Người xấu lợi dụng thông tin bị lộ để lừa đảo, bắt cóc, tống tiền, hăm doạ, chiếm đoạt tài sản hoặc bôi nhọ danh dự.' },
+
+  { lv:1, s:'Phần 2 - Chọn đáp án đúng', q:'Bài học hôm nay nhắc em điều quan trọng nhất là gì?',
+    o:['Bảo vệ thông tin cá nhân khi giao tiếp qua máy tính','Chơi game càng nhiều càng tốt','Dùng máy tính càng lâu càng giỏi','Kết bạn thật nhiều trên mạng'],
+    a:0, e:'GHI NHỚ: Em cần bảo vệ thông tin cá nhân khi giao tiếp qua máy tính vì người xấu có thể lấy cắp để gây hại cho em và gia đình.' },
+
+  /* ---------- PHẦN 3: CÂU HỎI KHÓ HƠN (chỉ Lớp 4) ---------- */
+  { lv:2, s:'Phần 3 - Thử thách', q:'Việc làm nào sau đây giúp bảo vệ thông tin cá nhân tốt nhất?',
+  o:['Đặt mật khẩu cho máy tính và không cho người lạ biết','Dùng chung mật khẩu với tất cả các bạn','Ghi mật khẩu lên bìa vở cho dễ nhớ','Đặt mật khẩu là ngày sinh rồi đăng lên mạng'],
+  a:0, e:'Mật khẩu là "chiếc khoá" bảo vệ thông tin. Em giữ mật khẩu bí mật thì kẻ xấu khó lấy cắp thông tin của em.' },
+
+  { lv:2, s:'Phần 3 - Thử thách', q:'Trong lớp, bạn xin em số điện thoại của mẹ để đăng lên nhóm chat công khai. Em nên?',
+  o:['Từ chối, vì đó là thông tin riêng của gia đình','Đọc ngay cho bạn ghi','Viết lên bảng cho cả lớp cùng biết','Nhắn vào nhóm chat cho nhanh'],
+  a:0, e:'Số điện thoại của người thân là thông tin cá nhân của gia đình, không nên đưa lên nơi công khai.' },
+
+  { lv:2, s:'Phần 3 - Thử thách', q:'Vì sao thẻ căn cước của bố mẹ KHÔNG được chụp ảnh đăng lên mạng?',
+  o:['Vì kẻ xấu có thể dùng để giả mạo và lừa đảo','Vì ảnh chụp sẽ bị mờ','Vì đăng ảnh rất tốn thời gian','Vì thẻ căn cước không đẹp'],
+  a:0, e:'Thẻ căn cước chứa thông tin rất quan trọng; kẻ xấu lấy được sẽ dùng để giả mạo, lừa đảo hoặc chiếm đoạt tài sản.' },
+
+  { lv:2, s:'Phần 3 - Thử thách', q:'Một trang web lạ hiện ra: "Nhập số tài khoản ngân hàng của mẹ để nhận 1000 kim cương!". Em làm gì?',
+  o:['Đóng trang web lại và báo cho bố mẹ','Nhập ngay để nhận quà','Hỏi số tài khoản của mẹ rồi nhập','Nhờ bạn nhập giúp'],
+  a:0, e:'Đây là trò lừa đảo. Nếu lộ số tài khoản, kẻ xấu có thể chiếm đoạt tài sản của gia đình em.' },
+
+  { lv:2, s:'Phần 3 - Thử thách', q:'Nếu hình ảnh riêng tư của em bị lộ trên mạng, kẻ xấu có thể làm gì?',
+  o:['Bôi nhọ danh dự, hăm doạ và tống tiền','Giúp em nổi tiếng','In ra tặng lại cho em','Xoá giúp em khỏi máy tính'],
+  a:0, e:'Ảnh riêng tư bị lộ có thể bị dùng để bôi nhọ danh dự, hăm doạ, tống tiền em và gia đình.' },
+
+  { lv:2, s:'Phần 3 - Thử thách', q:'Câu nào dưới đây là ĐÚNG?',
+  o:['Khi giao tiếp trên Internet, em không tuỳ tiện cung cấp thông tin cá nhân và gia đình','Trên Internet ai cũng đáng tin nên nói gì cũng được','Chỉ cần giấu tên, còn địa chỉ nhà thì đưa lên thoải mái','Đưa thông tin gia đình lên mạng để nhiều người giúp đỡ'],
+  a:0, e:'Khi giao tiếp trên Internet, em không nên tuỳ tiện cung cấp họ tên, địa chỉ nhà, số điện thoại, tên các thành viên gia đình, thẻ thanh toán trực tuyến...' },
+];
+
+/* ===================== TRẠNG THÁI ===================== */
+const KEYS = ['A','B','C','D'];
+let lop = 4, bo = [], vt = 0, diem = 0, luotSai = 0, dsSai = [], amBat = true, ketThuc = false;
+
+const $ = id => document.getElementById(id);
+const manDau = $('manDau'), manChoi = $('manChoi'), manCuoi = $('manCuoi');
+
+/* ===================== ÂM THANH ===================== */
+let AC = null;
+function ctx(){ if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return AC; }
+function beep(f, dur, loai){
+  if(!amBat) return; const c = ctx(); if(!c) return;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = loai || 'sine'; o.frequency.value = f;
+  g.gain.setValueAtTime(.001, c.currentTime);
+  g.gain.exponentialRampToValueAtTime(.22, c.currentTime + .02);
+  g.gain.exponentialRampToValueAtTime(.001, c.currentTime + dur);
+  o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + dur);
+}
+const ting = () => { beep(880,.13); setTimeout(()=>beep(1320,.2),110); };
+const bup  = () => beep(160,.26,'square');
+const fanfare = () => { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.26),i*150)); };
+
+/* ===================== GIỌNG ĐỌC ===================== */
+function noi(text, xong){
+  if(!amBat || !('speechSynthesis' in window)){ if(xong) setTimeout(xong,250); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'vi-VN'; u.rate = .95; u.pitch = 1.05;
+  const v = speechSynthesis.getVoices().find(x => /vi/i.test(x.lang));
+  if(v) u.voice = v;
+  if(xong){ u.onend = xong; u.onerror = xong; }
+  speechSynthesis.speak(u);
+}
+function noiRoi(text, xong){ noi(text, xong); }
+if('speechSynthesis' in window) speechSynthesis.getVoices();
+
+/* ===================== HIỆU ỨNG ===================== */
+function phaoHoa(n){
+  const mau = ['#d94267','#a86ce5','#f49e48','#2e7d32','#C00000','#4BACC6','#ffd257'];
+  for(let i=0;i<(n||40);i++){
+    const d = document.createElement('div');
+    d.className = 'confetti';
+    d.style.left = Math.random()*100 + 'vw';
+    d.style.background = mau[(Math.random()*mau.length)|0];
+    d.style.animation = 'roi ' + (2 + Math.random()*1.6) + 's linear forwards';
+    d.style.animationDelay = (Math.random()*.6) + 's';
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(), 4200);
+  }
+}
+function tron(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j = (Math.random()*(i+1))|0; [a[i],a[j]] = [a[j],a[i]]; } return a; }
+
+/* ===================== BẮT ĐẦU ===================== */
+function chuanBi(l){
+  lop = l;
+  /* GIỮ NGUYÊN thứ tự trong NGANHANG => câu dễ ra trước, khó ra sau */
+  /* Mỗi lần chơi làm HẾT 20 câu cho cả Lớp 3 và Lớp 4 */
+  const nguon = NGANHANG.slice();
+  bo = nguon.map(c => {
+    if(c.t === 'ds') return { t:'ds', q:c.q, a:c.a, e:c.e, s:c.s };
+    const dapAn = c.o[c.a];          /* chỉ xáo vị trí A B C D cho đỡ đoán mò */
+    const opts = tron(c.o);
+    return { q:c.q, o:opts, a:opts.indexOf(dapAn), e:c.e, s:c.s };
+  });
+  vt = 0; diem = 0; luotSai = 0; dsSai = []; ketThuc = false;
+  $('chipLop').textContent = 'LUYỆN TẬP - LỚP ' + lop;
+  $('backLink').setAttribute('href', lop === 3 ? '../../lop-3/' : '../../lop-4/');
+  manDau.hidden = true; manCuoi.hidden = true; manChoi.hidden = false;
+  veCau();
+}
+function veCau(){
+  const c = bo[vt];
+  luotSai = 0;
+  $('qNum').textContent = vt + 1;
+  $('qText').textContent = c.q;
+  $('pCau').textContent = 'Câu ' + (vt+1) + '/' + bo.length;
+  $('pDiem').textContent = diem + ' điểm';
+  $('barIn').style.width = (vt / bo.length * 100) + '%';
+  $('giai').classList.remove('show');
+  $('giai').innerHTML = '';
+  $('btnTiep').hidden = true;
+
+  $('phan').textContent = c.s || '';
+
+  const box = $('opts');
+  box.innerHTML = '';
+  if(c.t === 'ds'){
+    box.className = 'opts ds2';
+    [[true,'ĐÚNG','tfY','✓'],[false,'SAI','tfN','✗']].forEach(([gt, chu, cls, ico]) => {
+      const b = document.createElement('button');
+      b.className = 'opt tf ' + cls;
+      b.innerHTML = '<span class="k">' + ico + '</span><span>' + chu + '</span>';
+      b.onclick = () => chon(b, gt);
+      box.appendChild(b);
+    });
+  } else {
+    box.className = 'opts';
+    c.o.forEach((t, i) => {
+      const b = document.createElement('button');
+      b.className = 'opt';
+      b.innerHTML = '<span class="k">' + KEYS[i] + '</span><span>' + t + '</span>';
+      b.onclick = () => chon(b, i);
+      box.appendChild(b);
+    });
+  }
+  noi(c.t === 'ds' ? ('Đúng hay sai? ' + c.q) : c.q);
+}
+function chon(nut, i){
+  const c = bo[vt];
+  if(i === c.a){
+    nut.classList.add('dung');
+    [...$('opts').children].forEach(b => b.disabled = true);
+    const them = luotSai === 0 ? 10 : (luotSai === 1 ? 5 : 0);
+    diem += them;
+    $('pDiem').textContent = diem + ' điểm';
+    ting();
+    const khen = luotSai === 0 ? 'Chính xác! Em giỏi lắm!' : 'Đúng rồi!';
+    $('giai').innerHTML = '<b>' + khen + (them ? ' +' + them + ' điểm' : '') + '</b><br>' + c.e;
+    $('giai').classList.add('show');
+    if(luotSai === 0) phaoHoa(26);
+    $('btnTiep').hidden = false;
+    $('btnTiep').textContent = (vt === bo.length - 1) ? 'Xem kết quả →' : 'Câu tiếp theo →';
+    noiRoi(khen, null);
+  } else {
+    nut.classList.add('sai');
+    nut.disabled = true;
+    luotSai++;
+    bup();
+    if(c.t === 'ds'){                 /* chỉ có 2 lựa chọn nên hiện đáp án luôn */
+      dsSai.push(c);
+      [...$('opts').children].forEach(b => b.disabled = true);
+      $('giai').innerHTML = '<b>Đáp án đúng là: ' + (c.a ? 'ĐÚNG' : 'SAI') + '</b><br>' + c.e;
+      $('giai').classList.add('show');
+      $('btnTiep').hidden = false;
+      $('btnTiep').textContent = (vt === bo.length - 1) ? 'Xem kết quả →' : 'Câu tiếp theo →';
+      noi(c.e);
+    } else if(luotSai === 1){
+      $('giai').innerHTML = '<b>Chưa đúng rồi!</b> Em đọc kĩ lại câu hỏi và chọn lần nữa nhé.';
+      $('giai').classList.add('show');
+      noi('Chưa đúng, em thử lại nhé');
+    } else if(luotSai >= 2){
+      dsSai.push(c);
+      [...$('opts').children].forEach((b, k) => { b.disabled = true; if(k === c.a) b.classList.add('dung'); });
+      $('giai').innerHTML = '<b>Đáp án đúng là: ' + KEYS[c.a] + '. ' + c.o[c.a] + '</b><br>' + c.e;
+      $('giai').classList.add('show');
+      $('btnTiep').hidden = false;
+      $('btnTiep').textContent = (vt === bo.length - 1) ? 'Xem kết quả →' : 'Câu tiếp theo →';
+      noi('Đáp án đúng là ' + c.o[c.a]);
+    }
+  }
+}
+$('btnTiep').onclick = () => {
+  if(vt < bo.length - 1){ vt++; veCau(); } else xong();
+};
+
+/* ===================== KẾT QUẢ ===================== */
+function xong(){
+  ketThuc = true;
+  manChoi.hidden = true; manCuoi.hidden = false;
+  const toiDa = bo.length * 10;
+  const tiLe = Math.round(diem / toiDa * 100);
+  const sao = tiLe >= 90 ? 3 : tiLe >= 65 ? 2 : tiLe >= 40 ? 1 : 0;
+  $('kqSao').textContent = '⭐'.repeat(sao) + '☆'.repeat(3 - sao);
+  $('kqDiem').textContent = diem + ' / ' + toiDa + ' điểm';
+  $('kqTiLe').textContent = 'Em làm đúng khoảng ' + tiLe + '% bài luyện tập.';
+  let khen;
+  if(tiLe >= 90) khen = 'Xuất sắc! Em đã biết cách bảo vệ thông tin cá nhân rồi!';
+  else if(tiLe >= 65) khen = 'Giỏi lắm! Em nhớ bài rất tốt.';
+  else if(tiLe >= 40) khen = 'Khá rồi! Em ôn thêm một chút nữa nhé.';
+  else khen = 'Em hãy đọc lại bài học rồi thử lại nhé!';
+  $('kqKhen').textContent = khen;
+  $('kqTieuDe').textContent = tiLe >= 65 ? 'Chúc mừng em!' : 'Cố lên em nhé!';
+
+  const bang = $('kqSai');
+  if(dsSai.length){
+    bang.hidden = false;
+    bang.innerHTML = '<h3>Những câu em cần ôn lại</h3><ul>' +
+      dsSai.map(c => '<li><b>' + c.q + '</b><br>→ ' + (c.t === 'ds' ? (c.a ? 'ĐÚNG' : 'SAI') : c.o[c.a]) + '</li>').join('') + '</ul>';
+  } else bang.hidden = true;
+
+  if(sao >= 2){ fanfare(); phaoHoa(70); } else beep(330,.3);
+  noi(khen);
+}
+
+/* ===================== NÚT ===================== */
+document.querySelectorAll('.lopbtn').forEach(b => b.onclick = () => { ctx(); chuanBi(+b.dataset.lop); });
+$('btnLai').onclick = () => chuanBi(lop);
+$('btnDoiLop').onclick = () => { manCuoi.hidden = true; manChoi.hidden = true; manDau.hidden = false; };
+$('btnLoa').onclick = () => { if(!ketThuc && bo[vt]) noi(bo[vt].q); };
+$('btnAm').onclick = () => {
+  amBat = !amBat;
+  if(!amBat && 'speechSynthesis' in window) speechSynthesis.cancel();
+  $('btnAm').style.opacity = amBat ? '1' : '.4';
+  $('btnAm').title = amBat ? 'Tắt âm thanh' : 'Bật âm thanh';
+};
+
+/* số câu hiển thị ở màn đầu */
+$('sl3').textContent = NGANHANG.length + ' câu ôn tập';
+$('sl4').textContent = NGANHANG.length + ' câu ôn tập';
+
+/* tự chọn lớp theo ?lop= */
+const p = new URLSearchParams(location.search).get('lop');
+if(p === '3' || p === '4'){
+  $('backLink').setAttribute('href', p === '3' ? '../../lop-3/' : '../../lop-4/');
+  document.querySelector('.lopbtn[data-lop="' + p + '"]').style.boxShadow = '0 0 0 6px rgba(168,108,229,.25)';
+}
+</script>
+</body>
+</html>
