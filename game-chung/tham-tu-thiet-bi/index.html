@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Thám Tử Thiết Bị Máy Tính</title>
+<style>
+  :root{--sky1:#eaf3ff;--sky2:#dfeafe;--ok:#25c15c;--bad:#ef5a6b;--accent:#7c5cff}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  .hide{display:none !important}
+  html,body{margin:0;padding:0;height:100%}
+  body{font-family:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#2b3a55;
+    background:linear-gradient(160deg,var(--sky1),var(--sky2) 55%,#fff);min-height:100%;overflow-x:hidden;user-select:none;touch-action:manipulation}
+  .back-home{position:fixed;top:12px;left:12px;z-index:40;color:#3a5170;text-decoration:none;font-size:13px;font-weight:800;
+    background:rgba(255,255,255,.92);padding:8px 14px;border-radius:20px;box-shadow:0 4px 12px rgba(43,58,85,.16)}
+  .wrap{max-width:920px;margin:0 auto;padding:56px 12px 24px;display:flex;flex-direction:column;align-items:center}
+
+  #hud{display:flex;align-items:center;gap:8px;background:#fff;border-radius:18px;width:100%;
+    padding:8px 10px;box-shadow:0 8px 22px rgba(43,58,85,.1);flex-wrap:wrap}
+  #hud .pill{font-weight:800;font-size:.9rem;background:#efe9ff;color:#7c3aed;border-radius:14px;padding:6px 12px;white-space:nowrap}
+  #hud .pill.score{background:#eafaf0;color:#1c9e52}
+  #hud .pill.star{background:#fff6df;color:#e0a91a;display:flex;align-items:center;gap:4px}
+  #hud .pill.grade{background:#e6f6ff;color:#0d86c0}
+  #hud .spacer{flex:1}
+  .hud-btn{border:none;background:#efe9ff;font-weight:800;color:#7c3aed;height:40px;padding:0 12px;border-radius:14px;
+    cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;font-size:.86rem}
+  .hud-btn svg{display:block}.hud-btn.off{background:#eef1f6;color:#98a3b5}
+
+  #qbar{display:flex;align-items:center;gap:12px;width:100%;margin-top:12px;
+    background:#fff;border-radius:18px;padding:12px 16px;box-shadow:0 8px 22px rgba(43,58,85,.1)}
+  #qbar .lead{width:40px;height:40px;flex:none;border-radius:12px;background:#efe9ff;display:flex;align-items:center;justify-content:center}
+  #qbar .lead svg{width:26px;height:26px}
+  #qtext{font-weight:900;font-size:1.12rem;line-height:1.3;color:#3a3466;flex:1}
+  #replayBtn{border:none;background:#efe9ff;color:#7c3aed;width:44px;height:44px;flex:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+  #grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;width:100%;margin-top:14px}
+  .tile{position:relative;background:#fff;border-radius:18px;padding:10px 8px 8px;cursor:pointer;border:3px solid #eef1f6;
+    box-shadow:0 6px 16px rgba(43,58,85,.08);transition:transform .12s,border-color .15s;display:flex;flex-direction:column;align-items:center}
+  .tile svg{width:100%;height:auto;display:block;pointer-events:none}
+  .tile .svgbox{width:82px;height:82px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .tile .nm{margin-top:4px;font-weight:800;font-size:.8rem;color:#6b7896;opacity:0;transition:opacity .2s;text-align:center;min-height:0;pointer-events:none}
+  .tile.shownm .nm{opacity:1}
+  .tile:hover{transform:translateY(-3px);border-color:#d7ccff}
+  .tile.shake{animation:shake .4s}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px) rotate(-3deg)}40%{transform:translateX(7px) rotate(3deg)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+  .tile.correct{border-color:var(--ok);animation:pop .5s}
+  @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.12)}100%{transform:scale(1.06)}}
+  .tile.hintpulse{border-color:#ffd23b;animation:hint 1s infinite}
+  @keyframes hint{0%,100%{box-shadow:0 6px 16px rgba(43,58,85,.08)}50%{box-shadow:0 0 0 4px #ffe58a,0 0 18px #ffd23b}}
+  .tile.reveal{border-color:var(--ok);box-shadow:0 0 0 4px #b6f0cb}
+  .tile .badge{position:absolute;top:-8px;right:-8px;width:28px;height:28px;border-radius:50%;background:var(--ok);
+    display:none;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(37,193,92,.5)}
+  .tile.correct .badge,.tile.reveal .badge{display:flex}
+  .tile.dim{opacity:.5}
+
+  #toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) translateY(-14px);z-index:55;opacity:0;
+    background:#fff;border-radius:16px;padding:10px 18px;font-weight:800;box-shadow:0 10px 26px rgba(43,58,85,.2);transition:.25s;pointer-events:none;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast.good{color:#1c9e52}#toast.bad{color:#e0374a}
+
+  .star-burst{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:66;pointer-events:none;animation:starpop .85s forwards}
+  @keyframes starpop{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-30deg)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(0)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.7) rotate(22deg)}}
+
+  .overlay{position:fixed;inset:0;z-index:60;background:rgba(24,30,52,.55);backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;padding:18px}
+  .overlay.hide{display:none}
+  .card{background:#fff;border-radius:26px;max-width:470px;width:100%;padding:24px 22px;text-align:center;box-shadow:0 24px 60px rgba(20,28,45,.4)}
+  .card h2{margin:2px 0 4px;font-size:1.5rem;color:#3a3466}
+  .card p{margin:6px 0 0;color:#6b7896;font-size:.95rem;line-height:1.5}
+  .card .ribbon{display:inline-block;background:linear-gradient(90deg,#7c3aed,#38bdf8);color:#fff;font-weight:900;padding:6px 18px;border-radius:20px;margin-bottom:10px;font-size:.9rem}
+  .mascot{width:118px;height:100px;margin:0 auto 4px;display:block}
+  .bigbtn{display:block;width:100%;border:none;cursor:pointer;color:#fff;font-weight:900;font-size:1.1rem;padding:15px;border-radius:18px;margin-top:12px}
+  .bigbtn.m1{background:linear-gradient(180deg,#5ad07a,#22b24d);box-shadow:0 7px 0 #178a3a}
+  .bigbtn.m2{background:linear-gradient(180deg,#8b6cff,#6d3aed);box-shadow:0 7px 0 #4f28c0}
+  .bigbtn.m3{background:linear-gradient(180deg,#ffb057,#f97316);box-shadow:0 7px 0 #c2570a}
+  .bigbtn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+  .gradehint{font-size:.82rem;color:#98a3b5;margin-top:10px}
+
+  .confetti{position:fixed;top:-14px;width:11px;height:16px;z-index:70;border-radius:2px;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(104vh) rotate(680deg);opacity:.85}}
+  @media(max-width:600px){#qtext{font-size:1rem}#grid{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}.tile .svgbox{width:66px;height:66px}}
+</style>
+</head>
+<body>
+<a href="../../index.html" class="back-home" onclick="return goBack()">← Quay lại</a>
+
+<div class="wrap">
+  <div id="hud">
+    <span class="pill" id="progPill">Câu 1/20</span>
+    <span class="pill grade" id="gradePill">Lớp 3</span>
+    <div class="spacer"></div>
+    <span class="pill star" id="starPill"><span id="starIco"></span>0</span>
+    <span class="pill score" id="scorePill">0 điểm</span>
+    <button class="hud-btn" id="soundBtn" title="Bật/tắt âm thanh"><span id="soundIcon"></span></button>
+  </div>
+
+  <div id="qbar">
+    <span class="lead" id="qlead"></span>
+    <span id="qtext">Thiết bị nào dùng để …?</span>
+    <button id="replayBtn" title="Nghe lại"></button>
+  </div>
+
+  <div id="grid"></div>
+</div>
+
+<div id="toast"></div>
+
+<!-- START -->
+<div class="overlay" id="startOv">
+  <div class="card">
+    <span class="mascot" id="mascotStart"></span>
+    <div class="ribbon">Trò chơi công dụng</div>
+    <h2>Thám Tử Thiết Bị Máy Tính</h2>
+    <p>Mỗi câu hỏi cho biết một <b>công dụng</b>. Em hãy làm thám tử, tìm và <b>nhấp đúng thiết bị</b> làm được việc đó. Có <b>20 câu</b> cho 20 thiết bị.</p>
+    <button class="bigbtn m1" id="btnL3" onclick="startGame(3)">Chơi Lớp 3 (dễ)</button>
+    <button class="bigbtn m3" id="btnL4" onclick="startGame(4)">Chơi Lớp 4 (khó hơn)</button>
+    <p class="gradehint">Lớp 3: ít lựa chọn hơn. Lớp 4: nhiều lựa chọn và thiết bị khó hơn.</p>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div class="overlay hide" id="resultOv">
+  <div class="card">
+    <span class="mascot" id="mascotEnd"></span>
+    <div class="ribbon">Kết quả</div>
+    <h2 id="resTitle">Em thật giỏi!</h2>
+    <p id="resText"></p>
+    <button class="bigbtn m2" id="replayGame">Chơi lại</button>
+    <button class="bigbtn m1" onclick="showStart()">Chọn khối khác</button>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const OUT='#2b3350';
+function wrap(inner){return `<svg viewBox="0 0 100 100">${inner}</svg>`;}
+
+/* ================= 20 devices (inline SVG, no emoji) ================= */
+const DEVICES=[
+ {id:'manhinh',name:'Màn hình',speak:'màn hình',draw:()=>wrap(
+   `<rect x="12" y="18" width="76" height="50" rx="7" fill="#3b7dd8" stroke="${OUT}" stroke-width="3.5"/>
+    <rect x="18" y="24" width="64" height="38" rx="3" fill="#cfe6ff"/>
+    <rect x="44" y="68" width="12" height="11" fill="#8892a3" stroke="${OUT}" stroke-width="3"/>
+    <rect x="32" y="79" width="36" height="7" rx="3.5" fill="#8892a3" stroke="${OUT}" stroke-width="3"/>`)},
+ {id:'banphim',name:'Bàn phím',speak:'bàn phím',draw:()=>{let k='';for(let r=0;r<3;r++)for(let c=0;c<7;c++){k+=`<rect x="${17+c*9.6}" y="${45+r*8}" width="7.6" height="6" rx="1.6" fill="#fff" stroke="#9aa3b5" stroke-width="1.1"/>`;}
+   return wrap(`<rect x="10" y="38" width="80" height="34" rx="7" fill="#c9d3e4" stroke="${OUT}" stroke-width="3.5"/>${k}`);}},
+ {id:'chuot',name:'Chuột',speak:'con chuột',draw:()=>wrap(
+   `<path d="M50 16 C33 16 27 34 27 54 C27 74 37 86 50 86 C63 86 73 74 73 54 C73 34 67 16 50 16 Z" fill="#eef2f8" stroke="${OUT}" stroke-width="3.5"/>
+    <line x1="50" y1="18" x2="50" y2="48" stroke="${OUT}" stroke-width="3"/>
+    <rect x="45" y="26" width="10" height="16" rx="5" fill="#7cc4ff" stroke="${OUT}" stroke-width="2.4"/>`)},
+ {id:'cpu',name:'Thùng máy (CPU)',speak:'thùng máy',draw:()=>wrap(
+   `<rect x="30" y="12" width="40" height="76" rx="7" fill="#6b7896" stroke="${OUT}" stroke-width="3.5"/>
+    <circle cx="50" cy="24" r="4.6" fill="#7dc242" stroke="${OUT}" stroke-width="2"/>
+    <rect x="38" y="36" width="24" height="4.5" rx="2" fill="#cfd6e4"/>
+    <rect x="38" y="45" width="24" height="4.5" rx="2" fill="#cfd6e4"/>
+    <rect x="40" y="64" width="20" height="16" rx="3" fill="#33415c"/>`)},
+ {id:'loa',name:'Loa',speak:'cái loa',draw:()=>wrap(
+   `<rect x="30" y="14" width="40" height="72" rx="8" fill="#33415c" stroke="${OUT}" stroke-width="3.5"/>
+    <circle cx="50" cy="38" r="14" fill="#c7d0e0" stroke="${OUT}" stroke-width="2.6"/><circle cx="50" cy="38" r="6" fill="#5b6478"/>
+    <circle cx="50" cy="66" r="9" fill="#c7d0e0" stroke="${OUT}" stroke-width="2.6"/><circle cx="50" cy="66" r="3.4" fill="#5b6478"/>`)},
+ {id:'tainghe',name:'Tai nghe',speak:'tai nghe',draw:()=>wrap(
+   `<path d="M22 58 A28 28 0 0 1 78 58" fill="none" stroke="${OUT}" stroke-width="6.5" stroke-linecap="round"/>
+    <rect x="15" y="52" width="17" height="28" rx="7" fill="#7c5cff" stroke="${OUT}" stroke-width="3"/>
+    <rect x="68" y="52" width="17" height="28" rx="7" fill="#7c5cff" stroke="${OUT}" stroke-width="3"/>`)},
+ {id:'micro',name:'Micro',speak:'cái micro',draw:()=>{let g='';for(let i=0;i<3;i++){g+=`<line x1="41" y1="${24+i*7}" x2="59" y2="${24+i*7}" stroke="#33415c" stroke-width="2.2"/>`;}
+   return wrap(`<rect x="40" y="14" width="20" height="40" rx="10" fill="#8892a3" stroke="${OUT}" stroke-width="3.5"/>${g}
+    <path d="M32 50 A18 18 0 0 0 68 50" fill="none" stroke="${OUT}" stroke-width="3.4"/>
+    <line x1="50" y1="60" x2="50" y2="76" stroke="${OUT}" stroke-width="4.4"/>
+    <rect x="36" y="78" width="28" height="7" rx="3.5" fill="#33415c"/>`);}},
+ {id:'webcam',name:'Webcam',speak:'webcam',draw:()=>wrap(
+   `<rect x="22" y="40" width="56" height="34" rx="12" fill="#5b6478" stroke="${OUT}" stroke-width="3.5"/>
+    <circle cx="50" cy="57" r="14" fill="#22314f" stroke="${OUT}" stroke-width="2.6"/><circle cx="50" cy="57" r="7.5" fill="#3b7dd8"/><circle cx="46" cy="53" r="2.6" fill="#cfe6ff"/>
+    <rect x="43" y="28" width="14" height="14" rx="3" fill="#5b6478" stroke="${OUT}" stroke-width="2.6"/>`)},
+ {id:'mayin',name:'Máy in',speak:'máy in',draw:()=>wrap(
+   `<rect x="32" y="24" width="36" height="22" fill="#eef2f8" stroke="#9aa3b5" stroke-width="2.6"/>
+    <rect x="18" y="44" width="64" height="34" rx="7" fill="#c9d3e4" stroke="${OUT}" stroke-width="3.5"/>
+    <rect x="30" y="60" width="40" height="14" rx="2" fill="#fff" stroke="#9aa3b5" stroke-width="2.2"/>
+    <rect x="58" y="50" width="12" height="5" rx="2.5" fill="#7dc242"/><circle cx="30" cy="52" r="2.6" fill="#e0374a"/>`)},
+ {id:'mayquet',name:'Máy quét',speak:'máy quét',draw:()=>wrap(
+   `<rect x="18" y="38" width="64" height="12" rx="4" fill="#eef2f8" stroke="#9aa3b5" stroke-width="2.4"/>
+    <rect x="14" y="48" width="72" height="34" rx="8" fill="#c9d3e4" stroke="${OUT}" stroke-width="3.5"/>
+    <rect x="24" y="56" width="52" height="18" rx="3" fill="#22314f" stroke="${OUT}" stroke-width="2"/>
+    <rect x="29" y="63" width="42" height="4" rx="2" fill="#7cc4ff"/>
+    <circle cx="79" cy="54" r="2.6" fill="#7dc242"/>`)},
+ {id:'maychieu',name:'Máy chiếu',speak:'máy chiếu',draw:()=>wrap(
+   `<path d="M72 44 L92 36 L92 74 L72 66 Z" fill="#ffd23b" stroke="#e6b800" stroke-width="1.6" stroke-linejoin="round" opacity="0.7"/>
+    <rect x="14" y="42" width="52" height="32" rx="9" fill="#8892a3" stroke="${OUT}" stroke-width="3.5"/>
+    <circle cx="56" cy="58" r="11" fill="#22314f" stroke="${OUT}" stroke-width="2.6"/><circle cx="56" cy="58" r="5.5" fill="#7cc4ff"/>
+    <circle cx="26" cy="50" r="3" fill="#7dc242"/>
+    <rect x="22" y="74" width="8" height="7" fill="#5b6478"/><rect x="50" y="74" width="8" height="7" fill="#5b6478"/>`)},
+ {id:'usb',name:'USB',speak:'u ét bê',draw:()=>wrap(
+   `<rect x="30" y="40" width="42" height="26" rx="6" fill="#3b7dd8" stroke="${OUT}" stroke-width="3.5"/>
+    <rect x="43" y="20" width="14" height="22" rx="2.5" fill="#c7d0e0" stroke="${OUT}" stroke-width="2.6"/>
+    <rect x="46" y="25" width="3" height="7" fill="#8892a3"/><rect x="51" y="25" width="3" height="7" fill="#8892a3"/>
+    <rect x="35" y="49" width="22" height="5" rx="2.5" fill="#cfe6ff"/>`)},
+ {id:'ocung',name:'Ổ cứng',speak:'ổ cứng',draw:()=>wrap(
+   `<rect x="22" y="24" width="56" height="52" rx="6" fill="#b7c0cc" stroke="${OUT}" stroke-width="3.5"/>
+    <circle cx="45" cy="50" r="17" fill="#8892a3" stroke="${OUT}" stroke-width="2.4"/><circle cx="45" cy="50" r="5" fill="#33415c"/>
+    <rect x="58" y="30" width="14" height="8" rx="2" fill="#33415c"/>
+    <circle cx="30" cy="32" r="2.2" fill="#5b6478"/><circle cx="70" cy="68" r="2.2" fill="#5b6478"/>
+    <rect x="26" y="70" width="22" height="5" rx="2" fill="#33415c"/>`)},
+ {id:'thenho',name:'Thẻ nhớ',speak:'thẻ nhớ',draw:()=>{let c='';for(let i=0;i<6;i++){c+=`<rect x="${37+i*4}" y="48" width="2.6" height="9" rx="1" fill="#ffd23b"/>`;}
+   return wrap(`<path d="M34 18 L60 18 L69 27 L69 82 L34 82 Z" fill="#3b7dd8" stroke="${OUT}" stroke-width="3.5" stroke-linejoin="round"/>
+    <rect x="39" y="26" width="24" height="15" rx="2" fill="#cfe6ff"/>${c}
+    <text x="51" y="74" font-size="9" fill="#cfe6ff" text-anchor="middle" font-family="Arial" font-weight="bold">SD</text>`);}},
+ {id:'router',name:'Bộ phát wifi',speak:'bộ phát wai phai',draw:()=>wrap(
+   `<line x1="34" y1="54" x2="27" y2="28" stroke="${OUT}" stroke-width="3.4" stroke-linecap="round"/>
+    <line x1="66" y1="54" x2="73" y2="28" stroke="${OUT}" stroke-width="3.4" stroke-linecap="round"/>
+    <circle cx="27" cy="26" r="3.2" fill="#ff5a5a"/><circle cx="73" cy="26" r="3.2" fill="#ff5a5a"/>
+    <path d="M41 50 A13 13 0 0 1 59 50" fill="none" stroke="#7cc4ff" stroke-width="2.6"/>
+    <path d="M36 46 A20 20 0 0 1 64 46" fill="none" stroke="#7cc4ff" stroke-width="2.6"/>
+    <rect x="22" y="54" width="56" height="26" rx="7" fill="#33415c" stroke="${OUT}" stroke-width="3.5"/>
+    <circle cx="31" cy="67" r="2.4" fill="#7dc242"/><circle cx="41" cy="67" r="2.4" fill="#7dc242"/><circle cx="51" cy="67" r="2.4" fill="#7dc242"/>`)},
+ {id:'laptop',name:'Laptop',speak:'láp tóp',draw:()=>wrap(
+   `<rect x="24" y="22" width="52" height="38" rx="4" fill="#5b6478" stroke="${OUT}" stroke-width="3.5"/>
+    <rect x="29" y="27" width="42" height="28" rx="2" fill="#cfe6ff"/>
+    <path d="M14 74 L86 74 L80 60 L20 60 Z" fill="#c9d3e4" stroke="${OUT}" stroke-width="3.5" stroke-linejoin="round"/>
+    <rect x="42" y="65" width="16" height="3" rx="1.5" fill="#8892a3"/>`)},
+ {id:'tablet',name:'Máy tính bảng',speak:'máy tính bảng',draw:()=>wrap(
+   `<rect x="26" y="14" width="48" height="72" rx="9" fill="#33415c" stroke="${OUT}" stroke-width="3.5"/>
+    <rect x="31" y="22" width="38" height="52" rx="3" fill="#cfe6ff"/>
+    <circle cx="50" cy="80" r="3.4" fill="#8892a3"/>`)},
+ {id:'dienthoai',name:'Điện thoại',speak:'điện thoại',draw:()=>wrap(
+   `<rect x="32" y="10" width="36" height="80" rx="10" fill="#3b7dd8" stroke="${OUT}" stroke-width="3.5"/>
+    <rect x="37" y="20" width="26" height="54" rx="3" fill="#cfe6ff"/>
+    <rect x="44" y="14" width="12" height="3" rx="1.5" fill="#22314f"/>
+    <circle cx="50" cy="82" r="3.2" fill="#eef2f8"/>`)},
+ {id:'odien',name:'Ổ điện',speak:'ổ điện',draw:()=>wrap(
+   `<rect x="22" y="16" width="56" height="68" rx="12" fill="#ffffff" stroke="${OUT}" stroke-width="3.5"/>
+    <circle cx="50" cy="44" r="17" fill="#eef2f8" stroke="#9aa3b5" stroke-width="2.4"/>
+    <circle cx="43" cy="44" r="3.4" fill="#5b6478"/><circle cx="57" cy="44" r="3.4" fill="#5b6478"/>
+    <rect x="40" y="64" width="20" height="11" rx="4" fill="#eef2f8" stroke="#9aa3b5" stroke-width="2.2"/>`)},
+ {id:'odiacd',name:'Ổ đĩa CD',speak:'ổ đĩa cê đê',draw:()=>wrap(
+   `<circle cx="50" cy="50" r="36" fill="#c7d0e0" stroke="${OUT}" stroke-width="3.5"/>
+    <path d="M50 16 A34 34 0 0 1 84 50" fill="none" stroke="#a78bfa" stroke-width="5" opacity="0.55"/>
+    <path d="M84 50 A34 34 0 0 1 50 84" fill="none" stroke="#7cc4ff" stroke-width="5" opacity="0.55"/>
+    <circle cx="50" cy="50" r="11" fill="#eef2f8" stroke="${OUT}" stroke-width="2.4"/>
+    <circle cx="50" cy="50" r="4" fill="#8892a3"/>`)},
+];
+const DMAP={};DEVICES.forEach(d=>DMAP[d.id]=d);
+
+/* devices that share a similar usage -> never appear together as choices */
+const GROUPS={
+  storage:['usb','ocung','thenho','odiacd'],
+  audioout:['loa','tainghe'],
+  computer:['cpu','laptop','tablet','dienthoai'],
+  display:['manhinh','maychieu'],
+};
+const GROUPOF={};
+Object.keys(GROUPS).forEach(g=>GROUPS[g].forEach(id=>GROUPOF[id]=g));
+function groupOf(id){return GROUPOF[id]||id;}
+
+/* one usage question per device (answer id + question text) */
+const QUESTIONS=[
+ {id:'manhinh',q:'Thiết bị nào dùng để hiển thị hình ảnh và chữ cho em xem?'},
+ {id:'banphim',q:'Thiết bị nào dùng để gõ (nhập) chữ và số vào máy tính?'},
+ {id:'chuot',q:'Thiết bị nào dùng để di chuyển con trỏ và nhấp chọn trên màn hình?'},
+ {id:'cpu',q:'Thiết bị nào là bộ não của máy tính, dùng để xử lí dữ liệu?'},
+ {id:'loa',q:'Thiết bị nào phát âm thanh to cho nhiều người cùng nghe?'},
+ {id:'tainghe',q:'Thiết bị nào dùng để nghe âm thanh một mình mà không làm ồn người khác?'},
+ {id:'micro',q:'Thiết bị nào dùng để thu (ghi lại) giọng nói của em?'},
+ {id:'webcam',q:'Thiết bị nào dùng để quay hình khi gọi video?'},
+ {id:'mayin',q:'Thiết bị nào dùng để in tài liệu ra giấy?'},
+ {id:'mayquet',q:'Thiết bị nào dùng để quét ảnh, giấy tờ đưa vào máy tính?'},
+ {id:'maychieu',q:'Thiết bị nào dùng để chiếu hình lên màn ảnh lớn cho cả lớp xem?'},
+ {id:'usb',q:'Thiết bị nhỏ nào dùng để mang dữ liệu đi và cắm vào cổng USB?'},
+ {id:'ocung',q:'Thiết bị nào dùng để lưu trữ dữ liệu bên trong máy tính?'},
+ {id:'thenho',q:'Thiết bị nào dùng để lưu ảnh cho máy ảnh và điện thoại?'},
+ {id:'router',q:'Thiết bị nào dùng để phát wifi, giúp máy kết nối Internet?'},
+ {id:'laptop',q:'Thiết bị nào là máy tính gọn nhẹ, gập lại được để mang đi?'},
+ {id:'tablet',q:'Thiết bị nào là máy tính màn hình cảm ứng, cầm trên tay?'},
+ {id:'dienthoai',q:'Thiết bị nào dùng để nghe gọi và nhắn tin?'},
+ {id:'odien',q:'Thiết bị nào dùng để cắm lấy điện cho máy hoạt động?'},
+ {id:'odiacd',q:'Thiết bị nào dùng để đọc và ghi đĩa CD, DVD?'},
+];
+
+const MASCOT=wrap(
+  `<circle cx="42" cy="44" r="22" fill="none" stroke="#7c5cff" stroke-width="7"/>
+   <line x1="59" y1="61" x2="82" y2="84" stroke="#7c5cff" stroke-width="9" stroke-linecap="round"/>
+   <rect x="30" y="34" width="26" height="18" rx="3" fill="#3b7dd8" stroke="${OUT}" stroke-width="2.6"/>
+   <rect x="34" y="38" width="18" height="10" fill="#cfe6ff"/>`);
+const STAR=`<svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2l2.9 6.2 6.8.7-5 4.6 1.4 6.7L12 17.6 5.9 20.9l1.4-6.7-5-4.6 6.8-.7z" fill="#ffd23b" stroke="#e0a91a" stroke-width="1"/></svg>`;
+const BIGSTAR=`<svg width="96" height="96" viewBox="0 0 24 24"><path d="M12 2l2.9 6.2 6.8.7-5 4.6 1.4 6.7L12 17.6 5.9 20.9l1.4-6.7-5-4.6 6.8-.7z" fill="#ffd23b" stroke="#e0a91a" stroke-width="1"/></svg>`;
+const SEARCH=`<svg width="26" height="26" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.5" fill="none" stroke="#7c3aed" stroke-width="2.6"/><line x1="15" y1="15" x2="21" y2="21" stroke="#7c3aed" stroke-width="2.8" stroke-linecap="round"/></svg>`;
+
+/* ================= sound ================= */
+let soundOn=true, actx=null, viVoice=null;
+function beep(f,d,t,v){if(!soundOn)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  const o=actx.createOscillator(),g=actx.createGain();o.type=t||'sine';o.frequency.value=f;
+  g.gain.setValueAtTime(v||0.13,actx.currentTime);g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+(d||0.15));
+  o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+(d||0.15));}catch(e){}}
+function ting(){beep(880,0.12,'triangle',0.14);setTimeout(()=>beep(1320,0.13,'triangle',0.12),70);}
+function bup(){beep(180,0.16,'sine',0.15);}
+function pickVoice(){const vs=speechSynthesis.getVoices();viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||vs.find(v=>/vietnam/i.test(v.name))||null;}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function speak(text){if(!soundOn||!('speechSynthesis' in window))return;try{speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=0.98;u.pitch=1.05;speechSynthesis.speak(u);}catch(e){}}
+const PRAISE=['Giỏi quá!','Chính xác!','Đúng rồi!','Tuyệt vời!','Hay lắm!'];
+
+/* ================= game ================= */
+let grade=3, score=0, qList=[], qIdx=0, stars=0, wrongInQ=0, cur=null, lockPick=false, playing=false;
+const TOTAL=QUESTIONS.length;
+
+function goBack(){if(history.length>1){history.back();return false;}window.location.href='../../index.html';return false;}
+
+const SPK_ON='<svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 8.5a4.5 4.5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const SPK_OFF='<svg width="20" height="20" viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function setSoundIcon(){$('soundIcon').innerHTML=soundOn?SPK_ON:SPK_OFF;}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function showStart(){playing=false;$('resultOv').classList.add('hide');$('startOv').classList.remove('hide');}
+
+function startGame(g){
+  grade=g;score=0;qIdx=0;stars=0;playing=true;
+  qList=shuffle(QUESTIONS.slice());
+  $('startOv').classList.add('hide');$('resultOv').classList.add('hide');
+  $('gradePill').textContent='Lớp '+g;
+  updateHud();
+  if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  showQuestion();
+}
+function updateHud(){
+  $('progPill').textContent='Câu '+Math.min(qIdx+1,TOTAL)+'/'+TOTAL;
+  $('scorePill').textContent=score+' điểm';
+  $('starPill').innerHTML=STAR+stars;
+}
+
+function buildChoices(correctId){
+  const count = grade===4 ? (6+Math.floor(Math.random()*3)) : (4+Math.floor(Math.random()*2)); // L3:4-5  L4:6-8
+  const cg=groupOf(correctId);
+  const pool=DEVICES.filter(d=>d.id!==correctId && groupOf(d.id)!==cg);
+  const distract=shuffle(pool).slice(0,count-1);
+  return shuffle([DMAP[correctId],...distract]);
+}
+
+function showQuestion(){
+  wrongInQ=0;lockPick=false;
+  cur=qList[qIdx];
+  updateHud();
+  $('qtext').textContent=cur.q;
+  const grid=$('grid');grid.innerHTML='';
+  const choices=buildChoices(cur.id);
+  choices.forEach(dev=>{
+    const el=document.createElement('div');
+    el.className='tile';el.dataset.id=dev.id;
+    el.innerHTML=`<div class="svgbox">${dev.draw()}</div><div class="nm">${dev.name}</div>`+
+      '<span class="badge"><svg width="17" height="17" viewBox="0 0 24 24"><path d="M5 13l4 4 10-10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+    el.addEventListener('click',()=>onPick(el,dev));
+    grid.appendChild(el);
+  });
+  speakQ();
+}
+function speakQ(){if(cur)speak(cur.q);}
+
+function onPick(el,dev){
+  if(!playing||lockPick)return;
+  if(dev.id===cur.id){
+    lockPick=true;
+    const gain=wrongInQ===0?10:5;
+    score+=gain;stars++;updateHud();
+    el.classList.add('correct');ting();confetti();starBurst();
+    speak(PRAISE[Math.floor(Math.random()*PRAISE.length)]);
+    toast('good','+'+gain+' điểm');
+    setTimeout(nextQuestion,900);
+  }else{
+    wrongInQ++;
+    el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');
+    el.classList.add('shownm');
+    bup();
+    if(wrongInQ>=2){
+      // lose turn: reveal answer, advance, 0 points
+      lockPick=true;
+      const c=$('grid').querySelector('.tile[data-id="'+cur.id+'"]');
+      if(c){c.classList.add('reveal','shownm');}
+      toast('bad','Chưa đúng. Đáp án đúng là: '+DMAP[cur.id].name);
+      speak('Đáp án đúng là '+DMAP[cur.id].speak);
+      setTimeout(nextQuestion,1700);
+    }else{
+      const c=$('grid').querySelector('.tile[data-id="'+cur.id+'"]');
+      if(c){c.classList.add('hintpulse','shownm');}
+      toast('bad','Chưa đúng, thử lại nhé! Xem gợi ý nhấp nháy.');
+    }
+  }
+}
+
+function nextQuestion(){
+  qIdx++;
+  if(qIdx>=TOTAL){endGame();return;}
+  showQuestion();
+}
+
+function toast(kind,msg){const t=$('toast');t.textContent=msg;t.className='show '+kind;clearTimeout(toast._t);toast._t=setTimeout(()=>t.className='',1500);}
+
+function starBurst(){const s=document.createElement('div');s.className='star-burst';s.innerHTML=BIGSTAR;document.body.appendChild(s);setTimeout(()=>s.remove(),900);}
+
+function endGame(){
+  playing=false;confetti();
+  const perfect=stars===TOTAL;
+  $('resTitle').textContent=perfect?'Xuất sắc! Em là thám tử giỏi!':'Em làm tốt lắm!';
+  $('resText').innerHTML='Em tìm đúng <b>'+stars+'/'+TOTAL+'</b> thiết bị. Tổng điểm: <b>'+score+'</b>.';
+  $('resultOv').classList.remove('hide');
+  speak('Hoàn thành! Em tìm đúng '+stars+' trên '+TOTAL+' thiết bị. Được '+score+' điểm.');
+}
+function confetti(){const cols=['#ff5a5a','#ffd23b','#7dc242','#38bdf8','#a78bfa','#ff9f1c','#f78fb3'];
+  for(let i=0;i<70;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';
+    c.style.background=cols[i%cols.length];c.style.animationDuration=(1.1+Math.random()*1.3)+'s';c.style.animationDelay=(Math.random()*0.3)+'s';
+    c.style.transform='rotate('+(Math.random()*360)+'deg)';document.body.appendChild(c);setTimeout(()=>c.remove(),2600);}}
+
+/* controls */
+$('replayBtn').innerHTML=SPK_ON;
+$('replayBtn').onclick=speakQ;
+$('soundBtn').onclick=function(){soundOn=!soundOn;setSoundIcon();this.classList.toggle('off',!soundOn);if(!soundOn&&'speechSynthesis' in window)speechSynthesis.cancel();else ting();};
+$('replayGame').onclick=()=>startGame(grade);
+
+/* init */
+$('mascotStart').outerHTML=MASCOT.replace('<svg','<svg class="mascot"');
+$('mascotEnd').outerHTML=MASCOT.replace('<svg','<svg class="mascot"');
+$('qlead').innerHTML=SEARCH;
+$('starIco').innerHTML=STAR;
+$('starPill').innerHTML=STAR+'0';
+setSoundIcon();
+
+/* grade from URL: reorder & emphasize recommended start button */
+(function(){
+  const p=new URLSearchParams(location.search).get('lop');
+  if(p==='4'){grade=4;$('gradePill').textContent='Lớp 4';
+    const b3=$('btnL3'),b4=$('btnL4');b4.classList.remove('m3');b4.classList.add('m1');b3.classList.remove('m1');b3.classList.add('m3');
+    b4.parentNode.insertBefore(b4,b3);
+  }else if(p==='3'){grade=3;$('gradePill').textContent='Lớp 3';}
+})();
+</script>
+</body>
+</html>
