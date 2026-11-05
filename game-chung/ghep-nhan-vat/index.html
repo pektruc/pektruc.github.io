@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ghép Nhân Vật Hoạt Hình</title>
+<style>
+  :root{--ink:#2b3a55;--a:#f97316;--b:#ec4899;--line:#fdba74}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  body{font-family:'Nunito','Segoe UI',Roboto,Arial,sans-serif;background:linear-gradient(160deg,#fff7ed,#fdf2f8 50%,#eff6ff);color:var(--ink);min-height:100vh;
+    user-select:none;-webkit-user-select:none;padding:12px;overflow-x:hidden}
+  #app{max-width:1140px;margin:0 auto}
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .btn{border:none;cursor:pointer;font:inherit;font-weight:800;font-size:1rem;border-radius:16px;padding:10px 18px;background:#fff;color:var(--ink);
+    box-shadow:0 3px 0 rgba(43,58,85,.16),0 6px 14px rgba(43,58,85,.08);text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;line-height:1.1}
+  .btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(43,58,85,.16)}
+  .btn.a{background:var(--a);color:#fff}
+  .btn.b{background:var(--b);color:#fff}
+  .btn svg{width:22px;height:22px;flex:none}
+  #sound{margin-left:auto;width:48px;height:48px;padding:0}
+  h1{font-size:clamp(1.7rem,5vw,2.6rem);text-align:center;margin:2px 0 4px;font-weight:900;line-height:1.15;
+    background:linear-gradient(90deg,var(--a),var(--b));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lead{text-align:center;color:#475569;font-weight:700;margin-bottom:14px}
+  .grades{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+  .grades>span{font-weight:800;color:#475569}
+  .grades .btn.on{background:linear-gradient(180deg,var(--a),var(--b));color:#fff}
+  .lvinfo{text-align:center;font-weight:700;color:#64748b;margin-bottom:16px;font-size:.95rem}
+  .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:14px;padding-bottom:20px}
+  .gi{border:none;cursor:pointer;background:#fff;border-radius:22px;padding:12px 10px 10px;font:inherit;color:var(--ink);
+    box-shadow:0 4px 0 rgba(43,58,85,.12),0 8px 18px rgba(43,58,85,.08);display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform .15s}
+  .gi:hover{transform:translateY(-3px)}
+  .gth{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center}
+  .gth svg{max-width:100%;max-height:100%;display:block}
+  .gi.flag .gth svg{filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+  .gname{font-weight:900;font-size:1.05rem;text-align:center}
+  .stars{display:flex;gap:2px;justify-content:center}
+  .stars svg{width:20px;height:20px}
+
+  .hud{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .hud .name{font-weight:900;font-size:clamp(1.1rem,3vw,1.45rem);margin-right:auto;color:var(--a)}
+  .chip{background:#fff;border-radius:14px;padding:8px 12px;font-weight:800;box-shadow:0 3px 0 rgba(43,58,85,.1);font-size:.95rem;white-space:nowrap}
+  .chip b{color:var(--b);font-size:1.12rem}
+  .stage{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start}
+  #boardWrap{position:relative;display:flex;justify-content:center;align-items:center;background:#fff;border-radius:24px;padding:10px;
+    box-shadow:0 4px 0 rgba(43,58,85,.1),0 10px 24px rgba(43,58,85,.08)}
+  #board{display:block;border-radius:16px}
+  #msg{position:absolute;left:50%;top:14px;transform:translate(-50%,-8px);background:#1e293b;color:#fff;font-weight:800;padding:9px 16px;border-radius:14px;
+    opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:5;white-space:nowrap;max-width:94%;overflow:hidden;text-overflow:ellipsis}
+  #msg.on{opacity:.92;transform:translate(-50%,0)}
+  .side{display:flex;flex-direction:column;gap:10px}
+  .refbox{background:#fff;border-radius:18px;padding:8px 10px;display:flex;gap:10px;align-items:center;box-shadow:0 3px 0 rgba(43,58,85,.1)}
+  .refbox .lbl{font-weight:900;color:#64748b;font-size:.9rem;line-height:1.3}
+  #ref{width:104px;height:84px;display:flex;align-items:center;justify-content:center;flex:none}
+  #ref svg{max-width:100%;max-height:100%;display:block}
+  .tools{display:flex;gap:8px}
+  .tools .btn{flex:1;padding:10px 8px;font-size:.95rem}
+  #tray{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;justify-content:center;background:rgba(255,255,255,.55);border-radius:18px;padding:10px;
+    border:3px dashed var(--line);max-height:calc(100vh - 290px);min-height:120px;overflow:auto}
+  .pc{min-width:72px;min-height:72px;padding:6px;background:#fff;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    cursor:grab;touch-action:none;box-shadow:0 3px 0 #e2e8f0;transition:opacity .15s}
+  .pc .pi svg{display:block;filter:drop-shadow(0 0 1px rgba(51,65,85,.55)) drop-shadow(0 2px 2px rgba(0,0,0,.15))}
+  .pc .pn{font-size:.72rem;font-weight:800;color:#64748b;margin-top:4px;text-align:center;max-width:104px;line-height:1.15}
+  .pc.lifted{opacity:.2}
+  .pc.shake{animation:shake .4s}
+  .pc.glow{box-shadow:0 0 0 4px #facc15,0 0 18px #facc15;animation:pulse .6s ease-in-out infinite alternate}
+  .float{position:fixed;left:0;top:0;z-index:50;pointer-events:none;transform-origin:50% 50%;filter:drop-shadow(0 8px 10px rgba(0,0,0,.28))}
+  .float svg{display:block}
+  .plus{position:fixed;z-index:55;font-weight:900;font-size:1.6rem;color:#16a34a;pointer-events:none;text-shadow:0 2px 0 #fff;animation:rise .9s ease-out forwards}
+
+  .gl *{fill:none!important;stroke:#64748b!important;stroke-width:2px!important;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
+  .gl text{display:none}
+  .L4 .gl{opacity:0}
+  .gl.flash{opacity:1!important}
+  .tray-done{width:100%;text-align:center;font-weight:900;color:#16a34a;padding:16px 6px;font-size:1.1rem}
+  .gl.flash *{stroke:#f97316!important;stroke-width:4px!important;animation:dash .5s linear infinite}
+  #slots g.pop{animation:pop .35s ease-out;transform-box:fill-box;transform-origin:center}
+  #board.dance{animation:bounce .55s ease-in-out 4;transform-origin:50% 100%}
+  #board.wave{animation:wave 1s ease-in-out 3;transform-origin:0 50%}
+
+  #win{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+  .wcard{background:#fff;border-radius:28px;padding:22px 22px 18px;max-width:440px;width:100%;text-align:center;animation:pop .4s ease-out;max-height:96vh;overflow:auto}
+  .wcard h2{font-size:2.1rem;font-weight:900;color:var(--a);margin:4px 0}
+  .wcard .stars svg{width:54px;height:54px}
+  #wpic{display:flex;justify-content:center;margin:8px 0}
+  #wpic svg{width:200px;max-width:70%;height:auto;max-height:180px}
+  .wname{font-weight:900;font-size:1.35rem}
+  .wfact{color:#475569;font-weight:700;margin:6px 0 4px}
+  .wstat{color:#64748b;font-weight:700;font-size:.92rem;margin-bottom:14px}
+  .wbtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  #conf i{position:fixed;top:-14px;width:10px;height:14px;border-radius:2px;z-index:70;pointer-events:none;animation:fall linear forwards}
+
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+  @keyframes pulse{to{transform:scale(1.07)}}
+  @keyframes rise{to{transform:translateY(-60px);opacity:0}}
+  @keyframes dash{to{stroke-dashoffset:-22}}
+  @keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+  @keyframes bounce{0%,100%{transform:translateY(0) scale(1)}30%{transform:translateY(-14px) scale(1.02,.98)}60%{transform:translateY(0) scale(1.03,.96)}}
+  @keyframes wave{0%,100%{transform:skewY(0)}25%{transform:skewY(2.5deg) scaleX(.98)}75%{transform:skewY(-2.5deg) scaleX(.98)}}
+  @keyframes fall{to{transform:translateY(106vh) rotate(720deg)}}
+  @media(max-width:820px){
+    .stage{grid-template-columns:1fr}
+    #tray{max-height:none}
+    .refbox{order:-1}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <a id="back" class="btn" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span>Quay lại</span></a>
+    <button id="sound" class="btn" title="Bật/tắt âm thanh"></button>
+  </div>
+
+  <section id="home">
+    <h1>Ghép Nhân Vật Hoạt Hình</h1>
+    <p class="lead">Chọn một bạn hoạt hình, rồi kéo từng mảnh vào đúng chỗ để ghép thành nhân vật!</p>
+    <div class="grades" id="grades"></div>
+    <p class="lvinfo" id="lvinfo"></p>
+    <div class="gal" id="gal"></div>
+  </section>
+
+  <section id="play" hidden>
+    <div class="hud">
+      <button id="toGal" class="btn"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg><span>Danh sách</span></button>
+      <div class="name" id="itemName"></div>
+      <div class="chip">Điểm <b id="score">0</b></div>
+      <div class="chip">Còn <b id="left">0</b> mảnh</div>
+      <div class="chip"><b id="time">0:00</b></div>
+    </div>
+    <div class="stage">
+      <div id="boardWrap"><svg id="board" xmlns="http://www.w3.org/2000/svg"></svg><div id="msg"></div></div>
+      <aside class="side">
+        <div class="refbox"><div id="ref"></div><div class="lbl">Hình mẫu<br><span style="font-weight:700">Kéo từng mảnh vào đúng chỗ trên bảng</span></div></div>
+        <div class="tools">
+          <button id="hint" class="btn a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="rgba(255,255,255,.35)"/></svg><span id="hintTxt">Gợi ý (3)</span></button>
+          <button id="redo" class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></svg><span>Làm lại</span></button>
+        </div>
+        <div id="tray"></div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<div id="win" hidden><div class="wcard">
+  <div class="stars" id="wstars"></div>
+  <h2>Tuyệt vời!</h2>
+  <div id="wpic"></div>
+  <div class="wname" id="wname"></div>
+  <p class="wfact" id="wfact"></p>
+  <p class="wstat" id="wstat"></p>
+  <div class="wbtns">
+    <button id="wAgain" class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></svg><span>Chơi lại</span></button>
+    <button id="wNext" class="btn a"><span>Hình tiếp theo</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button id="wList" class="btn"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg><span>Danh sách</span></button>
+  </div>
+</div></div>
+<div id="conf"></div>
+<svg id="meas" xmlns="http://www.w3.org/2000/svg" width="10" height="10" style="position:absolute;left:-9999px;top:0;visibility:hidden"></svg>
+
+<script>
+/* ===== nhân vật: mỗi bộ phận là một mảnh, khung 400x400 =====
+   lv: khối lớp bắt đầu tách thành mảnh riêng (thấp hơn thì gộp vào bộ phận cha p) */
+const K='#1f2937',SW=3.2;
+const st=f=>`fill="${f}" stroke="${K}" stroke-width="${SW}" stroke-linejoin="round"`;
+const E=(cx,cy,rx,ry,f,a)=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" ${st(f)}${a?` transform="rotate(${a} ${cx} ${cy})"`:''}/>`;
+const En=(cx,cy,rx,ry,f)=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${f}"/>`;
+const C=(cx,cy,r,f)=>`<circle cx="${cx}" cy="${cy}" r="${r}" ${st(f)}/>`;
+const Cn=(cx,cy,r,f)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}"/>`;
+const P=(d,f)=>`<path d="${d}" ${st(f)}/>`;
+const Pn=(d,f)=>`<path d="${d}" fill="${f}"/>`;
+const L=(d,w=SW,c=K)=>`<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const T=(d,c,w)=>L(d,w+6)+L(d,w,c);
+const R=(x,y,w,h,rx,f)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" ${st(f)}/>`;
+const M=s=>`<g transform="matrix(-1 0 0 1 400 0)">${s}</g>`;
+const pt=(id,n,lv,p,s,k)=>({id,n,lv,p,s,k});
+
+const DORA='#1aa3e8',MRED='#e11d48',PIKA='#fdd13a',DBLUE='#2563eb',POOH='#f6b73c',TOM='#7b8db3',JER='#b5733a',JLT='#f3d2a2',MIN='#fcd34d',NEMO='#fb8c00';
+
+const armDora=E(112,262,20,36,DORA,40)+C(94,292,19,'#fff');
+const armMick=L('M160 246 Q128 260 112 284',13)+C(102,294,20,'#fff')+L('M96 290 L104 298 M100 284 L108 292',2);
+const earPika=P('M140 112 Q104 62 92 16 Q138 38 176 92 Z',PIKA)+Pn('M92 16 Q97 38 104 52 Q118 42 128 36 Q110 24 92 16 Z',K);
+const armPika=E(160,268,13,24,PIKA,-35);
+const footDon=P('M128 350 Q160 334 196 348 L192 364 Q152 372 124 364 Z','#f59e0b');
+const armDon=E(126,276,18,38,DBLUE,25)+C(110,310,15,'#fff');
+const armPooh=E(132,288,22,40,POOH,-25);
+const armTom=E(132,288,17,40,TOM,22)+C(117,324,15,'#fff');
+const earTom=P('M128 116 L118 22 L186 86 Z',TOM)+Pn('M138 104 L132 46 L172 88 Z','#f9a8d4');
+const armJer=E(162,282,11,26,JER,30);
+const armMin=T('M124 236 Q92 262 96 296',MIN,13)+C(96,302,12,K);
+
+const ITEMS=[
+{id:'doraemon',name:'Doraemon',bg:'#dbeafe',W:400,H:400,
+ say:'Doraemon là chú mèo máy đến từ tương lai, có chiếc túi thần kỳ.',
+ parts:[
+  pt('armL','Tay trái',3,'body',armDora),
+  pt('armR','Tay phải',3,'body',M(armDora)),
+  pt('body','Thân',1,0,R(128,222,144,122,40,DORA)),
+  pt('footL','Bàn chân',4,'body',E(162,346,40,16,'#fff'),'foot'),
+  pt('footR','Bàn chân',4,'body',E(238,346,40,16,'#fff'),'foot'),
+  pt('belly','Cái bụng',3,'body',E(200,290,54,46,'#fff')),
+  pt('pocket','Túi thần kỳ',4,'belly',P('M160 292 A40 40 0 0 0 240 292 Z','#fff')),
+  pt('head','Cái đầu',1,0,C(200,148,106,DORA)),
+  pt('face','Khuôn mặt',2,'head',E(200,170,86,80,'#fff')),
+  pt('mouth','Cái miệng',3,'face',L('M200 147 V200')+P('M140 188 Q200 272 260 188 Q200 212 140 188 Z','#e53935')+Pn('M180 218 Q200 208 220 218 Q212 228 200 228 Q188 228 180 218 Z','#ff8a80')),
+  pt('whL','Ria trái',4,'face',L('M158 150 L108 138 M158 162 L104 162 M158 174 L108 186')),
+  pt('whR','Ria phải',4,'face',M(L('M158 150 L108 138 M158 162 L104 162 M158 174 L108 186'))),
+  pt('eyes','Đôi mắt',1,0,E(178,100,22,28,'#fff')+E(222,100,22,28,'#fff')+Cn(188,108,7,K)+Cn(212,108,7,K)+Cn(190,105,2.5,'#fff')+Cn(214,105,2.5,'#fff')),
+  pt('nose','Cái mũi',2,'eyes',C(200,134,14,'#e53935')+Cn(195,129,4.5,'#fff')),
+  pt('collar','Vòng cổ',1,0,R(128,240,144,18,9,'#e53935')),
+  pt('bell','Cái chuông',3,'collar',C(200,266,15,'#fbbf24')+L('M186 262 H214',2.5)+Cn(200,272,3,K)+L('M200 272 V280',2.5)),
+ ]},
+{id:'mickey',name:'Chuột Mickey',bg:'#fee2e2',W:400,H:400,
+ say:'Chuột Mickey có đôi tai tròn xoe và chiếc quần đỏ.',
+ parts:[
+  pt('earL','Tai',1,0,C(122,78,48,K),'ear'),
+  pt('earR','Tai',1,0,C(278,78,48,K),'ear'),
+  pt('armL','Tay trái',3,'body',armMick),
+  pt('armR','Tay phải',3,'body',M(armMick)),
+  pt('body','Thân',1,0,L('M182 312 V346',15)+L('M218 312 V346',15)+E(200,258,46,42,K)),
+  pt('shoeL','Chiếc giày',4,'body',E(164,358,34,18,'#facc15'),'shoe'),
+  pt('shoeR','Chiếc giày',4,'body',E(236,358,34,18,'#facc15'),'shoe'),
+  pt('shorts','Quần đỏ',2,'body',P('M150 268 Q200 248 250 268 L258 318 Q232 330 212 318 L200 300 L188 318 Q168 330 142 318 Z',MRED)),
+  pt('buttons','Hai cúc áo',4,'shorts',E(186,282,5,9,'#fff')+E(214,282,5,9,'#fff')),
+  pt('head','Cái đầu',1,0,C(200,140,72,K)),
+  pt('face','Khuôn mặt',2,'head',P('M200 112 C186 80 148 84 150 120 C136 136 132 162 150 186 C170 214 230 214 250 186 C268 162 264 136 250 120 C252 84 214 80 200 112 Z','#fcd9b6')),
+  pt('eyes','Đôi mắt',2,'face',E(186,128,10,19,'#fff')+E(214,128,10,19,'#fff')+En(188,134,5,9,K)+En(212,134,5,9,K)),
+  pt('nose','Cái mũi',3,'face',E(200,160,15,10,K)+En(195,156,4,2.5,'#fff')),
+  pt('mouth','Cái miệng',3,'face',P('M164 172 Q200 214 236 172 Q200 192 164 172 Z','#7f1d1d')+Pn('M186 188 Q200 182 214 188 Q207 192 200 192 Q193 192 186 188 Z','#f87171')),
+ ]},
+{id:'pikachu',name:'Pikachu',bg:'#dcfce7',W:400,H:400,
+ say:'Pikachu là Pokémon hệ điện, có chiếc đuôi hình tia chớp.',
+ parts:[
+  pt('tail','Cái đuôi',1,0,P('M262 300 L300 268 L286 252 L334 214 L320 198 L372 150 L352 218 L366 226 L320 268 L334 280 L284 326 Z',PIKA)),
+  pt('footL','Bàn chân',4,'body',E(158,360,28,13,PIKA),'foot'),
+  pt('footR','Bàn chân',4,'body',E(242,360,28,13,PIKA),'foot'),
+  pt('body','Thân',1,0,E(200,292,82,72,PIKA)),
+  pt('armL','Tay trái',4,'body',armPika),
+  pt('armR','Tay phải',4,'body',M(armPika)),
+  pt('earL','Tai trái',2,'head',earPika),
+  pt('earR','Tai phải',2,'head',M(earPika)),
+  pt('head','Cái đầu',1,0,E(200,160,94,78,PIKA)),
+  pt('cheekL','Má đỏ',3,'head',C(138,190,19,'#ef4444'),'cheek'),
+  pt('cheekR','Má đỏ',3,'head',C(262,190,19,'#ef4444'),'cheek'),
+  pt('eyes','Đôi mắt',1,0,C(160,150,16,K)+C(240,150,16,K)+Cn(154,144,5.5,'#fff')+Cn(234,144,5.5,'#fff')),
+  pt('nose','Cái mũi',4,'head',En(200,170,5,3.5,K)),
+  pt('mouth','Cái miệng',3,'head',L('M180 184 Q190 196 200 184 Q210 196 220 184')),
+ ]},
+{id:'donald',name:'Vịt Donald',bg:'#e0f2fe',W:400,H:400,
+ say:'Vịt Donald đội mũ thủy thủ màu xanh và thắt nơ đỏ.',
+ parts:[
+  pt('footL','Chân trái',4,'body',footDon),
+  pt('footR','Chân phải',4,'body',M(footDon)),
+  pt('armL','Tay trái',3,'body',armDon),
+  pt('armR','Tay phải',3,'body',M(armDon)),
+  pt('body','Thân',1,0,E(200,292,72,66,'#fff')),
+  pt('shirt','Áo thủy thủ',2,'body',P('M134 262 Q200 226 266 262 L272 306 Q200 322 128 306 Z',DBLUE)),
+  pt('bow','Nơ đỏ',3,'shirt',P('M200 236 L168 220 L170 254 Z','#ef4444')+P('M200 236 L232 220 L230 254 Z','#ef4444')+C(200,237,8,'#ef4444')),
+  pt('head','Cái đầu',1,0,C(200,150,70,'#fff')),
+  pt('eyes','Đôi mắt',2,'head',E(181,134,13,20,'#fff')+E(216,132,13,20,'#fff')+Cn(185,140,6,K)+Cn(212,138,6,K)),
+  pt('beakLow','Mỏ dưới',4,'beak',P('M170 186 Q200 180 230 186 Q224 212 200 214 Q176 212 170 186 Z','#ea580c')+Pn('M184 194 Q200 190 216 194 Q210 206 200 207 Q190 206 184 194 Z','#fb7185')),
+  pt('beak','Cái mỏ',1,0,P('M146 164 Q200 140 254 162 Q266 182 232 186 Q200 178 168 186 Q136 182 146 164 Z','#f59e0b')),
+  pt('hat','Cái mũ',1,0,P('M138 108 Q146 46 202 42 Q258 44 264 104 Q200 86 138 108 Z',DBLUE)),
+  pt('band','Ruy băng mũ',3,'hat',P('M136 110 Q200 88 266 104 L264 116 Q200 100 140 122 Z',K)+P('M262 108 L292 96 L290 122 Z',K)),
+ ]},
+{id:'pooh',name:'Gấu Pooh',bg:'#fef3c7',W:400,H:400,
+ say:'Gấu Pooh mặc áo đỏ và rất thích ăn mật ong.',
+ parts:[
+  pt('earL','Tai',2,'head',C(138,84,26,POOH)+Cn(138,84,13,'#e0952a'),'ear'),
+  pt('earR','Tai',2,'head',C(262,84,26,POOH)+Cn(262,84,13,'#e0952a'),'ear'),
+  pt('footL','Bàn chân',4,'body',E(160,362,32,18,POOH),'foot'),
+  pt('footR','Bàn chân',4,'body',E(240,362,32,18,POOH),'foot'),
+  pt('body','Thân',1,0,E(200,290,86,76,POOH)),
+  pt('shirt','Áo đỏ',1,0,P('M126 252 Q200 204 274 252 L284 286 Q200 304 116 286 Z','#dc2626')),
+  pt('pot','Hũ mật ong',1,0,P('M164 304 Q150 354 200 356 Q250 354 236 304 Z','#b45309')+R(158,292,84,16,7,'#92400e')+
+    '<text x="200" y="336" text-anchor="middle" font-size="15" font-weight="900" fill="#fde68a" font-family="Arial,sans-serif">HUNNY</text>'+
+    P('M172 300 Q176 318 182 300 Q190 316 196 300 Z','#fbbf24')),
+  pt('armL','Tay trái',3,'pot',armPooh),
+  pt('armR','Tay phải',3,'pot',M(armPooh)),
+  pt('head','Cái đầu',1,0,E(200,142,80,70,POOH)),
+  pt('muzzle','Cái mõm',3,'head',E(200,168,44,30,'#fbd38d')),
+  pt('nose','Cái mũi',3,'muzzle',E(200,152,15,10,K)+En(195,148,4,2.5,'#fff')),
+  pt('eyes','Đôi mắt',4,'head',En(172,124,5,8,K)+En(228,124,5,8,K)+L('M162 108 Q172 102 182 108',2.5)+L('M218 108 Q228 102 238 108',2.5)),
+  pt('mouth','Cái miệng',4,'muzzle',L('M184 180 Q200 192 216 180',2.8)),
+ ]},
+{id:'tom',name:'Mèo Tom',bg:'#ede9fe',W:400,H:400,
+ say:'Mèo Tom lúc nào cũng đuổi theo chuột Jerry.',
+ parts:[
+  pt('tail','Cái đuôi',3,'body',P('M252 318 Q332 330 330 262 Q328 222 352 206 Q370 226 352 244 Q348 344 252 342 Z',TOM)),
+  pt('footL','Bàn chân',4,'body',E(165,360,32,14,'#fff'),'foot'),
+  pt('footR','Bàn chân',4,'body',E(235,360,32,14,'#fff'),'foot'),
+  pt('body','Thân',1,0,E(200,292,70,68,TOM)),
+  pt('belly','Cái bụng',4,'body',E(200,306,42,48,'#fff')),
+  pt('armL','Tay trái',3,'body',armTom),
+  pt('armR','Tay phải',3,'body',M(armTom)),
+  pt('earL','Tai trái',2,'head',earTom),
+  pt('earR','Tai phải',2,'head',M(earTom)),
+  pt('head','Cái đầu',1,0,E(200,152,86,72,TOM)),
+  pt('muzzle','Cái mõm',1,0,P('M140 178 Q140 144 200 154 Q260 144 260 178 Q260 222 200 222 Q140 222 140 178 Z','#fff')+L('M168 186 Q200 210 232 186',3)),
+  pt('whisk','Bộ ria',4,'muzzle',L('M150 176 L98 164 M150 186 L96 190')+L('M250 176 L302 164 M250 186 L304 190')),
+  pt('nose','Cái mũi',3,'muzzle',E(200,160,13,9,K)),
+  pt('eyes','Đôi mắt',1,0,E(172,124,17,23,'#fde68a')+E(228,124,17,23,'#fde68a')+En(177,128,6,11,K)+En(223,128,6,11,K)+
+    L('M152 96 Q172 88 190 100',3)+L('M248 96 Q228 88 210 100',3)),
+ ]},
+{id:'jerry',name:'Chuột Jerry',bg:'#ffedd5',W:400,H:400,
+ say:'Chuột Jerry nhỏ bé, rất thông minh và thích ăn phô mai.',
+ parts:[
+  pt('tail','Cái đuôi',3,'body',T('M236 330 Q298 364 318 304 Q332 262 300 252',JER,6)),
+  pt('earL','Tai',1,0,C(130,98,52,JER)+Cn(130,98,34,'#f6a5a0'),'ear'),
+  pt('earR','Tai',1,0,C(270,98,52,JER)+Cn(270,98,34,'#f6a5a0'),'ear'),
+  pt('footL','Bàn chân',4,'body',E(176,354,24,10,JLT),'foot'),
+  pt('footR','Bàn chân',4,'body',E(224,354,24,10,JLT),'foot'),
+  pt('body','Thân',1,0,E(200,292,48,60,JER)),
+  pt('belly','Cái bụng',4,'body',E(200,304,28,40,JLT)),
+  pt('armL','Tay trái',4,'body',armJer),
+  pt('armR','Tay phải',4,'body',M(armJer)),
+  pt('head','Cái đầu',1,0,C(200,168,64,JER)),
+  pt('muzzle','Cái mõm',2,'head',P('M152 194 Q156 160 200 168 Q244 160 248 194 Q248 230 200 232 Q152 230 152 194 Z',JLT)+
+    L('M178 202 Q200 220 222 202',3)+L('M162 190 L132 184 M162 198 L130 200',2.2)+L('M238 190 L268 184 M238 198 L270 200',2.2)),
+  pt('nose','Cái mũi',3,'muzzle',E(200,180,13,9,K)),
+  pt('eyes','Đôi mắt',3,'head',E(182,146,12,17,'#fff')+E(218,146,12,17,'#fff')+Cn(185,150,6,K)+Cn(215,150,6,K)+Cn(187,147,2,'#fff')+Cn(217,147,2,'#fff')),
+  pt('cheese','Miếng phô mai',2,'body',P('M44 368 L136 318 L136 368 Z','#fcd34d')+Cn(110,350,7,'#f59e0b')+Cn(124,334,5,'#f59e0b')+Cn(92,360,4,'#f59e0b')),
+ ]},
+{id:'panda',name:'Gấu trúc',bg:'#d1fae5',W:400,H:400,
+ say:'Gấu trúc có đôi mắt đen tròn và rất thích ăn tre.',
+ parts:[
+  pt('earL','Tai',2,'head',C(132,82,30,K),'ear'),
+  pt('earR','Tai',3,'earL',C(268,82,30,K),'ear'),
+  pt('legL','Chân',4,'body',E(150,348,38,26,K)+En(150,352,15,11,'#fbcfe8'),'leg'),
+  pt('legR','Chân',4,'body',E(250,348,38,26,K)+En(250,352,15,11,'#fbcfe8'),'leg'),
+  pt('body','Thân',1,0,E(200,290,82,74,'#fff')),
+  pt('bamboo','Cây tre',1,0,`<g transform="rotate(18 200 290)">${R(190,206,20,160,8,'#4ade80')+L('M190 250 H210 M190 300 H210',2.5)+P('M210 236 Q236 214 252 222 Q232 238 210 240 Z','#22c55e')}</g>`),
+  pt('armL','Tay trái',3,'body',E(152,276,26,46,K,-35)),
+  pt('armR','Tay phải',3,'body',E(250,272,26,46,K,35)),
+  pt('head','Cái đầu',1,0,E(200,146,86,74,'#fff')+Cn(150,186,10,'#fbcfe8')+Cn(250,186,10,'#fbcfe8')),
+  pt('patchL','Quầng mắt',1,0,E(165,148,22,30,K,35)),
+  pt('patchR','Quầng mắt',2,'patchL',E(235,148,22,30,K,-35)),
+  pt('eyes','Đôi mắt',4,'patchL',Cn(170,142,9,'#fff')+Cn(230,142,9,'#fff')+Cn(171,143,5,K)+Cn(229,143,5,K)),
+  pt('nose','Mũi và miệng',3,'head',P('M188 172 Q200 166 212 172 Q207 184 200 185 Q193 184 188 172 Z',K)+L('M200 185 Q194 198 184 194 M200 185 Q206 198 216 194',2.8)),
+ ]},
+{id:'minion',name:'Minion',bg:'#e0e7ff',W:400,H:400,
+ say:'Minion màu vàng, đeo kính bảo hộ và mặc quần yếm xanh.',
+ parts:[
+  pt('armL','Tay trái',3,'body',armMin),
+  pt('armR','Tay phải',3,'body',M(armMin)),
+  pt('shoeL','Chiếc giày',4,'body',R(161,336,22,22,3,DBLUE)+E(170,362,25,11,K),'shoe'),
+  pt('shoeR','Chiếc giày',4,'body',R(217,336,22,22,3,DBLUE)+E(226,362,25,11,K),'shoe'),
+  pt('body','Thân',1,0,P('M120 140 Q120 50 200 50 Q280 50 280 140 L280 296 Q280 344 200 344 Q120 344 120 296 Z',MIN)),
+  pt('hair','Mái tóc',2,'body',L('M190 52 Q184 32 172 22 M200 50 L200 18 M210 52 Q218 32 230 24',2.5)),
+  pt('overalls','Quần yếm',1,0,P('M120 262 L280 262 L280 296 Q280 344 200 344 Q120 344 120 296 Z',DBLUE)+R(154,226,92,42,8,DBLUE)+
+    T('M158 232 L124 210',DBLUE,7)+T('M242 232 L276 210',DBLUE,7)+P('M180 236 H220 V252 Q200 262 180 252 Z','#1d4ed8')+Cn(200,244,5,K)),
+  pt('mouth','Cái miệng',1,0,P('M172 196 Q200 228 228 196 Q200 208 172 196 Z','#7f1d1d')),
+  pt('band','Dây kính',3,'goggleL',R(118,118,164,22,3,K)),
+  pt('goggleL','Kính',1,0,C(166,130,34,'#9ca3af')+C(166,130,24,'#fff')+Cn(170,132,11,'#92400e')+Cn(170,132,6,K)+Cn(166,127,2.5,'#fff'),'goggle'),
+  pt('goggleR','Kính',2,'goggleL',C(234,130,34,'#9ca3af')+C(234,130,24,'#fff')+Cn(238,132,11,'#92400e')+Cn(238,132,6,K)+Cn(234,127,2.5,'#fff'),'goggle'),
+ ]},
+{id:'nemo',name:'Cá Nemo',bg:'#bae6fd',W:400,H:400,
+ deco:'<path d="M40 400 Q18 340 48 300 Q72 262 46 222" fill="none" stroke="#34d399" stroke-width="12" stroke-linecap="round" opacity=".75"/>'+
+  '<path d="M362 400 Q388 352 356 312" fill="none" stroke="#34d399" stroke-width="12" stroke-linecap="round" opacity=".75"/>'+
+  '<g fill="none" stroke="#fff" stroke-width="3" opacity=".8"><circle cx="340" cy="90" r="9"/><circle cx="360" cy="56" r="6"/><circle cx="330" cy="36" r="4"/></g>',
+ say:'Cá Nemo là chú cá hề màu cam có ba sọc trắng.',
+ parts:[
+  pt('tail','Cái đuôi',1,0,P('M96 200 Q44 128 28 146 Q46 200 28 254 Q44 272 96 200 Z',NEMO)+L('M40 160 Q54 200 40 240',3)),
+  pt('topFin','Vây lưng',3,'body',P('M150 132 Q178 76 222 92 Q244 104 250 128 Z',NEMO)),
+  pt('botFin','Vây bụng',3,'body',P('M168 268 Q190 318 236 274 Z',NEMO)),
+  pt('body','Thân',1,0,E(200,200,120,78,NEMO)),
+  pt('st3','Sọc trắng sau',2,'st2',P('M115 145 Q103 200 115 255 L132 264 Q119 200 132 136 Z','#fff')),
+  pt('st2','Sọc trắng giữa',1,0,P('M188 123 Q172 200 188 277 L212 277 Q196 200 212 123 Z','#fff')),
+  pt('st1','Sọc trắng trước',2,'st2',P('M255 131 Q238 200 255 269 L275 261 Q259 200 275 139 Z','#fff')),
+  pt('pecFin','Vây nhỏ',3,'body',P('M232 222 Q252 266 282 246 Q272 222 246 214 Z',NEMO)),
+  pt('eye','Con mắt',1,0,C(292,180,20,'#fff')+Cn(297,181,11,K)+Cn(293,176,3.5,'#fff')),
+  pt('mouth','Cái miệng',4,'body',L('M314 222 Q304 230 294 222',3)),
+ ]},
+];
+
+const DOTS='<g fill="#fff" opacity=".5"><circle cx="40" cy="48" r="10"/><circle cx="364" cy="66" r="14"/><circle cx="356" cy="334" r="9"/><circle cx="50" cy="300" r="12"/><circle cx="76" cy="150" r="6"/></g>';
+const GAME={
+  store:'ghepnhanvat_v1',kind:'char',pad:4,thumbMax:80,
+  info:{1:'Lớp 1: ít mảnh, có bóng màu gợi ý chỗ đặt.',2:'Lớp 2: nhiều mảnh hơn, bóng màu mờ hơn.',
+    3:'Lớp 3: chỉ có viền gợi ý, có 1 mảnh lạ không thuộc nhân vật.',4:'Lớp 4: nhiều mảnh nhỏ, không có viền gợi ý, có 2 mảnh lạ. Nhìn hình mẫu thật kỹ nhé!'},
+  label:it=>it.name,of:it=>it.name,
+  intro:it=>'Em hãy ghép '+it.name+' nhé!',
+  say:it=>it.say,fact:it=>it.say,
+  bg:(it,thumb)=>`<rect width="${it.W}" height="${it.H}" rx="28" fill="${it.bg}"/>`+DOTS+(it.deco||''),
+};
+/* ===== engine: kéo mảnh vào đúng chỗ (dùng chung cho game ghép) ===== */
+const $=s=>document.querySelector(s);
+const QS=new URLSearchParams(location.search);
+let lop=parseInt(QS.get('lop'),10);
+let fromGrade=[1,2,3,4].includes(lop);
+if(!fromGrade) lop=1;
+
+/* độ khó theo khối: tol = vùng hút (đơn vị trên khung 400), ghost = độ đậm bóng màu, dis = số mảnh lạ */
+const CFG={
+  1:{tol:64,ghost:.3,dis:0},
+  2:{tol:54,ghost:.13,dis:0},
+  3:{tol:44,ghost:0,dis:1},
+  4:{tol:36,ghost:0,dis:2}};
+
+const STAR='M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z';
+const ICON_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+const ICON_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
+
+let soundOn=true,actx=null;
+let winT=0,cur=null,curIdx=0,pieces=[],tray=[],score=0,mistakes=0,hints=0,t0=0,timerId=null,S=1,won=false,drag=null;
+let best={};
+try{best=JSON.parse(localStorage.getItem(GAME.store)||'{}')||{}}catch(e){best={}}
+function saveBest(){try{localStorage.setItem(GAME.store,JSON.stringify(best))}catch(e){}}
+
+const board=$('#board'),meas=$('#meas');
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function itemsFor(g){return GAME.kind==='flag'?ITEMS.filter(it=>it.g===g):ITEMS}
+function starsHTML(n){return [0,1,2].map(i=>`<svg viewBox="0 0 24 24"><path d="${STAR}" fill="${i<n?'#fbbf24':'#e2e8f0'}" stroke="${i<n?'#d97706':'#cbd5e1'}" stroke-width="1.3" stroke-linejoin="round"/></svg>`).join('')}
+function allMarkup(it){return it.parts.map(p=>p.s).join('')}
+function fullSVG(it){return `<svg viewBox="0 0 ${it.W} ${it.H}" xmlns="http://www.w3.org/2000/svg">${GAME.bg(it,true)}${allMarkup(it)}</svg>`}
+function psvg(p,s){const b=p.bb;return `<svg viewBox="${b.x} ${b.y} ${b.w} ${b.h}" width="${(b.w*s).toFixed(1)}" height="${(b.h*s).toFixed(1)}" xmlns="http://www.w3.org/2000/svg">${p.markup}</svg>`}
+
+/* ===== âm thanh ===== */
+function tone(k){
+  if(!soundOn)return;
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}
+  if(actx.state==='suspended')actx.resume();
+  const n=actx.currentTime,F={pick:[520],ok:[660,990],bad:[240,180],win:[660,880,1100,1320,1560]}[k]||[440];
+  F.forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type=k==='bad'?'square':'triangle';o.frequency.value=f;
+    const t=n+i*.09;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(k==='bad'?.07:.22,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.18);
+    o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.2)});
+}
+let viVoice=null;
+function pickVoice(){try{const v=speechSynthesis.getVoices();viVoice=v.find(x=>/^vi/i.test(x.lang))||null}catch(e){}}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function speak(t,cb){
+  let done=false;const fin=()=>{if(done)return;done=true;cb&&cb()};
+  if(!soundOn||!('speechSynthesis' in window)){setTimeout(fin,400);return}
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=.95;u.onend=fin;u.onerror=fin;speechSynthesis.speak(u)}catch(e){}
+  setTimeout(fin,1200+t.length*85);
+}
+function setSound(){$('#sound').innerHTML=soundOn?ICON_ON:ICON_OFF}
+$('#sound').onclick=()=>{soundOn=!soundOn;if(!soundOn&&'speechSynthesis' in window)speechSynthesis.cancel();setSound()};
+
+/* ===== dựng mảnh theo khối lớp =====
+   mỗi bộ phận {id,n,lv,p,k,s,bb}: lv > khối thì gộp vào bộ phận cha p.
+   k: các mảnh cùng k (và không gộp gì thêm) giống hệt nhau nên đặt chỗ nào cũng được. */
+function measure(s){meas.innerHTML='<g>'+s+'</g>';const b=meas.firstChild.getBBox();return {x:b.x,y:b.y,w:b.width,h:b.height}}
+function union(a,b){if(!a)return b;const x=Math.min(a.x,b.x),y=Math.min(a.y,b.y);return {x,y,w:Math.max(a.x+a.w,b.x+b.w)-x,h:Math.max(a.y+a.h,b.y+b.h)-y}}
+const cache={};
+function buildPieces(it,g){
+  const ck=it.id+'|'+g;
+  if(!cache[ck]){
+    const by={};it.parts.forEach((p,i)=>{p.i=i;by[p.id]=p});
+    const groups=new Map();
+    it.parts.forEach(p=>{let q=p;while((q.lv||1)>g&&q.p&&by[q.p])q=by[q.p];
+      if(!groups.has(q.id))groups.set(q.id,{root:q,list:[]});groups.get(q.id).list.push(p)});
+    const out=[];
+    groups.forEach(({root,list})=>{
+      let bb=null;
+      list.forEach(p=>{if(!p._bb)p._bb=p.bb?{x:p.bb[0],y:p.bb[1],w:p.bb[2],h:p.bb[3]}:measure(p.s);bb=union(bb,p._bb)});
+      const pad=GAME.pad;bb={x:bb.x-pad,y:bb.y-pad,w:bb.w+2*pad,h:bb.h+2*pad};
+      out.push({uid:it.id+'-'+root.id,item:it,name:root.n,z:list[0].i,
+        k:it.id+'-'+((list.length===1&&root.k)?root.k:root.id),
+        markup:list.map(p=>p.s).join(''),bb,cx:bb.x+bb.w/2,cy:bb.y+bb.h/2});
+    });
+    cache[ck]=out.sort((a,b)=>a.z-b.z);
+  }
+  return cache[ck].map(p=>({...p,done:false,used:false,wc:0}));
+}
+function pickDistractors(n){
+  if(!n)return [];
+  const mine=new Set(pieces.map(p=>p.markup)),area=cur.W*cur.H,pool=[];
+  itemsFor(lop).forEach(o=>{if(o===cur)return;buildPieces(o,lop).forEach(p=>{
+    if(mine.has(p.markup)||p.bb.w*p.bb.h>.3*area)return;
+    if(GAME.kind==='flag'&&/^<(rect|svg)/.test(p.markup))return;
+    pool.push(p)})});
+  return shuffle(pool).slice(0,n).map(p=>({...p,fake:true,uid:'x-'+p.uid}));
+}
+
+/* ===== màn chọn hình ===== */
+function show(id){$('#home').hidden=id!=='home';$('#play').hidden=id!=='play';$('#win').hidden=true}
+function setBack(){$('#back').href=fromGrade?`../../lop-${lop}/`:'../../'}
+function renderHome(){
+  $('#grades').innerHTML='<span>Em học lớp:</span>'+[1,2,3,4].map(g=>`<button class="btn${g===lop?' on':''}" data-g="${g}">Lớp ${g}</button>`).join('');
+  $('#grades').querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{lop=+b.dataset.g;fromGrade=true;
+    try{history.replaceState(null,'','?lop='+lop)}catch(e){}setBack();renderHome()});
+  $('#lvinfo').textContent=GAME.info[lop];
+  const list=itemsFor(lop);
+  $('#gal').innerHTML=list.map((it,i)=>`<button class="gi${GAME.kind==='flag'?' flag':''}" data-i="${i}"><div class="gth">${fullSVG(it)}</div>`+
+    `<div class="gname">${GAME.label(it)}</div><div class="stars">${starsHTML(best[lop+':'+it.id]||0)}</div></button>`).join('');
+  $('#gal').querySelectorAll('.gi').forEach(b=>b.onclick=()=>startItem(+b.dataset.i));
+}
+
+/* ===== vào chơi ===== */
+function startItem(i){
+  const list=itemsFor(lop);curIdx=(i+list.length)%list.length;cur=list[curIdx];
+  cancelDrag();clearTimeout(winT);
+  pieces=buildPieces(cur,lop);
+  tray=shuffle([...pieces.map(p=>p),...pickDistractors(CFG[lop].dis)]);
+  score=0;mistakes=0;hints=0;won=false;
+  show('play');scrollTo(0,0);
+  $('#itemName').textContent=GAME.label(cur);
+  $('#ref').innerHTML=fullSVG(cur);
+  renderBoard();sizeBoard();renderTray();updHud();updHint();
+  t0=Date.now();clearInterval(timerId);timerId=setInterval(updTime,500);updTime();
+  speak(GAME.intro(cur));
+}
+function renderBoard(){
+  const it=cur,c=CFG[lop];
+  board.setAttribute('viewBox',`0 0 ${it.W} ${it.H}`);
+  board.setAttribute('class','L'+lop);
+  board.innerHTML=GAME.bg(it,false)+
+    '<g id="slots">'+pieces.map(p=>`<g data-s="${p.uid}">${c.ghost?`<g opacity="${c.ghost}">${p.markup}</g>`:''}</g>`).join('')+'</g>'+
+    '<g id="lines">'+pieces.map(p=>`<g class="gl" data-l="${p.uid}">${p.markup}</g>`).join('')+'</g>';
+}
+function sizeBoard(){
+  const wrap=$('#boardWrap'),it=cur,narrow=innerWidth<=820;
+  const aw=wrap.clientWidth-20;
+  let ah=narrow?innerHeight*.5:innerHeight-wrap.getBoundingClientRect().top-34;
+  ah=Math.max(ah,220);
+  S=Math.max(.3,Math.min(aw/it.W,ah/it.H));
+  board.style.width=(it.W*S)+'px';board.style.height=(it.H*S)+'px';
+}
+function renderTray(){
+  const el=$('#tray');el.innerHTML='';
+  const cap=innerWidth<=820?84:GAME.thumbMax;
+  tray.forEach(p=>{
+    if(p.used)return;
+    const d=document.createElement('div');d.className='pc';
+    const s=Math.min(S*.8,cap/Math.max(p.bb.w,p.bb.h));
+    d.innerHTML=`<div class="pi">${psvg(p,s)}</div><div class="pn">${p.name}</div>`;
+    d.addEventListener('pointerdown',e=>grab(e,p,d));
+    el.appendChild(d);p.el=d;
+  });
+}
+function updHud(){$('#score').textContent=score;$('#left').textContent=pieces.filter(p=>!p.done).length}
+function updHint(){$('#hintTxt').textContent='Gợi ý ('+(3-hints)+')'}
+function updTime(){const s=Math.floor((Date.now()-t0)/1000);$('#time').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+function tol(){return CFG[lop].tol*Math.max(cur.W,cur.H)/400}
+let msgT=0;
+function msg(t){const m=$('#msg');m.textContent=t;m.classList.add('on');clearTimeout(msgT);msgT=setTimeout(()=>m.classList.remove('on'),1800)}
+function flash(k){pieces.forEach(s=>{if(s.done||s.k!==k)return;const l=board.querySelector(`[data-l="${s.uid}"]`);
+  if(l){l.classList.add('flash');setTimeout(()=>l.classList.remove('flash'),2600)}})}
+
+/* ===== kéo thả (Pointer Events: chuột + cảm ứng) ===== */
+function grab(e,p,cell){
+  if(drag||won)return;
+  e.preventDefault();
+  const r=cell.querySelector('svg').getBoundingClientRect();
+  const fx=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)),fy=Math.min(1,Math.max(0,(e.clientY-r.top)/r.height));
+  const fl=document.createElement('div');fl.className='float';fl.innerHTML=psvg(p,S);document.body.appendChild(fl);
+  drag={p,cell,fl,w:p.bb.w*S,h:p.bb.h*S,fx,fy,id:e.pointerId,x:0,y:0};
+  mv(e.clientX,e.clientY);cell.classList.add('lifted');tone('pick');
+  addEventListener('pointermove',onMove,{passive:false});addEventListener('pointerup',onUp);addEventListener('pointercancel',onUp);
+}
+function mv(x,y){drag.x=x-drag.fx*drag.w;drag.y=y-drag.fy*drag.h;drag.fl.style.transform=`translate(${drag.x}px,${drag.y}px)`}
+function onMove(e){if(drag&&e.pointerId===drag.id){e.preventDefault();mv(e.clientX,e.clientY)}}
+function unbind(){removeEventListener('pointermove',onMove);removeEventListener('pointerup',onUp);removeEventListener('pointercancel',onUp)}
+function cancelDrag(){if(!drag)return;unbind();drag.fl.remove();drag.cell.classList.remove('lifted');drag=null}
+function onUp(e){
+  if(!drag||e.pointerId!==drag.id)return;
+  unbind();
+  const d=drag;drag=null;
+  if(e.type==='pointercancel')return back(d);
+  const br=board.getBoundingClientRect();
+  const cx=d.x+d.w/2,cy=d.y+d.h/2,bx=(cx-br.left)/S,by=(cy-br.top)/S;
+  if(!d.p.fake){
+    let bs=null,bd=1e9;
+    pieces.forEach(s=>{if(!s.done&&s.k===d.p.k){const q=Math.hypot(s.cx-bx,s.cy-by);if(q<bd){bd=q;bs=s}}});
+    if(bs&&bd<=tol())return place(d,bs);
+  }
+  const inB=(x,y)=>x>br.left&&x<br.right&&y>br.top&&y<br.bottom;
+  if(inB(cx,cy)||inB(e.clientX,e.clientY))wrong(d);else back(d);
+}
+function back(d){
+  const r=d.cell.getBoundingClientRect();
+  d.fl.style.transition='transform .22s ease-in,opacity .22s';
+  d.fl.style.transform=`translate(${r.left+r.width/2-d.w/2}px,${r.top+r.height/2-d.h/2}px) scale(.45)`;d.fl.style.opacity='.3';
+  setTimeout(()=>{d.fl.remove();d.cell.classList.remove('lifted')},230);
+}
+function place(d,s){
+  const br=board.getBoundingClientRect(),tx=br.left+s.bb.x*S,ty=br.top+s.bb.y*S;
+  d.fl.style.transition='transform .15s ease-out';d.fl.style.transform=`translate(${tx}px,${ty}px)`;
+  d.p.used=true;s.done=true;d.cell.remove();
+  const gain=d.p.wc?5:10;score+=gain;
+  setTimeout(()=>{d.fl.remove();
+    const g=board.querySelector(`[data-s="${s.uid}"]`);g.innerHTML=s.markup;g.classList.add('pop');
+    const l=board.querySelector(`[data-l="${s.uid}"]`);if(l)l.remove()},160);
+  const pl=document.createElement('div');pl.className='plus';pl.textContent='+'+gain;
+  pl.style.left=(tx+s.bb.w*S/2-20)+'px';pl.style.top=(ty+s.bb.h*S/2-20)+'px';document.body.appendChild(pl);setTimeout(()=>pl.remove(),950);
+  tone('ok');updHud();
+  if(pieces.every(q=>q.done)){winT=setTimeout(win,450);return}
+  if(!tray.some(p=>!p.used&&!p.fake))return;
+  if(lop<=2)speak(s.name);
+}
+function wrong(d){
+  mistakes++;tone('bad');
+  const p=d.p;
+  if(p.fake)msg(`Mảnh này không phải của ${GAME.of(cur)}!`);
+  else{p.wc++;msg(p.wc>=2?'Nhìn chỗ đang nhấp nháy nhé!':'Chưa đúng chỗ, thử lại nhé!');if(p.wc>=2)flash(p.k)}
+  back(d);setTimeout(()=>{d.cell.classList.add('shake');setTimeout(()=>d.cell.classList.remove('shake'),420)},240);
+}
+$('#hint').onclick=()=>{
+  if(won||!cur)return;
+  if(hints>=3){msg('Hết lượt gợi ý rồi!');return}
+  const rem=tray.filter(p=>!p.used&&!p.fake);if(!rem.length)return;
+  const p=rem[Math.random()*rem.length|0];hints++;updHint();
+  p.el.classList.add('glow');setTimeout(()=>p.el.classList.remove('glow'),2600);
+  try{p.el.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}
+  flash(p.k);
+};
+$('#redo').onclick=()=>startItem(curIdx);
+$('#toGal').onclick=()=>{cancelDrag();clearInterval(timerId);clearTimeout(winT);renderHome();show('home')};
+
+/* ===== hoàn thành ===== */
+function confetti(){
+  const box=$('#conf'),cols=['#f97316','#ec4899','#22c55e','#3b82f6','#eab308','#a855f7'];
+  for(let i=0;i<90;i++){const s=document.createElement('i');s.style.left=Math.random()*100+'vw';s.style.background=cols[i%6];
+    s.style.animationDelay=Math.random()*.6+'s';s.style.animationDuration=1.8+Math.random()*1.4+'s';box.appendChild(s);setTimeout(()=>s.remove(),4000)}
+}
+function win(){
+  if(won)return;won=true;clearInterval(timerId);
+  const st=mistakes<=1?3:mistakes<=4?2:1,key=lop+':'+cur.id;
+  if((best[key]||0)<st){best[key]=st;saveBest()}
+  const ln=board.querySelector('#lines');if(ln)ln.remove();
+  board.classList.add(GAME.kind==='flag'?'wave':'dance');
+  $('#tray').innerHTML='<div class="tray-done">Hoàn thành!</div>';
+  tone('win');confetti();
+  winT=setTimeout(()=>{
+    $('#wstars').innerHTML=starsHTML(st);$('#wpic').innerHTML=fullSVG(cur);
+    $('#wname').textContent=GAME.label(cur);$('#wfact').textContent=GAME.fact(cur);
+    $('#wstat').textContent=`Thời gian ${$('#time').textContent} · Điểm ${score} · Sai ${mistakes} lần`;
+    $('#win').hidden=false;speak('Tuyệt vời! '+GAME.say(cur));
+  },1300);
+}
+$('#wAgain').onclick=()=>startItem(curIdx);
+$('#wNext').onclick=()=>startItem(curIdx+1);
+$('#wList').onclick=()=>{renderHome();show('home')};
+
+addEventListener('resize',()=>{if(!$('#play').hidden&&cur&&!drag){sizeBoard();renderTray()}});
+
+setSound();setBack();renderHome();show('home');
+</script>
+</body>
+</html>

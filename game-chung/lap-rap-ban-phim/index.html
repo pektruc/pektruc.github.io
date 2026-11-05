@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lắp Ráp Bàn Phím</title>
+<style>
+  :root{
+    --sky1:#dff0ff; --sky2:#f6fbff; --ink:#2b3a55;
+    --ok:#25c15c; --no:#ff6b6b; --accent:#f97316; --accent2:#fb923c;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Nunito',sans-serif;
+    background:linear-gradient(160deg,var(--sky1),var(--sky2) 60%,#fff);
+    color:var(--ink); min-height:100vh; overflow-x:hidden;
+    user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  }
+  #app{max-width:1000px;margin:0 auto;padding:12px;min-height:100vh;display:flex;flex-direction:column}
+  .back-home{position:fixed;top:12px;left:12px;z-index:30;color:#3a5170;text-decoration:none;font-size:13px;font-weight:800;
+    background:rgba(255,255,255,.9);padding:8px 14px;border-radius:20px;box-shadow:0 4px 12px rgba(43,58,85,.14)}
+
+  /* ---------- HUD ---------- */
+  #hud{display:flex;align-items:center;gap:8px;background:#fff;border-radius:18px;width:100%;
+    padding:8px 12px;box-shadow:0 6px 18px rgba(43,58,85,.12);margin:44px 0 10px;flex-wrap:wrap}
+  #hud .pill{font-weight:800;font-size:.92rem;background:#fff2e6;color:#d2691e;border-radius:14px;padding:6px 12px;white-space:nowrap}
+  #hud .pill.score{background:#eafaf0;color:#1c9e52}
+  .progress{flex:1;height:14px;background:#e6eefc;border-radius:12px;overflow:hidden;min-width:60px}
+  #progressFill{height:100%;width:0;border-radius:12px;background:linear-gradient(90deg,var(--ok),#3fc46a);transition:width .45s}
+  .hud-btn{border:none;background:#fff2e6;font-size:1.05rem;font-weight:800;color:#d2691e;height:42px;padding:0 12px;border-radius:14px;cursor:pointer;white-space:nowrap}
+  .hud-btn:active{transform:scale(.94)}
+  .hud-btn.off{background:#eef1f6;color:#98a3b5}
+  #soundBtn{width:42px;padding:0}
+
+  /* ---------- Screens ---------- */
+  .screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  h1{font-size:clamp(1.7rem,7vw,2.6rem);line-height:1.1;
+    background:linear-gradient(90deg,#f97316,#a855f7);-webkit-background-clip:text;
+    background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 rgba(255,255,255,.6))}
+  .sub{font-size:clamp(1rem,3.6vw,1.2rem);color:#4a5b78;margin:12px 14px 4px;font-weight:800}
+  .rulecard{background:#fff;border-radius:20px;padding:16px 20px;margin:16px auto 0;max-width:460px;
+    box-shadow:0 8px 20px rgba(43,58,85,.12);text-align:left}
+  .rulecard .r{display:flex;align-items:flex-start;gap:12px;font-weight:700;font-size:1rem;margin:10px 0;color:#3a4a66}
+  .rulecard .r .ic{font-size:1.6rem;flex:0 0 auto;line-height:1}
+  .big-btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:clamp(1.2rem,4.5vw,1.55rem);
+    padding:16px 34px;border-radius:22px;margin-top:24px;
+    background:linear-gradient(180deg,#fbbf5c,#f97316);box-shadow:0 8px 0 #c2570a,0 12px 22px rgba(194,87,10,.4);
+    transition:transform .08s,box-shadow .08s}
+  .big-btn:active{transform:translateY(6px);box-shadow:0 2px 0 #c2570a,0 6px 12px rgba(194,87,10,.4)}
+
+  /* ---------- Play ---------- */
+  #playScreen{justify-content:flex-start}
+  .kbwrap{width:100%;overflow-x:auto;overflow-y:hidden;padding:4px 0 8px;display:flex;justify-content:center}
+  #board{position:relative;background:#232f45;border-radius:14px;padding:9px;flex:0 0 auto;
+    box-shadow:0 12px 26px rgba(20,28,45,.32)}
+  #board.win{animation:kbglow 1.2s ease-in-out infinite}
+  @keyframes kbglow{0%,100%{box-shadow:0 12px 26px rgba(20,28,45,.32)}50%{box-shadow:0 0 34px rgba(76,222,128,.75)}}
+
+  .ktile{position:relative;border-radius:5px;overflow:hidden}
+  .lbl{position:relative;width:100%;height:100%;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:1px;
+    line-height:1;text-align:center;font-weight:800;padding:2px}
+  .lbl .sub{line-height:1;font-weight:700;opacity:.85}
+  .lbl .main{white-space:nowrap}
+
+  .slot{position:absolute;background:#c7d5ea;
+    box-shadow:inset 0 2px 4px rgba(43,58,85,.3),inset 0 0 0 1.5px rgba(43,58,85,.18);border-radius:5px}
+  .slot .main{color:#5b6b8d}
+  .slot .sub{color:#6e7d9c}
+  body.hide-ghost .slot:not(.filled) .lbl{opacity:0}
+  .slot.filled{background:linear-gradient(180deg,#5c6c88,#3a4964);
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.42),inset 0 2px 3px rgba(255,255,255,.14),0 2px 4px rgba(0,0,0,.35)}
+  .slot.filled .main,.slot.filled .sub{color:#fff}
+  .slot.pop{animation:kpop .3s}
+  @keyframes kpop{0%{transform:scale(.55)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+  .slot.want{box-shadow:inset 0 0 0 2px #ffd43b,inset 0 2px 5px rgba(0,0,0,.42);animation:wpulse 1s infinite}
+  @keyframes wpulse{0%,100%{outline-color:transparent}50%{box-shadow:inset 0 0 0 2px #ffe066,inset 0 2px 5px rgba(0,0,0,.42)}}
+  .slot.near{background:#2c4a44;box-shadow:inset 0 0 0 3px #4ade80}
+
+  .tray-label{font-weight:800;color:#5a6b88;font-size:.92rem;margin:8px 0 6px;text-align:center}
+  #tray{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;
+    min-height:64px;max-height:34vh;overflow-y:auto;width:100%;background:#fff;border-radius:16px;padding:12px;
+    box-shadow:0 5px 14px rgba(43,58,85,.1)}
+  #tray .done-msg{color:#8a97ad;font-weight:800}
+  .ttile{cursor:grab;touch-action:none;
+    background:linear-gradient(180deg,#414f66,#2a3850);
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.4),inset 0 2px 3px rgba(255,255,255,.12),0 2px 4px rgba(0,0,0,.28);
+    transition:transform .1s}
+  .ttile .main,.ttile .sub{color:#fff}
+  .ttile:active{cursor:grabbing}
+  .ttile.dragging{opacity:.28}
+  #dragLayer{position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;z-index:60}
+  #dragLayer .ktile{position:absolute;
+    background:linear-gradient(180deg,#4a5a76,#30405c);
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.4),0 8px 18px rgba(0,0,0,.4)}
+  #dragLayer .ktile .main,#dragLayer .ktile .sub{color:#fff}
+
+  .tools{display:flex;gap:10px;justify-content:center;margin:12px 0 4px;width:100%}
+  .tool-btn{border:none;cursor:pointer;font-weight:800;color:#3a4a66;background:#fff;font-size:.95rem;
+    padding:11px 16px;border-radius:16px;box-shadow:0 5px 12px rgba(43,58,85,.12);flex:1;max-width:180px}
+  .tool-btn:active{transform:translateY(2px)}
+  .tool-btn.hi{background:#fff2e6;color:#d2691e}
+
+  /* ---------- Overlay ---------- */
+  .overlay{position:fixed;inset:0;z-index:50;background:rgba(20,28,45,.55);backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .3s}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .fact{background:#fff;border-radius:26px;max-width:420px;width:100%;padding:26px 22px;text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,.4);animation:cardin .45s cubic-bezier(.2,1.3,.5,1)}
+  @keyframes cardin{from{transform:scale(.6) translateY(30px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+  .fact .ribbon{display:inline-block;background:linear-gradient(90deg,#f97316,#a855f7);color:#fff;font-weight:900;
+    font-size:.85rem;padding:6px 18px;border-radius:14px;margin-bottom:12px}
+  .fact .fe{font-size:4.2rem;line-height:1;filter:drop-shadow(0 6px 8px rgba(43,58,85,.2))}
+  .fact h2{font-size:1.6rem;color:#2b3a55;margin:8px 0 4px}
+  .fact p{font-size:1.05rem;line-height:1.5;color:#41506b;margin-bottom:6px}
+  .fact .big-num{font-weight:900;color:var(--accent)}
+  .fact .fbtn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:1.2rem;padding:14px 30px;border-radius:20px;
+    margin-top:18px;background:linear-gradient(180deg,#67e28c,#25c15c);box-shadow:0 7px 0 #189745}
+  .fact .fbtn:active{transform:translateY(5px);box-shadow:0 2px 0 #189745}
+
+  /* ---------- Confetti / floaters ---------- */
+  .confetti{position:fixed;top:-16px;width:12px;height:16px;z-index:70;pointer-events:none;border-radius:2px;
+    animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+  .floater{position:fixed;z-index:70;font-weight:900;font-size:1.5rem;color:#1c9e52;pointer-events:none;
+    text-shadow:0 2px 0 #fff;animation:floatup 1s ease-out forwards}
+  @keyframes floatup{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-80px);opacity:0}}
+
+  .footer{margin-top:auto;text-align:center;color:#8a97ad;font-size:12px;padding-top:16px}
+</style>
+</head>
+<body>
+<a href="../../index.html" class="back-home" onclick="if(history.length>1){history.back();return false;}">← Quay lại</a>
+
+<div id="app">
+
+  <!-- ======= START ======= -->
+  <section id="startScreen" class="screen">
+    <h1>⌨️ Lắp Ráp Bàn Phím</h1>
+    <p class="sub">Tất cả phím bị tháo ra và xáo trộn — em hãy lắp lại thành bàn phím hoàn chỉnh!</p>
+    <div class="rulecard">
+      <div class="r"><span class="ic">🧩</span><span><b>Kéo</b> từng phím từ khay bên dưới <b>thả</b> vào đúng ô trên bàn phím.</span></div>
+      <div class="r"><span class="ic">💡</span><span>Mỗi ô có <b>chữ mờ gợi ý</b>. Bấm nút <b>Gợi ý chữ</b> để tắt và tự nhớ vị trí phím.</span></div>
+      <div class="r"><span class="ic">🏆</span><span>Lắp đủ <b>104 phím</b> là hoàn thành. Đúng liên tiếp được thưởng thêm điểm!</span></div>
+    </div>
+    <button class="big-btn" id="startBtn">Bắt đầu ▶</button>
+  </section>
+
+  <!-- ======= PLAY ======= -->
+  <section id="playScreen" class="screen" hidden>
+    <div id="hud">
+      <span class="pill" id="doneVal">Đã lắp 0/104</span>
+      <div class="progress"><div id="progressFill"></div></div>
+      <span class="pill score" id="scoreVal">⭐ 0</span>
+      <button class="hud-btn" id="ghostBtn">👁 Gợi ý chữ</button>
+      <button class="hud-btn" id="soundBtn" aria-label="Âm thanh">🔊</button>
+    </div>
+    <div class="kbwrap"><div id="board"></div></div>
+    <div class="tray-label">🧱 Khay phím — kéo từng phím lên đúng vị trí</div>
+    <div id="tray"></div>
+    <div class="tools">
+      <button class="tool-btn hi" id="hintBtn">💡 Chỉ chỗ 1 phím</button>
+      <button class="tool-btn" id="resetBtn">🔁 Làm lại</button>
+    </div>
+  </section>
+
+  <footer class="footer">Thiết kế bởi Bùi Thị Phương Trúc · Trường Trung-Tiểu học Pétrus Ký</footer>
+</div>
+
+<div id="dragLayer"></div>
+
+<script>
+/* ============ LAYOUT BÀN PHÍM 104 PHÍM ============
+   Mỗi phím: [x, y, w, main, sub?, h?]  — x,y,w,h tính theo "đơn vị phím" (1U). */
+const RAW=[
+  /* Hàng chức năng (y=0) */
+  [0,0,1,'Esc'],
+  [2,0,1,'F1'],[3,0,1,'F2'],[4,0,1,'F3'],[5,0,1,'F4'],
+  [6.5,0,1,'F5'],[7.5,0,1,'F6'],[8.5,0,1,'F7'],[9.5,0,1,'F8'],
+  [11,0,1,'F9'],[12,0,1,'F10'],[13,0,1,'F11'],[14,0,1,'F12'],
+  [15.5,0,1,'PrtSc'],[16.5,0,1,'ScrLk'],[17.5,0,1,'Pause'],
+  /* Hàng số (y=1.5) */
+  [0,1.5,1,'`','~'],
+  [1,1.5,1,'1','!'],[2,1.5,1,'2','@'],[3,1.5,1,'3','#'],[4,1.5,1,'4','$'],[5,1.5,1,'5','%'],
+  [6,1.5,1,'6','^'],[7,1.5,1,'7','&'],[8,1.5,1,'8','*'],[9,1.5,1,'9','('],[10,1.5,1,'0',')'],
+  [11,1.5,1,'-','_'],[12,1.5,1,'=','+'],
+  [13,1.5,2,'Backspace'],
+  [15.5,1.5,1,'Insert'],[16.5,1.5,1,'Home'],[17.5,1.5,1,'PgUp'],
+  [19,1.5,1,'Num','Lock'],[20,1.5,1,'/'],[21,1.5,1,'*'],[22,1.5,1,'-'],
+  /* Hàng Tab (y=2.5) */
+  [0,2.5,1.5,'Tab'],
+  [1.5,2.5,1,'Q'],[2.5,2.5,1,'W'],[3.5,2.5,1,'E'],[4.5,2.5,1,'R'],[5.5,2.5,1,'T'],
+  [6.5,2.5,1,'Y'],[7.5,2.5,1,'U'],[8.5,2.5,1,'I'],[9.5,2.5,1,'O'],[10.5,2.5,1,'P'],
+  [11.5,2.5,1,'[','{'],[12.5,2.5,1,']','}'],
+  [13.5,2.5,1.5,'\\','|'],
+  [15.5,2.5,1,'Delete'],[16.5,2.5,1,'End'],[17.5,2.5,1,'PgDn'],
+  [19,2.5,1,'7','Home'],[20,2.5,1,'8','↑'],[21,2.5,1,'9','PgUp'],[22,2.5,1,'+','',2],
+  /* Hàng Caps (y=3.5) */
+  [0,3.5,1.75,'Caps','Lock'],
+  [1.75,3.5,1,'A'],[2.75,3.5,1,'S'],[3.75,3.5,1,'D'],[4.75,3.5,1,'F'],[5.75,3.5,1,'G'],
+  [6.75,3.5,1,'H'],[7.75,3.5,1,'J'],[8.75,3.5,1,'K'],[9.75,3.5,1,'L'],
+  [10.75,3.5,1,';',':'],[11.75,3.5,1,"'",'"'],
+  [12.75,3.5,2.25,'Enter'],
+  [19,3.5,1,'4','←'],[20,3.5,1,'5'],[21,3.5,1,'6','→'],
+  /* Hàng Shift (y=4.5) */
+  [0,4.5,2.25,'Shift'],
+  [2.25,4.5,1,'Z'],[3.25,4.5,1,'X'],[4.25,4.5,1,'C'],[5.25,4.5,1,'V'],[6.25,4.5,1,'B'],
+  [7.25,4.5,1,'N'],[8.25,4.5,1,'M'],
+  [9.25,4.5,1,',','<'],[10.25,4.5,1,'.','>'],[11.25,4.5,1,'/','?'],
+  [12.25,4.5,2.75,'Shift'],
+  [16.5,4.5,1,'↑'],
+  [19,4.5,1,'1','End'],[20,4.5,1,'2','↓'],[21,4.5,1,'3','PgDn'],[22,4.5,1,'Enter','',2],
+  /* Hàng dưới (y=5.5) */
+  [0,5.5,1.25,'Ctrl'],[1.25,5.5,1.25,'Win'],[2.5,5.5,1.25,'Alt'],
+  [3.75,5.5,6.25,'Space'],
+  [10,5.5,1.25,'Alt'],[11.25,5.5,1.25,'Win'],[12.5,5.5,1.25,'Menu'],[13.75,5.5,1.25,'Ctrl'],
+  [15.5,5.5,1,'←'],[16.5,5.5,1,'↓'],[17.5,5.5,1,'→'],
+  [19,5.5,2,'0','Ins'],[21,5.5,1,'.','Del'],
+];
+const COLS=23, ROWS_H=6.5;
+
+/* Dựng danh sách phím + "match": phím trùng cả (w,h,main,sub) mới thay thế được cho nhau
+   (2 Ctrl / 2 Alt / 2 Win) — còn lại mỗi phím một ô. */
+const KEYS=RAW.map((e,i)=>{
+  const x=e[0],y=e[1],w=e[2],main=e[3],sub=e[4]||'',h=e[5]||1;
+  return {i,x,y,w,h,main,sub,match:w+'_'+h+'_'+main+'_'+sub,placed:false};
+});
+
+/* ============ TRẠNG THÁI ============ */
+const $=id=>document.getElementById(id);
+const board=()=>$('board');
+let U=30, soundOn=true, hideGhost=false;
+let slotEl=[], slotFilled=[], trayOrder=[];
+let score=0, placedCount=0, streak=0;
+
+/* ============ ÂM THANH ============ */
+let AC=null;
+function ac(){ if(!AC){ try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } return AC; }
+function beep(freqs,dur,type,gain){
+  if(!soundOn) return; const c=ac(); if(!c) return;
+  if(c.state==='suspended') c.resume();
+  freqs.forEach((f,i)=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type=type||'sine'; o.frequency.value=f;
+    const t0=c.currentTime+i*0.08;
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.exponentialRampToValueAtTime(gain||0.18,t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+(dur||0.2));
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+(dur||0.2)+0.02);
+  });
+}
+const sndSnap =()=>beep([620,880],0.12,'sine',0.18);
+const sndTap  =()=>beep([440],0.05,'sine',0.09);
+const sndWrong=()=>beep([240,180],0.16,'sawtooth',0.12);
+const sndWin  =()=>beep([523,659,784,1046,1318],0.2,'triangle',0.2);
+const sndBack =()=>beep([392,294],0.1,'sine',0.1);
+function speak(text){
+  if(!soundOn) return;
+  try{
+    const synth=window.speechSynthesis; if(!synth) return;
+    synth.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='vi-VN'; u.rate=0.95; u.pitch=1.05;
+    const v=synth.getVoices().find(x=>/vi/i.test(x.lang));
+    if(v) u.voice=v;
+    synth.speak(u);
+  }catch(e){}
+}
+
+/* ============ TIỆN ÍCH ============ */
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function confetti(){
+  const cols=['#ff6b6b','#4dabf7','#51cf66','#ffd43b','#c77dff','#ff922b'];
+  for(let i=0;i<80;i++){
+    const c=document.createElement('div'); c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=cols[i%cols.length];
+    c.style.animationDuration=(1.6+Math.random()*1.6)+'s';
+    c.style.transform='rotate('+Math.random()*360+'deg)';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),3400);
+  }
+}
+function floater(txt,x,y){
+  const f=document.createElement('div'); f.className='floater'; f.textContent=txt;
+  f.style.left=(x||innerWidth/2)+'px'; f.style.top=(y||innerHeight/2)+'px';
+  document.body.appendChild(f); setTimeout(()=>f.remove(),1000);
+}
+
+/* ============ DỰNG PHÍM ============ */
+function computeU(){
+  const avail=Math.min(innerWidth-24, 980);
+  return Math.max(24, Math.min(42, Math.floor(avail/COLS)));
+}
+function keyTile(k){
+  const el=document.createElement('div');
+  el.className='ktile';
+  el.style.width=(k.w*U)+'px'; el.style.height=(k.h*U)+'px';
+  const long=k.main.length>2;
+  const mfs=long?Math.max(7,Math.round(U*0.27)):Math.round(U*0.46);
+  const sfs=Math.max(6,Math.round(U*0.24));
+  el.innerHTML='<span class="lbl">'+
+    (k.sub?'<span class="sub" style="font-size:'+sfs+'px">'+esc(k.sub)+'</span>':'')+
+    '<span class="main" style="font-size:'+mfs+'px">'+esc(k.main)+'</span></span>';
+  return el;
+}
+function buildBoard(){
+  const b=board();
+  b.style.width=(COLS*U)+'px'; b.style.height=(ROWS_H*U)+'px';
+  b.innerHTML=''; slotEl=[]; slotFilled=[];
+  KEYS.forEach((k,i)=>{
+    const s=keyTile(k);
+    s.classList.add('slot');
+    s.style.left=(k.x*U)+'px'; s.style.top=(k.y*U)+'px';
+    s.dataset.idx=i;
+    b.appendChild(s);
+    slotEl[i]=s; slotFilled[i]=false;
+  });
+}
+function buildTray(){
+  const tray=$('tray'); tray.innerHTML='';
+  const rem=trayOrder.filter(i=>!KEYS[i].placed);
+  if(!rem.length){ tray.innerHTML='<div class="done-msg">✨ Đã lắp xong hết phím!</div>'; return; }
+  rem.forEach(i=>{
+    const t=keyTile(KEYS[i]);
+    t.classList.add('ttile'); t.dataset.idx=i;
+    attachDrag(t,KEYS[i]);
+    tray.appendChild(t);
+  });
+}
+function relayout(){
+  U=computeU();
+  buildBoard();
+  KEYS.forEach((k,i)=>{ if(k.placed){ slotFilled[i]=true; slotEl[i].classList.add('filled'); } });
+  buildTray();
+}
+
+/* ============ KÉO – THẢ ============ */
+function markWant(key){
+  if(hideGhost) return;
+  KEYS.forEach((k,i)=>{ if(!slotFilled[i]&&k.match===key.match) slotEl[i].classList.add('want'); });
+}
+function clearHi(){ slotEl.forEach(s=>s&&s.classList.remove('want','near')); }
+function nearestSlot(floatEl,key){
+  const fr=floatEl.getBoundingClientRect();
+  const fcx=fr.left+fr.width/2, fcy=fr.top+fr.height/2;
+  const br=board().getBoundingClientRect();
+  let best=-1,bd=1e9;
+  KEYS.forEach((k,i)=>{
+    if(slotFilled[i]||k.match!==key.match) return;
+    const scx=br.left+k.x*U+k.w*U/2, scy=br.top+k.y*U+k.h*U/2;
+    const d=Math.hypot(scx-fcx,scy-fcy);
+    if(d<bd){ bd=d; best=i; }
+  });
+  return {idx:best,dist:bd};
+}
+function attachDrag(tile,key){
+  let grabX=0,grabY=0,floatEl=null,lastNear=-1;
+  const onDown=e=>{
+    if(key.placed) return;
+    e.preventDefault();
+    const r=tile.getBoundingClientRect();
+    grabX=e.clientX-r.left; grabY=e.clientY-r.top;
+    floatEl=keyTile(key); $('dragLayer').appendChild(floatEl);
+    tile.classList.add('dragging');
+    markWant(key);
+    move(e);
+    window.addEventListener('pointermove',onMove);
+    window.addEventListener('pointerup',onUp);
+  };
+  const move=e=>{
+    floatEl.style.left=(e.clientX-grabX)+'px';
+    floatEl.style.top=(e.clientY-grabY)+'px';
+    const n=nearestSlot(floatEl,key);
+    if(lastNear>=0 && slotEl[lastNear]) slotEl[lastNear].classList.remove('near');
+    if(n.idx>=0 && n.dist<U*1.3){ slotEl[n.idx].classList.add('near'); lastNear=n.idx; }
+    else lastNear=-1;
+  };
+  const onMove=e=>{ if(floatEl) move(e); };
+  const onUp=e=>{
+    window.removeEventListener('pointermove',onMove);
+    window.removeEventListener('pointerup',onUp);
+    const n=floatEl?nearestSlot(floatEl,key):{idx:-1,dist:1e9};
+    if(floatEl){ floatEl.remove(); floatEl=null; }
+    tile.classList.remove('dragging');
+    clearHi();
+    if(n.idx>=0 && n.dist<U*1.3) placeKey(key,n.idx,tile);
+    else wrongDrop();
+  };
+  tile.addEventListener('pointerdown',onDown);
+}
+function placeKey(key,idx,tile){
+  slotFilled[idx]=true; key.placed=true;
+  const s=slotEl[idx];
+  s.classList.add('filled','pop');
+  setTimeout(()=>s.classList.remove('pop'),300);
+  tile.remove();
+  placedCount++; streak++;
+  const gain=10+Math.min(streak-1,5)*2;
+  score+=gain;
+  const r=s.getBoundingClientRect();
+  floater('+'+gain, r.left+r.width/2, r.top);
+  sndSnap(); updateHud();
+  if(streak>=5 && streak%5===0) speak('Chuỗi '+streak+' phím đúng liên tiếp, giỏi lắm!');
+  if(!$('tray').querySelector('.ttile')) $('tray').innerHTML='<div class="done-msg">✨ Đã lắp xong hết phím!</div>';
+  if(placedCount>=KEYS.length) setTimeout(win,320);
+}
+function wrongDrop(){ streak=0; sndWrong(); }
+
+/* ============ HUD ============ */
+function updateHud(){
+  $('doneVal').textContent='Đã lắp '+placedCount+'/'+KEYS.length;
+  $('scoreVal').textContent='⭐ '+score;
+  $('progressFill').style.width=(placedCount/KEYS.length*100)+'%';
+}
+
+/* ============ HOÀN THÀNH ============ */
+function win(){
+  board().classList.add('win');
+  sndWin(); confetti(); setTimeout(confetti,300); setTimeout(confetti,600);
+  const ov=document.createElement('div'); ov.className='overlay';
+  ov.innerHTML=
+    '<div class="fact">'+
+      '<div class="ribbon">🏆 HOÀN THÀNH</div>'+
+      '<div class="fe">⌨️🎉</div>'+
+      '<h2>Em đã lắp xong bàn phím!</h2>'+
+      '<p>Giỏi lắm! Em đã ráp đủ <b>104 phím</b> vào đúng vị trí.</p>'+
+      '<p>Điểm của em: <span class="big-num">⭐ '+score+'</span></p>'+
+      '<button class="fbtn" id="replayBtn">Chơi lại 🔁</button>'+
+    '</div>';
+  document.body.appendChild(ov);
+  speak('Hoan hô! Em đã lắp xong bàn phím rồi. Được '+score+' điểm.');
+  $('replayBtn').addEventListener('click',()=>{ ov.remove(); newGame(); });
+}
+
+/* ============ GỢI Ý / LÀM LẠI ============ */
+function hint(){
+  sndTap();
+  const idx=KEYS.findIndex((k,i)=>!slotFilled[i]);
+  if(idx<0) return;
+  const s=slotEl[idx];
+  s.classList.add('near'); setTimeout(()=>s.classList.remove('near'),1300);
+}
+function newGame(){
+  KEYS.forEach(k=>k.placed=false);
+  score=0; placedCount=0; streak=0;
+  board().classList.remove('win');
+  trayOrder=shuffle(KEYS.map(k=>k.i));
+  relayout(); updateHud();
+}
+
+/* ============ SỰ KIỆN ============ */
+$('startBtn').addEventListener('click',()=>{
+  ac();
+  if(window.speechSynthesis){ try{ window.speechSynthesis.getVoices(); }catch(e){} }
+  $('startScreen').hidden=true;
+  $('playScreen').hidden=false;
+  newGame();
+  speak('Hãy kéo từng phím vào đúng vị trí để lắp lại bàn phím nhé!');
+});
+$('ghostBtn').addEventListener('click',()=>{
+  hideGhost=!hideGhost;
+  document.body.classList.toggle('hide-ghost',hideGhost);
+  const b=$('ghostBtn');
+  b.classList.toggle('off',hideGhost);
+  b.textContent=hideGhost?'🙈 Gợi ý chữ':'👁 Gợi ý chữ';
+  sndTap();
+});
+$('hintBtn').addEventListener('click',hint);
+$('resetBtn').addEventListener('click',()=>{ sndBack(); newGame(); });
+$('soundBtn').addEventListener('click',()=>{
+  soundOn=!soundOn; $('soundBtn').textContent=soundOn?'🔊':'🔇';
+  if(!soundOn&&window.speechSynthesis){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  if(soundOn) sndTap();
+});
+if(window.speechSynthesis){ window.speechSynthesis.onvoiceschanged=()=>{}; }
+let rzT=null;
+window.addEventListener('resize',()=>{
+  if($('playScreen').hidden) return;
+  clearTimeout(rzT); rzT=setTimeout(relayout,200);
+});
+</script>
+</body>
+</html>
