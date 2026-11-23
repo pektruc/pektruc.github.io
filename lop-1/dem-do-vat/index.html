@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Đếm Đồ Vật (Lớp 1)</title>
+<style>
+  :root{ --ink:#2b3a55; --red:#ef4444; }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Nunito',sans-serif;
+    background:linear-gradient(160deg,#dbeafe,#eff6ff 45%,#fdf4ff);color:var(--ink);min-height:100vh;
+    overflow-x:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;padding:12px}
+  #app{max-width:940px;margin:0 auto}
+  .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .back{color:#3d5273;text-decoration:none;font-weight:700;font-size:.95rem;background:#fff;padding:8px 14px;border-radius:16px;box-shadow:0 3px 8px rgba(43,58,85,.1)}
+  .prog{margin-left:auto;font-weight:800;background:#fff;border-radius:14px;padding:6px 14px;box-shadow:0 3px 8px rgba(43,58,85,.1)}
+  .score{font-weight:800;background:#fff;border-radius:14px;padding:6px 14px;box-shadow:0 3px 8px rgba(43,58,85,.1);color:#d97706}
+  #sound{border:none;background:#fff;font-size:1.2rem;width:42px;height:42px;border-radius:14px;cursor:pointer;box-shadow:0 3px 8px rgba(43,58,85,.1)}
+  h1{font-size:clamp(1.4rem,4.6vw,2.1rem);text-align:center;margin:6px 0 2px;
+    background:linear-gradient(90deg,#2563eb,#db2777);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* ===== Start screen ===== */
+  .center{text-align:center;padding:24px 10px}
+  .center .big-emoji{font-size:clamp(4rem,18vw,7rem);line-height:1;margin:8px 0}
+  .center p{color:#475569;font-weight:700;font-size:clamp(1rem,3.6vw,1.25rem);max-width:560px;margin:8px auto 4px}
+  .btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:clamp(1.1rem,4vw,1.4rem);padding:15px 34px;border-radius:20px;margin-top:16px;
+    background:linear-gradient(180deg,#67a8ff,#2563eb);box-shadow:0 7px 0 #1d4ed8}
+  .btn:active{transform:translateY(4px);box-shadow:0 3px 0 #1d4ed8}
+  .btn.green{background:linear-gradient(180deg,#67e28c,#25c15c);box-shadow:0 7px 0 #189745}
+  .btn.green:active{box-shadow:0 3px 0 #189745}
+
+  /* ===== Prompt ===== */
+  .prompt{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
+    background:#fff;border-radius:22px;padding:12px 18px;margin:8px auto 12px;max-width:640px;box-shadow:0 6px 16px rgba(43,58,85,.12);text-align:center}
+  .prompt .txt{font-weight:800;font-size:clamp(1.1rem,4vw,1.5rem);color:#334155}
+  .prompt .num{font-weight:900;color:#fff;background:linear-gradient(180deg,#fbbf24,#f59e0b);
+    min-width:1.7em;height:1.7em;line-height:1.7em;text-align:center;border-radius:16px;padding:0 .18em;
+    font-size:clamp(1.9rem,8vw,3rem);box-shadow:0 4px 0 #d97706;display:inline-block}
+  .prompt .obj{font-weight:900;color:#db2777}
+  .prompt .say{border:none;background:#fef3c7;font-size:1.3rem;width:44px;height:44px;border-radius:14px;cursor:pointer;flex:0 0 auto}
+
+  /* ===== Layout ===== */
+  .board{display:grid;grid-template-columns:1fr 240px;gap:14px;align-items:start}
+  @media(max-width:680px){.board{grid-template-columns:1fr}}
+
+  .field{position:relative;background:rgba(255,255,255,.55);border-radius:22px;min-height:340px;padding:6px;overflow:hidden}
+  @media(max-width:680px){.field{min-height:300px}}
+  .obj-item{position:absolute;font-size:clamp(2.2rem,7vw,2.9rem);cursor:grab;touch-action:none;line-height:1;
+    filter:drop-shadow(0 3px 4px rgba(43,58,85,.22));transition:transform .1s}
+  .obj-item:active{cursor:grabbing}
+  .obj-item.dragging{opacity:.25}
+  .obj-item.wrong{animation:shake .4s}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+  #ghost{position:fixed;z-index:999;pointer-events:none;transform:translate(-50%,-50%) scale(1.15);
+    font-size:clamp(2.4rem,7.5vw,3.1rem);filter:drop-shadow(0 10px 14px rgba(43,58,85,.35))}
+
+  .box-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .box{width:100%;min-height:200px;background:#fff;border-radius:24px;border:5px dashed #93c5fd;
+    display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;padding:14px;transition:transform .12s,border-color .12s,background .12s}
+  .box.over{transform:scale(1.03);border-color:#2563eb;background:#eff6ff}
+  .box .drop-item{font-size:clamp(1.6rem,5vw,2.1rem);line-height:1;animation:pop .3s;cursor:grab;touch-action:none}
+  .box-label{font-weight:800;color:#2563eb;font-size:1rem;text-align:center}
+  .count-pill{font-weight:900;font-size:clamp(1.6rem,6vw,2.2rem);color:#fff;
+    background:linear-gradient(180deg,#38bdf8,#2563eb);border-radius:18px;padding:4px 20px;box-shadow:0 5px 0 #1d4ed8}
+  .count-pill b{font-size:1.15em}
+  .hint{color:#64748b;font-weight:700;font-size:.9rem;text-align:center;max-width:230px}
+
+  @keyframes pop{0%{transform:scale(.5)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+  /* ===== Robot overlay ===== */
+  .overlay{position:fixed;inset:0;background:rgba(30,41,59,.45);display:flex;align-items:center;justify-content:center;z-index:800;padding:16px}
+  .robot-card{background:#fff;border-radius:28px;padding:26px 30px;text-align:center;max-width:420px;box-shadow:0 20px 50px rgba(0,0,0,.3);animation:zoom .35s}
+  @keyframes zoom{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+  .robot{font-size:clamp(4.5rem,20vw,7rem);line-height:1;animation:bounce .6s infinite alternate}
+  @keyframes bounce{0%{transform:translateY(0) rotate(-4deg)}100%{transform:translateY(-14px) rotate(4deg)}}
+  .robot-card .msg{font-weight:900;font-size:clamp(1.3rem,5vw,1.8rem);color:#16a34a;margin:6px 0}
+  .robot-card .sub{font-weight:700;color:#475569;font-size:1.05rem}
+  .robot-card .plus{font-weight:900;color:#f59e0b;font-size:1.3rem;margin-top:4px}
+
+  .burst{position:fixed;z-index:900;pointer-events:none;font-size:1.6rem;animation:fly 1s ease-out forwards}
+  @keyframes fly{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3)}}
+
+  .credit{text-align:center;color:#6b7c99;font-size:.82rem;padding:16px 0 4px;font-weight:600}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <a class="back" href="../index.html">← Lớp 1</a>
+    <span class="prog">Màn <span id="lvl">1</span>/<span id="lvlTotal">15</span></span>
+    <span class="score">⭐ <span id="score">0</span></span>
+    <button id="sound" title="Bật/tắt âm thanh">🔊</button>
+  </div>
+  <h1>🔢 Đếm Đồ Vật</h1>
+
+  <!-- Start screen -->
+  <div id="start" class="center">
+    <div class="big-emoji">🤖🌟🎈</div>
+    <p>Kéo <b>đúng số lượng</b> đồ vật vào ô nhé! Bạn Rô-bốt sẽ khen em khi đếm đúng.</p>
+    <button class="btn" id="startBtn">Thực hiện nhiệm vụ</button>
+  </div>
+
+  <!-- Play area -->
+  <div id="play" hidden>
+    <div class="prompt">
+      <span class="txt">Kéo</span>
+      <span class="num" id="pNum">7</span>
+      <span class="txt"><span class="obj" id="pObj">ngôi sao</span> vào ô</span>
+      <button class="say" id="sayBtn" title="Đọc yêu cầu">🔈</button>
+    </div>
+    <div class="board">
+      <div class="field" id="field"></div>
+      <div class="box-wrap">
+        <div class="box-label">Thả vào đây 👇</div>
+        <div class="box" id="box"></div>
+        <div class="count-pill">Đã có: <b id="cnt">0</b>/<span id="need">7</span></div>
+        <div class="hint">Thả nhầm cứ kéo ra lại. Đủ số là bạn Rô-bốt xuất hiện!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Win screen -->
+  <div id="win" class="center" hidden>
+    <div class="big-emoji">🏆🤖🎉</div>
+    <p id="winMsg">Tuyệt vời! Em đã hoàn thành cả 15 màn đếm đồ vật!</p>
+    <p class="score" style="display:inline-block;margin-top:6px">Tổng điểm: <span id="winScore">0</span> ⭐</p>
+    <br>
+    <button class="btn green" id="replayBtn">🔄 Chơi lại</button>
+  </div>
+
+  <p class="credit">Thiết kế bởi Bùi Thị Phương Trúc · Trường Trung-Tiểu học Pétrus Ký</p>
+</div>
+
+<script>
+/* ===== Object catalogue: emoji + Vietnamese name ===== */
+const OBJECTS=[
+  {em:'⭐', name:'ngôi sao'},
+  {em:'☀️', name:'mặt trời'},
+  {em:'🌸', name:'bông hoa'},
+  {em:'🎈', name:'bong bóng'},
+  {em:'✈️', name:'máy bay'},
+  {em:'🍎', name:'quả táo'},
+  {em:'🐱', name:'con mèo'},
+  {em:'🦋', name:'con bướm'},
+  {em:'🐟', name:'con cá'},
+  {em:'🌈', name:'cầu vồng'},
+];
+const TOTAL_LEVELS=15;
+
+/* ===== Sound ===== */
+let soundOn=true,actx=null;
+function ensa(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}}
+function tone(k){if(!soundOn)return;ensa();if(!actx)return;const n=actx.currentTime;
+  const F=k==='good'?[660,880,1180]:k==='drop'?[520,760]:k==='win'?[660,880,1100,1320,1560,1760]:[200,150];
+  F.forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type=k==='bad'?'sawtooth':'triangle';o.frequency.value=f;
+    const t=n+i*0.09;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.15);
+    o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.17);});}
+let viVoice=null;function pv(){const vs=window.speechSynthesis?speechSynthesis.getVoices():[];viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||null;}
+if(window.speechSynthesis){pv();speechSynthesis.onvoiceschanged=pv;}
+function speak(t){if(!soundOn||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=.95;u.pitch=1.15;speechSynthesis.speak(u);}catch(e){}}
+
+/* ===== State ===== */
+let level=1, score=0, target=0, curObj=null, inBox=0, finishing=false;
+const $=id=>document.getElementById(id);
+const field=$('field'), box=$('box');
+
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* Non-overlapping-ish scatter within the field */
+function placedPositions(count){
+  const fw=field.clientWidth||620, fh=field.clientHeight||340;
+  const pad=14, cell=64; // approx emoji footprint
+  const cols=Math.max(1,Math.floor((fw-pad*2)/cell));
+  const rows=Math.max(1,Math.floor((fh-pad*2)/cell));
+  let slots=[];
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)slots.push([c,r]);
+  slots=shuffle(slots).slice(0,count);
+  return slots.map(([c,r])=>({
+    x: pad + c*cell + rnd(0,14),
+    y: pad + r*cell + rnd(0,14)
+  }));
+}
+
+function newLevel(){
+  finishing=false; inBox=0;
+  target=rnd(5,15);
+  curObj=OBJECTS[rnd(0,OBJECTS.length-1)];
+  // distractors: 2-4 other types
+  const others=shuffle(OBJECTS.filter(o=>o.name!==curObj.name)).slice(0,rnd(2,3));
+
+  // Build the list: exactly `target` correct + a few of each distractor
+  const items=[];
+  for(let i=0;i<target;i++) items.push({em:curObj.em,name:curObj.name,correct:true});
+  others.forEach(o=>{const k=rnd(2,3);for(let i=0;i<k;i++) items.push({em:o.em,name:o.name,correct:false});});
+  const list=shuffle(items);
+
+  // Render prompt
+  $('lvl').textContent=level;
+  $('pNum').textContent=target;
+  $('pObj').textContent=curObj.name;
+  $('need').textContent=target;
+  $('cnt').textContent=0;
+
+  // Scatter
+  field.innerHTML=''; box.innerHTML='';
+  const pos=placedPositions(list.length);
+  list.forEach((it,i)=>{
+    const el=document.createElement('div');
+    el.className='obj-item'; el.textContent=it.em;
+    el.dataset.name=it.name; el.dataset.em=it.em; el.dataset.correct=it.correct?'1':'0';
+    const p=pos[i]||{x:rnd(10,540),y:rnd(10,280)};
+    el.style.left=p.x+'px'; el.style.top=p.y+'px';
+    field.appendChild(el);
+  });
+}
+
+function speakPrompt(){ speak('Kéo '+target+' '+curObj.name+' vào ô'); }
+
+/* ===== Drag (pointer events), works from field AND from box (pull back out) ===== */
+let drag=null, ghost=null;
+
+function startDrag(el,e,fromBox){
+  e.preventDefault();
+  drag={el, name:el.dataset.name, em:el.dataset.em, correct:el.dataset.correct==='1', fromBox};
+  el.classList.add('dragging');
+  ghost=document.createElement('div'); ghost.id='ghost'; ghost.textContent=el.dataset.em; document.body.appendChild(ghost);
+  mv(e.clientX,e.clientY);
+  window.addEventListener('pointermove',onMove); window.addEventListener('pointerup',onUp);
+}
+field.addEventListener('pointerdown',e=>{const el=e.target.closest('.obj-item'); if(el) startDrag(el,e,false);});
+box.addEventListener('pointerdown',e=>{const el=e.target.closest('.drop-item'); if(el) startDrag(el,e,true);});
+
+function mv(x,y){if(ghost){ghost.style.left=x+'px';ghost.style.top=y+'px';}}
+function elUnder(x,y){if(ghost)ghost.style.display='none';const el=document.elementFromPoint(x,y);if(ghost)ghost.style.display='';return el;}
+function onMove(e){
+  if(!drag)return; mv(e.clientX,e.clientY);
+  const el=elUnder(e.clientX,e.clientY);
+  const overBox=el&&el.closest&&el.closest('#box');
+  box.classList.toggle('over',!!overBox);
+}
+function onUp(e){
+  window.removeEventListener('pointermove',onMove); window.removeEventListener('pointerup',onUp);
+  const under=elUnder(e.clientX,e.clientY);
+  if(ghost){ghost.remove();ghost=null;}
+  box.classList.remove('over');
+  if(!drag){return;}
+  const el=drag.el; el.classList.remove('dragging');
+  const overBox=under&&under.closest&&under.closest('#box');
+  const overField=under&&under.closest&&under.closest('#field');
+
+  if(!drag.fromBox){
+    // dragging FROM field
+    if(overBox){
+      if(drag.correct){ moveToBox(el); }
+      else { rejectWrong(el); }
+    }
+    // else: stays where it is (already positioned)
+  } else {
+    // dragging FROM box back out -> to field
+    if(overField || !overBox){ moveToField(el); }
+    // else: dropped back inside box, leave it
+  }
+  drag=null;
+}
+
+function moveToBox(el){
+  el.remove();
+  const d=document.createElement('div');
+  d.className='drop-item'; d.textContent=el.dataset.em;
+  d.dataset.name=el.dataset.name; d.dataset.em=el.dataset.em; d.dataset.correct='1';
+  box.appendChild(d);
+  inBox++; $('cnt').textContent=inBox; tone('drop'); spark(d);
+  checkWin();
+}
+function moveToField(el){
+  el.remove();
+  const it=document.createElement('div');
+  it.className='obj-item'; it.textContent=el.dataset.em;
+  it.dataset.name=el.dataset.name; it.dataset.em=el.dataset.em; it.dataset.correct='1';
+  const p=placedPositions(1)[0]||{x:rnd(10,500),y:rnd(10,260)};
+  it.style.left=p.x+'px'; it.style.top=p.y+'px';
+  field.appendChild(it);
+  inBox=Math.max(0,inBox-1); $('cnt').textContent=inBox; tone('bad');
+}
+function rejectWrong(el){
+  el.classList.add('wrong'); tone('bad');
+  speak('Chưa đúng, đây là '+el.dataset.name);
+  setTimeout(()=>el&&el.classList.remove('wrong'),450);
+}
+
+function checkWin(){
+  if(finishing) return;
+  if(inBox===target){
+    finishing=true;
+    score+=10; $('score').textContent=score;
+    tone('good'); confettiBurst();
+    setTimeout(showRobot,250);
+  }
+}
+
+/* ===== Robot celebration ===== */
+function showRobot(){
+  const ov=document.createElement('div'); ov.className='overlay';
+  ov.innerHTML='<div class="robot-card"><div class="robot">🤖</div>'
+    +'<div class="msg">Chính xác! 🎉</div>'
+    +'<div class="sub">Em đã đếm đúng '+target+' '+curObj.name+'!</div>'
+    +'<div class="plus">+10 điểm ⭐</div></div>';
+  document.body.appendChild(ov);
+  speak('Chính xác! Em đã đếm đúng '+target+' '+curObj.name+'. Cộng mười điểm!');
+  setTimeout(()=>{
+    ov.remove();
+    if(level>=TOTAL_LEVELS){ showWin(); }
+    else { level++; newLevel(); }
+  },1700);
+}
+
+function showWin(){
+  $('play').hidden=true;
+  $('win').hidden=false;
+  $('winScore').textContent=score;
+  tone('win');
+  speak('Xuất sắc! Em đã hoàn thành cả mười lăm màn. Tổng điểm '+score+'.');
+}
+
+/* ===== Effects ===== */
+function spark(el){const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,ic=['✨','⭐'];
+  for(let i=0;i<5;i++){const s=document.createElement('div');s.className='burst';s.textContent=ic[i%ic.length];s.style.left=cx+'px';s.style.top=cy+'px';
+    const a=Math.PI*2*i/5,d=28+Math.random()*22;s.style.setProperty('--dx',Math.cos(a)*d+'px');s.style.setProperty('--dy',(Math.sin(a)*d-10)+'px');
+    document.body.appendChild(s);setTimeout(()=>s.remove(),1000);}}
+function confettiBurst(){const cx=innerWidth/2,cy=innerHeight/2,ic=['⭐','✨','🌟','🎉','🎈','🌈'];
+  for(let i=0;i<26;i++){const s=document.createElement('div');s.className='burst';s.textContent=ic[i%ic.length];s.style.left=cx+'px';s.style.top=cy+'px';
+    const a=Math.PI*2*i/26,d=90+Math.random()*140;s.style.setProperty('--dx',Math.cos(a)*d+'px');s.style.setProperty('--dy',(Math.sin(a)*d-30)+'px');
+    document.body.appendChild(s);setTimeout(()=>s.remove(),1000);}}
+
+/* ===== Flow ===== */
+function startGame(){
+  level=1; score=0; $('score').textContent=0;
+  $('start').hidden=true; $('win').hidden=true; $('play').hidden=false;
+  newLevel();
+  setTimeout(speakPrompt,300);
+}
+
+$('startBtn').addEventListener('click',startGame);
+$('replayBtn').addEventListener('click',startGame);
+$('sayBtn').addEventListener('click',speakPrompt);
+$('sound').addEventListener('click',()=>{soundOn=!soundOn;$('sound').textContent=soundOn?'🔊':'🔇';if(!soundOn&&window.speechSynthesis)speechSynthesis.cancel();});
+</script>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nối Hình</title>
+<style>
+  :root{--sky1:#66b3ff;--sky2:#3d8bef;--green:#2fbf71;--ink:#1c3d63}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  .hide{display:none !important}
+  html,body{margin:0;padding:0;height:100%}
+  body{font-family:-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#fff;
+    background:linear-gradient(180deg,#7ec0ff 0%,#4a97f2 55%,#3f83e6 100%);min-height:100%;overflow-x:hidden;user-select:none;touch-action:manipulation}
+  .top{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:center;z-index:20}
+  .backb{position:fixed;top:12px;left:12px;z-index:30;background:none;border:none;cursor:pointer;padding:6px}
+  .backb svg{display:block}
+  .starcount{display:flex;align-items:center;gap:8px;background:#1c3d63;border-radius:20px;padding:5px 16px 5px 6px;font-weight:800}
+  .wrap{max-width:560px;margin:0 auto;padding:64px 16px 24px;display:flex;flex-direction:column;align-items:center}
+
+  .screen{width:100%;display:none;flex-direction:column;align-items:center;gap:20px}
+  .screen.on{display:flex}
+
+  h1{font-size:2.6rem;font-weight:900;text-align:center;line-height:1.05;margin:30px 0 0;color:#fff;
+    text-shadow:0 3px 0 #2f6bc0,0 6px 10px rgba(0,0,0,.2);letter-spacing:1px}
+  .pill-btn{border:none;cursor:pointer;background:linear-gradient(180deg,#ffd84d,#f5c02a);color:#1f6b3a;font-weight:900;
+    font-size:1.3rem;padding:14px 40px;border-radius:40px;box-shadow:0 6px 0 #cf9c17,0 10px 18px rgba(0,0,0,.2);text-align:center;line-height:1.2}
+  .pill-btn small{display:block;font-size:.85rem;font-weight:800;opacity:.9}
+  .pill-btn:active{transform:translateY(3px);box-shadow:0 3px 0 #cf9c17}
+  .pill-btn.green{background:linear-gradient(180deg,#67e0a3,#39c07a);color:#0f5b34;box-shadow:0 6px 0 #2a9159}
+  .gradepick{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .gradepick button{border:none;cursor:pointer;font-weight:800;font-size:1rem;padding:10px 20px;border-radius:14px;
+    background:rgba(255,255,255,.22);color:#fff;border:2px solid rgba(255,255,255,.5)}
+  .gradepick button.on{background:#fff;color:var(--sky2)}
+
+  /* level select */
+  .selgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;background:#fff;border-radius:22px;padding:22px;width:100%;max-width:440px;
+    box-shadow:0 12px 30px rgba(20,40,70,.25)}
+  .lvbtn{aspect-ratio:1;border:none;cursor:pointer;border-radius:14px;background:linear-gradient(180deg,#cdd8ec,#aebdd6);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;box-shadow:0 4px 0 #93a4c4}
+  .lvbtn .n{font-weight:900;font-size:1.3rem;color:#3a4a66}
+  .lvbtn.done{background:linear-gradient(180deg,#cdd8ec,#aebdd6)}
+  .lvbtn.locked{opacity:.85;cursor:default}
+  .lvbtn .st{width:20px;height:20px;margin-bottom:-2px}
+  .lvbtn:active:not(.locked){transform:translateY(2px);box-shadow:0 2px 0 #93a4c4}
+  .selhead{background:#e33e5e;color:#ffe14d;font-weight:900;font-size:1.4rem;padding:8px 30px;border-radius:14px;box-shadow:0 5px 0 #b12742}
+
+  /* game */
+  .lvtitle{font-size:1.5rem;font-weight:800;text-shadow:0 2px 0 #2f6bc0}
+  .previewBox,.boardBox{background:#f4f6fb;border-radius:20px;box-shadow:0 8px 18px rgba(20,40,70,.22),inset 0 2px 6px rgba(255,255,255,.7)}
+  .previewBox{width:120px;padding:8px}
+  .boardBox{width:min(84vw,420px);padding:14px;touch-action:none}
+  .previewBox svg,.boardBox svg{width:100%;height:auto;display:block}
+  .tools{display:flex;gap:26px;justify-content:center;margin-top:4px}
+  .tool{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .tool .circ{width:62px;height:62px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;position:relative;
+    box-shadow:0 5px 0 rgba(20,40,70,.18)}
+  .tool:active .circ{transform:translateY(2px);box-shadow:0 3px 0 rgba(20,40,70,.18)}
+  .tool .lab{font-weight:900;font-size:.8rem;letter-spacing:.5px}
+  .tool.undo .lab{color:#ff5a8a}.tool.restart .lab{color:#2fbf71}.tool.hint .lab{color:#f5a623}
+  .tool .badge{position:absolute;top:-2px;right:-2px;background:#e33e5e;color:#fff;font-weight:800;font-size:.72rem;
+    width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .tool[disabled]{opacity:.4;pointer-events:none}
+
+  /* win overlay */
+  .overlay{position:fixed;inset:0;z-index:60;background:rgba(10,26,48,.62);display:flex;align-items:center;justify-content:center;padding:18px}
+  .overlay.hide{display:none}
+  .wincard{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+  .winbanner{background:#e33e5e;color:#ffe14d;font-weight:900;font-size:1.8rem;padding:10px 40px;border-radius:16px;box-shadow:0 6px 0 #b12742}
+  .winlv{background:#fff;color:#1f6b3a;font-weight:900;font-size:1.4rem;padding:6px 26px;border-radius:20px}
+  .winstar{width:120px;height:120px}
+  .winbtns{display:flex;gap:16px}
+
+  .confetti{position:fixed;top:-14px;width:11px;height:16px;z-index:70;border-radius:2px;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(104vh) rotate(680deg);opacity:.85}}
+  @media(max-width:600px){h1{font-size:2rem}}
+</style>
+</head>
+<body>
+<button class="backb" id="backBtn" title="Quay lại"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<div class="top hide" id="topStar"><span class="starcount"><svg width="26" height="26" viewBox="0 0 24 24"><path d="M12 2l3 6 6 .8-4.5 4.2L18 20l-6-3.2L6 20l1.5-7L3 8.8 9 8z" fill="#ffd447" stroke="#e0a92e" stroke-width="1"/></svg><span id="starTotal">0</span></span></div>
+
+<div class="wrap">
+  <!-- TITLE -->
+  <div class="screen on" id="titleScreen">
+    <h1>NỐI HÌNH</h1>
+    <p style="text-align:center;max-width:420px;line-height:1.5">Nhìn hình mẫu rồi nối các chấm để vẽ lại hình đó.<br>Kéo từ chấm này sang chấm khác để tạo một đoạn thẳng.</p>
+    <div class="gradepick" id="gradePick">
+      <button data-g="2">Lớp 2</button>
+      <button data-g="3">Lớp 3</button>
+      <button data-g="4">Lớp 4</button>
+    </div>
+    <button class="pill-btn" id="playBtn">CHƠI<small id="playSub">Màn 1</small></button>
+  </div>
+
+  <!-- LEVEL SELECT -->
+  <div class="screen" id="selectScreen">
+    <div class="selhead" id="selHead">Chọn màn</div>
+    <div class="selgrid" id="selGrid"></div>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="gameScreen">
+    <div class="lvtitle" id="lvTitle">Màn 1</div>
+    <div class="previewBox"><svg id="previewSvg" viewBox="0 0 100 100"></svg></div>
+    <div class="boardBox"><svg id="boardSvg" viewBox="0 0 100 100"></svg></div>
+    <div class="tools">
+      <button class="tool undo" id="undoBtn"><span class="circ"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M9 7L4 12l5 5" fill="none" stroke="#ff5a8a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12h10a6 6 0 0 1 0 12h-3" fill="none" stroke="#ff5a8a" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="lab">HOÀN TÁC</span></button>
+      <button class="tool restart" id="restartBtn"><span class="circ"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2 6" fill="none" stroke="#2fbf71" stroke-width="2.6" stroke-linecap="round"/><path d="M20 4v7h-7" fill="none" stroke="#2fbf71" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">LÀM LẠI</span></button>
+      <button class="tool hint" id="hintBtn"><span class="circ"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4" stroke="#f5a623" stroke-width="2.4" stroke-linecap="round"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.3 1 2.5h6c0-1.2.3-1.8 1-2.5A6 6 0 0 0 12 3z" fill="#ffe08a" stroke="#f5a623" stroke-width="2"/></svg><span class="badge" id="hintBadge">3</span></span><span class="lab">GỢI Ý</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- WIN -->
+<div class="overlay hide" id="winOv">
+  <div class="wincard">
+    <div class="winbanner">TUYỆT VỜI!</div>
+    <div class="winlv" id="winLv">1 - 1</div>
+    <svg class="winstar" viewBox="0 0 24 24"><path d="M12 2l3 6 6 .8-4.5 4.2L18 20l-6-3.2L6 20l1.5-7L3 8.8 9 8z" fill="#ffd447" stroke="#e0a92e" stroke-width="1"/></svg>
+    <div class="winbtns">
+      <button class="pill-btn green" id="homeBtn">TRANG CHỦ</button>
+      <button class="pill-btn" id="nextBtn">TIẾP</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let grade=3;
+(function(){const m=(location.search.match(/lop=(\d)/)||[])[1];if(m==='2'||m==='3'||m==='4')grade=+m;})();
+
+/* ---------- levels: each = {n: gridSize, seg:[[[r,c],[r,c]],...]} ---------- */
+const line=(...ps)=>ps.slice(1).map((p,i)=>[ps[i],p]);
+const poly=(...ps)=>ps.map((p,i)=>[p,ps[(i+1)%ps.length]]);
+const cat=(...a)=>[].concat(...a);
+const Lv=(n,seg)=>({n,seg});
+const LEVELS={
+ 2:[
+  Lv(5,line([2,0],[2,4])),
+  Lv(5,line([0,2],[4,2])),
+  Lv(5,line([1,1],[3,1],[3,3])),
+  Lv(5,line([1,1],[1,3],[3,3])),
+  Lv(5,poly([0,2],[4,0],[4,4])),
+  Lv(5,poly([1,1],[1,3],[3,3],[3,1])),
+  Lv(5,poly([1,0],[1,4],[3,4],[3,0])),
+  Lv(5,cat(line([0,2],[4,2]),line([2,0],[2,4]))),
+  Lv(5,poly([0,2],[2,4],[4,2],[2,0])),
+  Lv(5,cat(line([0,0],[0,4]),line([0,2],[4,2]))),
+  Lv(5,line([2,0],[1,1],[2,2],[1,3],[2,4])),
+  Lv(5,line([4,0],[4,2],[2,2],[2,4])),
+  Lv(5,cat(line([2,0],[2,4]),line([1,3],[2,4],[3,3]))),
+  Lv(5,cat(poly([2,1],[2,3],[4,3],[4,1]),line([2,1],[1,2],[2,3]))),
+  Lv(5,line([0,0],[2,2],[0,4])),
+  Lv(5,poly([0,2],[1,4],[3,4],[4,2],[3,0],[1,0])),
+  Lv(5,cat(line([1,1],[4,1]),poly([1,1],[1,3],[2,2]))),
+  Lv(5,cat(line([0,0],[4,4]),line([0,4],[4,0]))),
+  Lv(5,line([2,0],[0,2],[2,4])),
+  Lv(5,line([1,1],[3,1],[3,3],[1,3])),
+  Lv(5,line([1,1],[3,2],[1,3])),
+  Lv(5,cat(line([0,2],[4,2]),line([0,1],[0,3]),line([4,1],[4,3]))),
+  Lv(5,cat(line([1,1],[2,2],[1,3]),line([2,2],[4,2]))),
+  Lv(5,[[[1,1],[3,1]],[[1,3],[3,3]],[[2,1],[2,3]]]),
+  Lv(5,poly([1,1],[1,3],[3,2],[3,0])),
+  Lv(5,poly([0,2],[2,3],[4,2],[2,1])),
+  Lv(5,poly([1,1],[3,1],[3,3])),
+  Lv(5,cat(line([4,2],[0,2]),line([1,1],[0,2],[1,3]))),
+  Lv(5,cat(line([0,2],[4,2]),line([3,1],[4,2],[3,3]))),
+  Lv(5,cat(line([2,4],[2,0]),line([1,1],[2,0],[3,1]))),
+  Lv(5,line([4,0],[4,1],[3,1],[3,2],[2,2],[2,3])),
+  Lv(5,poly([1,1],[1,3],[3,4],[3,0])),
+ ],
+ 3:[
+  Lv(5,line([3,0],[2,1],[3,2],[2,3],[3,4])),
+  Lv(5,cat(line([4,0],[2,2],[4,4]),line([4,0],[4,4]))),
+  Lv(5,cat([[[2,1],[4,1]],[[2,3],[4,3]],[[4,1],[4,3]]],line([2,1],[1,2],[2,3]))),
+  Lv(5,cat(poly([1,0],[1,4],[3,4],[3,0]),line([1,0],[2,2],[1,4]))),
+  Lv(5,cat(poly([1,1],[1,3],[3,3],[3,1]),[[[1,1],[3,3]],[[1,3],[3,1]]])),
+  Lv(5,poly([0,2],[2,4],[4,3],[4,1],[2,0])),
+  Lv(5,poly([1,1],[1,3],[3,4],[3,0])),
+  Lv(5,line([1,1],[1,3],[3,1],[3,3])),
+  Lv(5,[[[1,1],[3,1]],[[1,1],[3,3]],[[1,3],[3,3]]]),
+  Lv(5,line([3,0],[1,0],[2,2],[1,4],[3,4])),
+  Lv(5,cat(line([4,2],[0,2]),line([1,1],[0,2],[1,3]))),
+  Lv(5,poly([0,1],[0,3],[2,4],[4,3],[4,1],[2,0])),
+  Lv(5,[[[2,2],[0,1]],[[2,2],[1,4]],[[2,2],[4,3]],[[2,2],[3,0]]]),
+  Lv(5,line([4,0],[4,1],[3,1],[3,2],[2,2],[2,3],[1,3],[1,4])),
+  Lv(6,poly([0,3],[5,0],[5,5])),
+  Lv(6,cat(poly([1,1],[1,4],[4,4],[4,1]),[[[1,1],[4,4]],[[1,4],[4,1]]])),
+  Lv(6,line([5,0],[0,0],[2,3],[0,5],[5,5])),
+  Lv(5,cat(line([0,1],[4,1]),line([0,1],[0,3]),line([2,1],[2,3]))),
+  Lv(5,cat(line([0,1],[4,1]),line([0,1],[0,3]),line([0,3],[2,3]),line([2,3],[2,1]))),
+  Lv(5,line([0,3],[0,1],[2,1],[2,3],[4,3],[4,1])),
+  Lv(5,cat(line([0,3],[0,1]),line([0,1],[4,1]),line([4,1],[4,3]),line([4,3],[2,3]),line([2,3],[2,2]))),
+  Lv(5,cat(poly([3,1],[3,3],[4,2]),line([3,2],[1,2]),line([1,2],[2,3]))),
+  Lv(6,cat(poly([2,1],[2,3],[5,3],[5,1]),line([2,1],[1,2],[2,3]),line([4,2],[5,2]))),
+  Lv(5,[[[0,0],[4,4]],[[0,4],[4,0]],[[0,2],[4,2]],[[2,0],[2,4]]]),
+  Lv(5,cat(poly([0,2],[2,4],[4,2],[2,0]),[[[2,0],[2,4]],[[0,2],[4,2]]])),
+  Lv(6,cat(line([0,1],[2,3],[0,5]),line([2,3],[5,3]))),
+  Lv(6,cat(line([5,2],[0,2]),line([1,1],[0,2],[1,3]))),
+  Lv(6,line([5,0],[4,1],[5,2],[4,3],[5,4],[4,5])),
+  Lv(6,poly([1,1],[1,4],[4,5],[4,0])),
+  Lv(6,cat(poly([1,1],[1,4],[4,4],[4,1]),[[[1,1],[4,4]]])),
+  Lv(6,poly([1,0],[0,2],[1,4],[4,4],[5,2],[4,0])),
+ ],
+ 4:[
+  Lv(5,cat(poly([1,0],[1,4],[3,4],[3,0]),[[[1,0],[3,4]],[[1,4],[3,0]]])),
+  Lv(5,cat(poly([0,2],[4,0],[4,4]),poly([4,2],[0,0],[0,4]))),
+  Lv(5,cat(line([4,0],[0,2],[4,4]),[[[3,1],[3,3]]])),
+  Lv(5,[[[0,1],[4,1]],[[0,3],[4,3]],[[2,1],[2,3]]]),
+  Lv(5,[[[0,1],[4,1]],[[0,1],[0,3]],[[2,1],[2,3]],[[4,1],[4,3]]]),
+  Lv(5,[[[0,1],[4,1]],[[0,3],[2,1]],[[2,1],[4,3]]]),
+  Lv(5,cat(poly([0,0],[0,4],[4,4],[4,0]),poly([1,1],[1,3],[3,3],[3,1]))),
+  Lv(7,poly([0,3],[2,6],[4,6],[6,3],[4,0],[2,0])),
+  Lv(7,poly([0,2],[0,4],[2,6],[4,6],[6,4],[6,2],[4,0],[2,0])),
+  Lv(7,cat(poly([0,3],[3,6],[6,3],[3,0]),poly([1,3],[3,5],[5,3],[3,1]))),
+  Lv(7,cat(poly([0,3],[6,0],[6,6]),poly([6,3],[0,0],[0,6]))),
+  Lv(6,line([2,2],[2,3],[3,3],[3,1],[1,1],[1,4],[4,4],[4,0])),
+  Lv(6,line([5,0],[5,1],[4,1],[4,2],[3,2],[3,3],[2,3],[2,4],[1,4],[1,5])),
+  Lv(6,cat(poly([1,1],[1,4],[4,4],[4,1]),line([0,2],[1,1]),line([0,3],[1,4]))),
+  Lv(6,cat(line([5,1],[0,1]),line([0,1],[5,4]),line([5,4],[0,4]))),
+  Lv(6,line([0,1],[0,4],[5,1],[5,4])),
+  Lv(6,line([0,0],[2,1],[0,2],[2,3],[0,4])),
+  Lv(6,line([5,0],[0,0],[2,2],[0,4],[5,4])),
+  Lv(7,cat(poly([0,3],[6,0],[6,6]),poly([3,3],[5,2],[5,4]))),
+  Lv(7,cat(poly([0,0],[0,6],[6,6],[6,0]),poly([2,2],[2,4],[4,4],[4,2]))),
+  Lv(7,poly([0,3],[2,6],[5,5],[5,1],[2,0])),
+  Lv(7,poly([1,0],[0,3],[1,6],[5,6],[6,3],[5,0])),
+  Lv(7,poly([2,0],[2,2],[0,2],[0,4],[2,4],[2,6],[4,6],[4,4],[6,4],[6,2],[4,2],[4,0])),
+  Lv(7,cat(line([6,0],[0,6]),line([0,3],[0,6],[3,6]))),
+  Lv(7,line([6,0],[5,1],[6,2],[5,3],[6,4],[5,5],[6,6])),
+  Lv(7,line([3,3],[3,4],[4,4],[4,2],[2,2],[2,5],[5,5],[5,1],[1,1],[1,6])),
+  Lv(7,cat(poly([0,3],[3,6],[6,3],[3,0]),[[[0,3],[6,3]],[[3,0],[3,6]]])),
+  Lv(7,cat(poly([2,1],[2,5],[6,5],[6,1]),line([2,1],[0,3],[2,5]),line([4,3],[6,3]))),
+  Lv(7,cat(line([0,1],[6,1]),line([0,1],[0,4]),line([3,1],[3,4]),line([6,1],[6,4]))),
+  Lv(7,[[[0,1],[6,1]],[[0,5],[6,5]],[[3,1],[3,5]]]),
+ ],
+};
+
+/* ---------- geometry ---------- */
+const MARGIN=11;
+let N=5;
+function step(){return (100-2*MARGIN)/(N-1);}
+function pt(r,c){const s=step();return {x:MARGIN+c*s,y:MARGIN+r*s};}
+function dotR(){return Math.max(1.9,14/N);}
+function endR(){return Math.max(2.7,22/N);}
+function lineW(){return Math.max(3.1,26/N);}
+function segKey(a,b){const A=a[0]*10+a[1],B=b[0]*10+b[1];return A<=B?a[0]+','+a[1]+'|'+b[0]+','+b[1]:b[0]+','+b[1]+'|'+a[0]+','+a[1];}
+
+/* ---------- draw ---------- */
+function dotsMarkup(){let s='';const r0=dotR().toFixed(1);for(let r=0;r<N;r++)for(let c=0;c<N;c++){const p=pt(r,c);s+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r0}" fill="#b7c2d6"/>`;}return s;}
+function segLine(a,b,color,w){const A=pt(a[0],a[1]),B=pt(b[0],b[1]);return `<line x1="${A.x.toFixed(1)}" y1="${A.y.toFixed(1)}" x2="${B.x.toFixed(1)}" y2="${B.y.toFixed(1)}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/>`;}
+function renderTarget(){
+  const segs=curLevel().seg,w=Math.max(2.3,16/N);let s=dotsMarkup();
+  segs.forEach(sg=>{s+=segLine(sg[0],sg[1],'#1c3b6e',w);});
+  $('previewSvg').innerHTML=s;
+}
+function renderBoard(){
+  let s='<g>'+dotsMarkup()+'</g>';
+  const lw=lineW(),er=endR(),xs=er*0.42;
+  let lines='';const ends=new Set();
+  player.forEach(k=>{const [a,b]=k.split('|').map(t=>t.split(',').map(Number));
+    lines+=segLine(a,b,'#2fbf71',lw)+segLine(a,b,'#8fe6b6',lw*0.38);
+    ends.add(a[0]+','+a[1]);ends.add(b[0]+','+b[1]);});
+  s+='<g>'+lines+'</g>';
+  if(drag&&drag.cur){const A=pt(drag.start[0],drag.start[1]);s+=`<line x1="${A.x.toFixed(1)}" y1="${A.y.toFixed(1)}" x2="${drag.cur.x.toFixed(1)}" y2="${drag.cur.y.toFixed(1)}" stroke="#2fbf71" stroke-width="${(lw*0.85).toFixed(1)}" stroke-linecap="round" opacity=".7" stroke-dasharray="1.5 3"/>`;}
+  let marks='';ends.forEach(e=>{const [r,c]=e.split(',').map(Number),p=pt(r,c);
+    marks+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${er.toFixed(1)}" fill="#1f9c63" stroke="#fff" stroke-width="1.2"/>
+      <line x1="${(p.x-xs).toFixed(1)}" y1="${(p.y-xs).toFixed(1)}" x2="${(p.x+xs).toFixed(1)}" y2="${(p.y+xs).toFixed(1)}" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="${(p.x-xs).toFixed(1)}" y1="${(p.y+xs).toFixed(1)}" x2="${(p.x+xs).toFixed(1)}" y2="${(p.y-xs).toFixed(1)}" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>`;});
+  s+='<g>'+marks+'</g>';
+  $('boardSvg').innerHTML=s;
+}
+
+/* ---------- state ---------- */
+let levelIdx=0, player=new Set(), history=[], hintsLeft=3, drag=null;
+function curLevel(){return LEVELS[grade][levelIdx];}
+function targetSet(){return new Set(curLevel().seg.map(sg=>segKey(sg[0],sg[1])));}
+
+/* progress */
+function keyProg(){return 'noihinh_g'+grade;}
+function getDone(){return parseInt(localStorage.getItem(keyProg())||'0')||0;}
+function setDone(n){localStorage.setItem(keyProg(),String(n));}
+function totalStars(){return getDone(2)+getDone(3)+getDone(4);}
+function getDoneG(g){return parseInt(localStorage.getItem('noihinh_g'+g)||'0')||0;}
+
+/* ---------- screens ---------- */
+function screen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');}
+function showTitle(){stopStar();screen('titleScreen');$('topStar').classList.add('hide');markGrade();updatePlaySub();}
+function updatePlaySub(){const d=getDoneG(grade);$('playSub').textContent='Màn '+Math.min(d+1,LEVELS[grade].length);}
+function markGrade(){document.querySelectorAll('#gradePick button').forEach(b=>b.classList.toggle('on',+b.dataset.g===grade));}
+function stopStar(){}
+
+function showSelect(){
+  screen('selectScreen');$('topStar').classList.remove('hide');
+  $('starTotal').textContent=getDoneG(2)+getDoneG(3)+getDoneG(4);
+  $('selHead').textContent='Lớp '+grade;
+  const done=getDoneG(grade),N=LEVELS[grade].length;
+  let h='';
+  for(let i=0;i<N;i++){
+    const num=i+1;
+    if(i<done){h+=`<button class="lvbtn done" data-i="${i}"><svg class="st" viewBox="0 0 24 24"><path d="M12 2l3 6 6 .8-4.5 4.2L18 20l-6-3.2L6 20l1.5-7L3 8.8 9 8z" fill="#ffd447" stroke="#e0a92e" stroke-width="1"/></svg><span class="n">${num}</span></button>`;}
+    else if(i===done){h+=`<button class="lvbtn" data-i="${i}"><span class="n">${num}</span></button>`;}
+    else{h+=`<button class="lvbtn locked"><svg width="22" height="22" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2" fill="#f2c14e" stroke="#c99a2e" stroke-width="1.4"/><path d="M8 10V8a4 4 0 0 1 8 0v2" fill="none" stroke="#c99a2e" stroke-width="2"/><circle cx="12" cy="15" r="1.6" fill="#7a5a13"/></svg></button>`;}
+  }
+  $('selGrid').innerHTML=h;
+  $('selGrid').querySelectorAll('.lvbtn:not(.locked)').forEach(b=>b.onclick=()=>loadLevel(+b.dataset.i));
+}
+
+function loadLevel(i){
+  levelIdx=i;N=(LEVELS[grade][i].n)||5;player=new Set();history=[];hintsLeft=3;drag=null;
+  $('lvTitle').textContent='Màn '+(i+1);
+  $('hintBadge').textContent=hintsLeft;$('hintBtn').disabled=false;
+  renderTarget();renderBoard();
+  screen('gameScreen');$('topStar').classList.remove('hide');
+}
+
+/* ---------- drawing on board ---------- */
+function nearestDot(x,y){
+  let best=null,bd=1e9;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){const p=pt(r,c),d=(p.x-x)**2+(p.y-y)**2;if(d<bd){bd=d;best=[r,c];}}
+  const th=step()*0.62;return bd<=th*th?best:null;
+}
+function svgXY(e){const svg=$('boardSvg'),m=svg.getScreenCTM().inverse(),p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(m);return {x:q.x,y:q.y};}
+function boardDown(e){
+  e.preventDefault();
+  const q=svgXY(e),d=nearestDot(q.x,q.y);
+  if(!d)return;
+  drag={start:d,cur:q};
+  try{$('boardSvg').setPointerCapture(e.pointerId);}catch(_){}
+  renderBoard();
+}
+function boardMove(e){if(!drag)return;drag.cur=svgXY(e);renderBoard();}
+function boardUp(e){
+  if(!drag)return;
+  const q=svgXY(e),d=nearestDot(q.x,q.y);
+  const start=drag.start;drag=null;
+  if(d&&(d[0]!==start[0]||d[1]!==start[1])){
+    const k=segKey(start,d);
+    if(player.has(k)){player.delete(k);history=history.filter(x=>x!==k);}
+    else{player.add(k);history.push(k);pop();}
+    renderBoard();checkWin();
+  }else renderBoard();
+}
+function undo(){if(!history.length)return;const k=history.pop();player.delete(k);renderBoard();}
+function restart(){player=new Set();history=[];drag=null;renderBoard();}
+function hint(){
+  if(hintsLeft<=0)return;
+  const tgt=[...targetSet()].filter(k=>!player.has(k));
+  if(!tgt.length)return;
+  const k=tgt[0];player.add(k);history.push(k);
+  hintsLeft--;$('hintBadge').textContent=hintsLeft;if(hintsLeft<=0)$('hintBtn').disabled=true;
+  pop();renderBoard();checkWin();
+}
+function checkWin(){
+  const t=targetSet();
+  if(player.size!==t.size)return;
+  for(const k of t)if(!player.has(k))return;
+  win();
+}
+function win(){
+  ting();confetti();say('Tuyệt vời! Em nối đúng rồi.');
+  const done=getDoneG(grade);
+  if(levelIdx===done)setDone2(grade,done+1);
+  $('winLv').textContent=grade+' - '+(levelIdx+1);
+  $('nextBtn').classList.toggle('hide',levelIdx>=LEVELS[grade].length-1);
+  $('winOv').classList.remove('hide');
+}
+function setDone2(g,n){localStorage.setItem('noihinh_g'+g,String(n));}
+
+/* ---------- fx / sound ---------- */
+let soundOn=true,actx=null;
+function AC(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}return actx;}
+function beep(f,f2,d,type,v){if(!soundOn)return;const a=AC();if(!a)return;const o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,a.currentTime);if(f2)o.frequency.exponentialRampToValueAtTime(f2,a.currentTime+d);g.gain.setValueAtTime(v||.1,a.currentTime);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+d);}
+function pop(){beep(520,760,.09,'triangle',.09);}
+function ting(){beep(880,0,.12,'triangle',.13);setTimeout(()=>beep(1320,0,.13,'triangle',.12),80);}
+let viVoice=null;
+function pv(){const vs=speechSynthesis.getVoices();viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||vs.find(v=>/vietnam/i.test(v.name))||null;}
+if('speechSynthesis'in window){pv();speechSynthesis.onvoiceschanged=pv;}
+function say(t){if(!soundOn||!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=1;speechSynthesis.speak(u);}catch(e){}}
+function confetti(){const cols=['#ff5a5a','#ffd23b','#7dc242','#38bdf8','#a78bfa','#ff9f1c','#f78fb3'];for(let i=0;i<70;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=cols[i%cols.length];c.style.animationDuration=(1.1+Math.random()*1.3)+'s';c.style.animationDelay=(Math.random()*.3)+'s';c.style.transform='rotate('+(Math.random()*360)+'deg)';document.body.appendChild(c);setTimeout(()=>c.remove(),2600);}}
+
+/* ---------- wiring ---------- */
+document.querySelectorAll('#gradePick button').forEach(b=>b.onclick=()=>{grade=+b.dataset.g;markGrade();updatePlaySub();});
+$('playBtn').onclick=()=>{const d=getDoneG(grade);loadLevel(Math.min(d,LEVELS[grade].length-1));};
+$('undoBtn').onclick=undo;
+$('restartBtn').onclick=restart;
+$('hintBtn').onclick=hint;
+$('homeBtn').onclick=()=>{$('winOv').classList.add('hide');showSelect();};
+$('nextBtn').onclick=()=>{$('winOv').classList.add('hide');const n=levelIdx+1;if(n<LEVELS[grade].length)loadLevel(n);else showSelect();};
+$('backBtn').onclick=()=>{
+  if($('gameScreen').classList.contains('on')){showSelect();}
+  else if($('selectScreen').classList.contains('on')){showTitle();}
+  else{if(history.length>1){window.history.back();}else location.href=grade===2?'../../lop-2/index.html':grade===4?'../../lop-4/index.html':'../../lop-3/index.html';}
+};
+const bs=$('boardSvg');
+bs.addEventListener('pointerdown',boardDown);
+bs.addEventListener('pointermove',boardMove);
+bs.addEventListener('pointerup',boardUp);
+bs.addEventListener('pointercancel',()=>{drag=null;renderBoard();});
+
+/* init */
+markGrade();updatePlaySub();
+</script>
+</body>
+</html>

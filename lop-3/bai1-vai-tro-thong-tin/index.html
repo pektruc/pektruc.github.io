@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HĐ2 - Nối Thông tin với Quyết định (Tin học 3, Bài 1)</title>
+<style>
+  :root{ --ink:#2b3a55; --green:#22c55e; --red:#ef4444; --amber:#f59e0b; }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Nunito',sans-serif;
+    background:linear-gradient(160deg,#dcfce7,#f0fdf4 55%,#fff);color:var(--ink);min-height:100vh;
+    overflow-x:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;padding:12px}
+  #app{max-width:900px;margin:0 auto}
+  .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .back{color:#3d5273;text-decoration:none;font-weight:700;font-size:.95rem;background:#fff;padding:8px 14px;border-radius:16px;box-shadow:0 3px 8px rgba(43,58,85,.1)}
+  .prog{margin-left:auto;font-weight:800;background:#fff;border-radius:14px;padding:6px 14px;box-shadow:0 3px 8px rgba(43,58,85,.1)}
+  #sound{border:none;background:#fff;font-size:1.2rem;width:42px;height:42px;border-radius:14px;cursor:pointer;box-shadow:0 3px 8px rgba(43,58,85,.1)}
+  h1{font-size:clamp(1.4rem,4.6vw,2rem);text-align:center;margin:6px 0 2px;
+    background:linear-gradient(90deg,#16a34a,#0891b2);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lead{text-align:center;color:#475569;font-weight:700;margin-bottom:12px;font-size:clamp(.95rem,3.4vw,1.15rem)}
+  .lead b{color:#16a34a}
+
+  .rows{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+  .row{display:flex;align-items:stretch;gap:10px;background:#fff;border-radius:18px;padding:10px;box-shadow:0 4px 12px rgba(43,58,85,.1)}
+  .info{flex:1;display:flex;align-items:center;font-weight:700;color:#334155;font-size:clamp(.9rem,3.3vw,1.05rem);gap:8px}
+  .info .tag{background:#e0f2fe;color:#0369a1;font-size:.72rem;font-weight:800;padding:3px 8px;border-radius:10px;white-space:nowrap}
+  .arrow{align-self:center;color:#f59e0b;font-weight:900;font-size:1.4rem}
+  .slot{flex:1;min-height:56px;border:3px dashed #86efac;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    color:#16a34a;font-weight:700;font-size:.85rem;text-align:center;padding:6px;transition:all .12s}
+  .slot.over{background:#f0fdf4;border-color:#16a34a;transform:scale(1.03)}
+  .slot.filled{border-style:solid;border-color:#22c55e;background:#f0fdf4;color:#166534;animation:pop .3s}
+
+  .tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:rgba(255,255,255,.55);border-radius:18px;padding:12px;min-height:70px}
+  .card{background:linear-gradient(180deg,#fff7ed,#ffedd5);border-radius:14px;padding:10px 14px;font-weight:800;color:#9a3412;
+    font-size:clamp(.9rem,3.3vw,1.05rem);box-shadow:0 5px 0 #fdba74;cursor:grab;touch-action:none;max-width:320px;border:3px solid transparent;transition:transform .1s}
+  .card:active{cursor:grabbing}
+  .card.wrong{animation:shake .4s;border-color:var(--red)}
+  .card.dragging{opacity:.3}
+  #ghost{position:fixed;z-index:999;pointer-events:none;transform:translate(-50%,-50%) rotate(-3deg) scale(1.05);
+    background:#ffedd5;border-radius:14px;padding:10px 14px;font-weight:800;color:#9a3412;box-shadow:0 12px 26px rgba(43,58,85,.3);max-width:320px}
+  @keyframes pop{0%{transform:scale(.7)}70%{transform:scale(1.06)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+
+  .done{text-align:center;margin-top:16px}
+  .done .msg{font-size:clamp(1.2rem,4.4vw,1.7rem);font-weight:900;color:#16a34a}
+  .btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:1.1rem;padding:12px 26px;border-radius:18px;margin-top:10px;
+    background:linear-gradient(180deg,#67e28c,#25c15c);box-shadow:0 6px 0 #189745}
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 #189745}
+  .burst{position:fixed;z-index:900;pointer-events:none;font-size:1.5rem;animation:fly 1s ease-out forwards}
+  @keyframes fly{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3)}}
+  .credit{text-align:center;color:#6b7c99;font-size:.82rem;padding:14px 0 4px;font-weight:600}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <a class="back" href="../index.html">← Lớp 3</a>
+    <span class="prog">Đã nối <span id="done">0</span>/<span id="total">0</span></span>
+    <button id="sound" title="Bật/tắt âm thanh">🔊</button>
+  </div>
+  <h1>Nối Thông tin với Quyết định</h1>
+  <p class="lead">Tin học 3 · Bài 1 · Hoạt động 2 — Kéo mỗi <b>quyết định</b> (thẻ cam) thả vào đúng ô của <b>thông tin</b>.</p>
+
+  <div class="rows" id="rows"></div>
+  <div class="tray" id="tray"></div>
+
+  <div class="done" id="done-box" hidden>
+    <div class="msg" id="done-msg"></div>
+    <button class="btn" id="replay">🔄 Làm lại</button>
+  </div>
+</div>
+
+<script>
+/* Mỗi cặp: thông tin -> quyết định (theo ví dụ trong bài) */
+const PAIRS=[
+  {id:'a', info:'Hôm nay có tiết Giáo dục thể chất.',            qd:'Đi học bằng đôi giày thể thao.'},
+  {id:'b', info:'Trời mưa khi mẹ chuẩn bị đi làm.',              qd:'Đưa áo mưa cho mẹ.'},
+  {id:'c', info:'Minh ra khỏi nhà để đi đá bóng.',               qd:'Mặc đồ thể thao, đi giày yêu thích.'},
+  {id:'d', info:'Minh ra khỏi nhà để đi học.',                   qd:'Mặc đồng phục.'},
+  {id:'e', info:'Thư viện trường có quyển Truyện cổ tích Việt Nam.', qd:'Rủ bạn lên thư viện mượn đọc.'},
+];
+
+let soundOn=true,actx=null;
+function ensa(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}}
+function tone(k){if(!soundOn)return;ensa();if(!actx)return;const n=actx.currentTime;
+  const F=k==='good'?[660,880,1180]:k==='win'?[660,880,1100,1320,1560]:[200,150];
+  F.forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type=k==='bad'?'sawtooth':'triangle';o.frequency.value=f;
+    const t=n+i*0.09;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.15);
+    o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.17);});}
+let viVoice=null;function pv(){const vs=window.speechSynthesis?speechSynthesis.getVoices():[];viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||null;}
+if(window.speechSynthesis){pv();speechSynthesis.onvoiceschanged=pv;}
+function speak(t){if(!soundOn||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=.98;u.pitch=1.1;speechSynthesis.speak(u);}catch(e){}}
+
+let done=0,total=0;
+const rowsEl=document.getElementById('rows'), tray=document.getElementById('tray');
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function render(){
+  done=0; total=PAIRS.length;
+  document.getElementById('done').textContent=0; document.getElementById('total').textContent=total;
+  document.getElementById('done-box').hidden=true;
+  rowsEl.innerHTML=''; tray.innerHTML='';
+  PAIRS.forEach(p=>{
+    const row=document.createElement('div');row.className='row';
+    row.innerHTML=`<div class="info"><span class="tag">Thông tin</span>${p.info}</div>
+      <div class="arrow">➜</div>
+      <div class="slot" data-id="${p.id}">thả quyết định vào đây</div>`;
+    rowsEl.appendChild(row);
+  });
+  shuffle(PAIRS).forEach(p=>{
+    const c=document.createElement('div');c.className='card';c.dataset.id=p.id;c.textContent=p.qd;tray.appendChild(c);
+  });
+}
+
+let drag=null,ghost=null;
+tray.addEventListener('pointerdown',e=>{
+  const c=e.target.closest('.card'); if(!c) return; e.preventDefault();
+  drag={card:c,id:c.dataset.id,t:c.textContent}; c.classList.add('dragging');
+  ghost=document.createElement('div'); ghost.id='ghost'; ghost.textContent=c.textContent; document.body.appendChild(ghost);
+  mv(e.clientX,e.clientY); window.addEventListener('pointermove',onM); window.addEventListener('pointerup',onU);
+});
+function mv(x,y){if(ghost){ghost.style.left=x+'px';ghost.style.top=y+'px';}}
+function slotUnder(x,y){if(ghost)ghost.style.display='none';const el=document.elementFromPoint(x,y);if(ghost)ghost.style.display='';return el&&el.closest?el.closest('.slot'):null;}
+function onM(e){if(!drag)return;mv(e.clientX,e.clientY);document.querySelectorAll('.slot.over').forEach(s=>s.classList.remove('over'));const s=slotUnder(e.clientX,e.clientY);if(s&&!s.classList.contains('filled'))s.classList.add('over');}
+function onU(e){
+  window.removeEventListener('pointermove',onM);window.removeEventListener('pointerup',onU);
+  const s=slotUnder(e.clientX,e.clientY);
+  if(ghost){ghost.remove();ghost=null;}
+  document.querySelectorAll('.slot.over').forEach(x=>x.classList.remove('over'));
+  if(drag.card)drag.card.classList.remove('dragging');
+  if(s && !s.classList.contains('filled')){
+    if(s.dataset.id===drag.id){ s.classList.add('filled'); s.textContent=drag.t; drag.card.remove(); tone('good'); confetti(s);
+      done++; document.getElementById('done').textContent=done; if(done>=total) finish(); }
+    else { drag.card.classList.add('wrong'); tone('bad'); setTimeout(()=>drag.card&&drag.card.classList.remove('wrong'),450); }
+  }
+  drag=null;
+}
+function confetti(el){const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,ic=['⭐','✨','🌟','🎉'];
+  for(let i=0;i<8;i++){const s=document.createElement('div');s.className='burst';s.textContent=ic[i%ic.length];s.style.left=cx+'px';s.style.top=cy+'px';
+    const a=Math.PI*2*i/8,d=45+Math.random()*35;s.style.setProperty('--dx',Math.cos(a)*d+'px');s.style.setProperty('--dy',(Math.sin(a)*d-14)+'px');
+    document.body.appendChild(s);setTimeout(()=>s.remove(),1000);}}
+function finish(){document.getElementById('done-box').hidden=false;document.getElementById('done-msg').textContent='Hoàn thành! Thông tin giúp em quyết định đúng! 🎉';tone('win');speak('Hoàn thành! Thông tin giúp em đưa ra quyết định đúng.');}
+
+document.getElementById('replay').addEventListener('click',render);
+document.getElementById('sound').addEventListener('click',()=>{soundOn=!soundOn;document.getElementById('sound').textContent=soundOn?'🔊':'🔇';if(!soundOn&&window.speechSynthesis)speechSynthesis.cancel();});
+render();
+</script>
+</body>
+</html>

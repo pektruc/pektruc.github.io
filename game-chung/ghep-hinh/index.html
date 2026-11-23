@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ghép Hình Kỳ Diệu</title>
+<style>
+  :root{ --ink:#2b3a55; }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Nunito',sans-serif;
+    background:linear-gradient(160deg,#e0f2fe,#f0fdfa 55%,#fff);color:var(--ink);min-height:100vh;
+    overflow-x:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation;padding:12px}
+  #app{max-width:960px;margin:0 auto}
+  .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .back{color:#3d5273;text-decoration:none;font-weight:700;font-size:.95rem;background:#fff;padding:9px 16px;border-radius:16px;box-shadow:0 3px 8px rgba(43,58,85,.1);border:none;cursor:pointer}
+  .back:active{transform:translateY(2px)}
+  #sound{border:none;background:#fff;font-size:1.2rem;width:44px;height:44px;border-radius:14px;cursor:pointer;box-shadow:0 3px 8px rgba(43,58,85,.1);margin-left:auto}
+  h1{font-size:clamp(1.5rem,5vw,2.1rem);text-align:center;margin:6px 0 2px;
+    background:linear-gradient(90deg,#06b6d4,#db2777);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lead{text-align:center;color:#475569;font-weight:700;margin-bottom:14px;font-size:clamp(.95rem,3.4vw,1.15rem)}
+
+  /* START SCREEN */
+  .levels{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:640px;margin:0 auto}
+  @media(max-width:560px){.levels{grid-template-columns:1fr}}
+  .lvl{background:#fff;border-radius:24px;padding:22px 14px 18px;cursor:pointer;border:5px solid #fff;
+    box-shadow:0 8px 20px rgba(43,58,85,.14);transition:transform .12s,border-color .12s;text-align:center}
+  .lvl:hover{transform:translateY(-5px)}
+  .lvl:active{transform:scale(.97)}
+  .lvl .em{font-size:3.2rem;display:block;line-height:1}
+  .lvl .nm{font-weight:900;margin-top:8px;font-size:clamp(1.1rem,4vw,1.35rem)}
+  .lvl .pc{font-weight:800;color:#0891b2;margin-top:2px;font-size:.95rem}
+  .lvl[data-l="easy"]{border-color:#bbf7d0}
+  .lvl[data-l="easy"] .nm{color:#16a34a}
+  .lvl[data-l="mid"]{border-color:#fde68a}
+  .lvl[data-l="mid"] .nm{color:#d97706}
+  .lvl[data-l="hard"]{border-color:#fecdd3}
+  .lvl[data-l="hard"] .nm{color:#e11d48}
+
+  /* HUD */
+  .hud{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .chip{background:#fff;border-radius:16px;padding:8px 16px;font-weight:900;box-shadow:0 4px 10px rgba(43,58,85,.1);font-size:clamp(.95rem,3.4vw,1.1rem)}
+  .chip .k{color:#94a3b8;font-weight:800;font-size:.8em;margin-right:4px}
+  .chip.time{color:#0891b2}
+  .chip.time.low{color:#e11d48;animation:blink 1s steps(2) infinite}
+  @keyframes blink{50%{opacity:.4}}
+  .chip.star{color:#f59e0b}
+
+  /* PLAY LAYOUT */
+  .stage{display:grid;grid-template-columns:1fr;gap:16px;align-items:start;justify-items:center}
+  .boardwrap{background:#fff;border-radius:24px;padding:14px;box-shadow:0 8px 22px rgba(43,58,85,.14)}
+  .board{position:relative;display:grid;background:#eef4fb;border-radius:12px;overflow:hidden}
+  .slot{position:relative;border:1px dashed #b6c6dc;display:flex;align-items:center;justify-content:center}
+  .slot .ghost{position:absolute;inset:0;opacity:.14;background-size:cover;background-repeat:no-repeat;pointer-events:none}
+  .slot.filled{border-style:solid;border-color:#22c55e}
+
+  .tray{background:#fff;border-radius:24px;padding:14px;box-shadow:0 8px 22px rgba(43,58,85,.14);width:100%;max-width:640px}
+  .tray .th{font-weight:800;color:#0891b2;text-align:center;margin-bottom:8px;font-size:.95rem}
+  .traypieces{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:70px}
+
+  .piece{background-size:cover;background-repeat:no-repeat;border-radius:8px;cursor:grab;
+    box-shadow:0 4px 10px rgba(43,58,85,.22);border:3px solid #fff;touch-action:none;position:relative}
+  .piece:active{cursor:grabbing}
+  .piece.dragging{opacity:0;}
+  .piece.locked{box-shadow:none;border-color:transparent;cursor:default;border-radius:0}
+  .piece.wrong{animation:shake .4s}
+  @keyframes shake{0%,100%{transform:translate(0,0)}25%{transform:translate(-6px,0)}75%{transform:translate(6px,0)}}
+  .drag-layer{position:fixed;z-index:70;pointer-events:none;border-radius:8px;background-size:cover;background-repeat:no-repeat;
+    box-shadow:0 10px 24px rgba(43,58,85,.4);border:3px solid #fff}
+
+  .placed{position:absolute;background-size:cover;background-repeat:no-repeat}
+  .placed.pop{animation:snappop .35s}
+  @keyframes snappop{0%{transform:scale(1.18)}60%{transform:scale(.94)}100%{transform:scale(1)}}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+  .btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:1rem;padding:12px 20px;border-radius:16px;min-width:130px;
+    background:linear-gradient(180deg,#67e28c,#25c15c);box-shadow:0 5px 0 #189745}
+  .btn:active{transform:translateY(4px);box-shadow:0 1px 0 #189745}
+  .btn.gray{background:linear-gradient(180deg,#cbd5e1,#94a3b8);box-shadow:0 5px 0 #64748b;color:#1e293b}
+  .btn.gray:active{box-shadow:0 1px 0 #64748b}
+  .btn.pink{background:linear-gradient(180deg,#f9a8d4,#ec4899);box-shadow:0 5px 0 #be185d}
+  .btn.pink:active{box-shadow:0 1px 0 #be185d}
+
+  /* WIN OVERLAY */
+  .win{position:fixed;inset:0;background:rgba(15,23,42,.42);display:flex;align-items:center;justify-content:center;z-index:80;padding:16px}
+  .wincard{background:#fff;border-radius:26px;padding:24px 20px;text-align:center;max-width:380px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3);animation:pop .35s}
+  .wincard .big{font-size:2.8rem}
+  .wincard .msg{font-size:clamp(1.3rem,4.8vw,1.7rem);font-weight:900;color:#16a34a;margin:6px 0 6px}
+  .wincard .stars{font-size:2.6rem;letter-spacing:4px;margin:6px 0 10px}
+  .wincard .stars b{color:#e2e8f0}
+  .wincard .stat{color:#475569;font-weight:800;margin-bottom:14px;font-size:1rem}
+  @keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.06)}100%{transform:scale(1)}}
+
+  .burst{position:fixed;z-index:90;pointer-events:none;font-size:1.6rem;animation:fly 1.1s ease-out forwards}
+  @keyframes fly{0%{opacity:1;transform:translate(0,0) scale(.6) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3) rotate(var(--rot))}}
+  .credit{text-align:center;color:#6b7c99;font-size:.82rem;padding:16px 0 4px;font-weight:600}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <button class="back" id="topBack">← Trang chủ</button>
+    <button id="sound" title="Bật/tắt âm thanh">🔊</button>
+  </div>
+
+  <!-- START / DIFFICULTY SCREEN -->
+  <section id="startScreen">
+    <h1>🧩 Ghép Hình Kỳ Diệu</h1>
+    <p class="lead">Chọn độ khó rồi kéo các mảnh vào đúng chỗ nhé!</p>
+    <div class="levels">
+      <div class="lvl" data-l="easy" tabindex="0">
+        <span class="em">🙂</span>
+        <div class="nm">Dễ</div>
+        <div class="pc">6 mảnh</div>
+      </div>
+      <div class="lvl" data-l="mid" tabindex="0">
+        <span class="em">😃</span>
+        <div class="nm">Trung bình</div>
+        <div class="pc">9 mảnh</div>
+      </div>
+      <div class="lvl" data-l="hard" tabindex="0">
+        <span class="em">🤩</span>
+        <div class="nm">Khó</div>
+        <div class="pc">12 mảnh</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAY SCREEN -->
+  <section id="playScreen" hidden>
+    <h1 id="playTitle">Ghép hình</h1>
+    <div class="hud">
+      <div class="chip time" id="chipTime"><span class="k">⏱️</span><span id="timeVal">2:30</span></div>
+      <div class="chip" id="chipDone"><span class="k">🧩</span><span id="doneVal">0/6</span></div>
+      <div class="chip star" id="chipStar"><span class="k">⭐</span><span id="starVal">★★★</span></div>
+    </div>
+    <div class="stage">
+      <div class="boardwrap">
+        <div class="board" id="board"></div>
+      </div>
+      <div class="tray">
+        <div class="th">Các mảnh còn lại — kéo vào bảng</div>
+        <div class="traypieces" id="tray"></div>
+      </div>
+      <div class="row">
+        <button class="btn gray" id="restartBtn">🔄 Chơi lại</button>
+        <button class="btn pink" id="changeBtn">🎚️ Đổi độ khó</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="credit">Thiết kế bởi Bùi Thị Phương Trúc · Trường Trung-Tiểu học Pétrus Ký</div>
+
+<!-- WIN OVERLAY -->
+<div class="win" id="winBox" hidden>
+  <div class="wincard">
+    <div class="big" id="winFace">🎉</div>
+    <div class="msg" id="winMsg">Hoàn thành!</div>
+    <div class="stars" id="winStars">★★★</div>
+    <div class="stat" id="winStat"></div>
+    <div class="row">
+      <button class="btn" id="againBtn">🔄 Chơi lại</button>
+      <button class="btn pink" id="otherBtn">🎚️ Đổi độ khó</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== pictures (big emoji drawn onto a canvas, then sliced) ===== */
+const PICTURES=[
+  {emoji:'🐱', name:'chú mèo',  bg:'#fef3c7'},
+  {emoji:'🐟', name:'cá vàng',  bg:'#dbeafe'},
+  {emoji:'🦋', name:'bươm bướm',bg:'#fae8ff'},
+  {emoji:'🌈', name:'cầu vồng', bg:'#e0f2fe'},
+  {emoji:'🏠', name:'ngôi nhà', bg:'#dcfce7'},
+  {emoji:'🚗', name:'ô tô',     bg:'#ffe4e6'},
+  {emoji:'🌳', name:'cây xanh', bg:'#dcfce7'},
+  {emoji:'🍎', name:'quả táo',  bg:'#fee2e2'},
+];
+
+/* ===== difficulty ===== */
+const LEVELS={
+  easy:{name:'Dễ',      cols:3, rows:2, secs:150},
+  mid: {name:'Trung bình',cols:3, rows:3, secs:165},
+  hard:{name:'Khó',     cols:4, rows:3, secs:180},
+};
+
+/* ===== board sizing ===== */
+const BOARD_MAX=560;         // px max board width
+function boardPx(){ return Math.min(BOARD_MAX, Math.max(280, window.innerWidth-70)); }
+
+/* ===== state ===== */
+let soundOn=true, actx=null;
+let level=null, pic=null;
+let cols=0, rows=0, N=0;
+let cellW=0, cellH=0, fullW=0, fullH=0;
+let pieceURLs=[];            // index -> dataURL
+let placed=0;                // count of locked pieces
+let timeLeft=0, timerId=null, startTs=0;
+let dragState=null;
+
+/* ===== audio ===== */
+function ensa(){if(!actx){try{actx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}}
+function tone(k){if(!soundOn)return;ensa();if(!actx)return;const n=actx.currentTime;
+  const F=k==='pick'?[440]:k==='lock'?[660,990]:k==='wrong'?[260,200]:k==='win'?[660,880,1100,1320,1560]:[440];
+  F.forEach((f,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type='triangle';o.frequency.value=f;
+    const t=n+i*0.09;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.22,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.16);
+    o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.18);});}
+let viVoice=null;function pv(){const vs=window.speechSynthesis?speechSynthesis.getVoices():[];viVoice=vs.find(v=>/vi[-_]?VN/i.test(v.lang))||null;}
+if(window.speechSynthesis){pv();speechSynthesis.onvoiceschanged=pv;}
+function speak(t){if(!soundOn||!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';if(viVoice)u.voice=viVoice;u.rate=.98;u.pitch=1.15;speechSynthesis.speak(u);}catch(e){}}
+
+/* ===== slicing: draw big emoji, then cut each cell to its own dataURL ===== */
+function buildPieces(){
+  // one master canvas holding the whole picture
+  fullW=cols*cellW; fullH=rows*cellH;
+  const scale=(window.devicePixelRatio||1);
+  const master=document.createElement('canvas');
+  master.width=fullW*scale; master.height=fullH*scale;
+  const mc=master.getContext('2d'); mc.scale(scale,scale);
+  // colorful background
+  mc.fillStyle=pic.bg; mc.fillRect(0,0,fullW,fullH);
+  // soft radial glow so it looks lively
+  const g=mc.createRadialGradient(fullW/2,fullH/2,10,fullW/2,fullH/2,Math.max(fullW,fullH)/1.3);
+  g.addColorStop(0,'rgba(255,255,255,.55)'); g.addColorStop(1,'rgba(255,255,255,0)');
+  mc.fillStyle=g; mc.fillRect(0,0,fullW,fullH);
+  // the big emoji, centered
+  const fs=Math.min(fullW,fullH)*0.82;
+  mc.textAlign='center'; mc.textBaseline='middle';
+  mc.font=fs+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+  mc.fillText(pic.emoji, fullW/2, fullH/2+fs*0.02);
+
+  // cut each cell into its own dataURL
+  pieceURLs=[];
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const cv=document.createElement('canvas');
+      cv.width=cellW*scale; cv.height=cellH*scale;
+      const cx=cv.getContext('2d');
+      cx.drawImage(master, c*cellW*scale, r*cellH*scale, cellW*scale, cellH*scale,
+                           0,0, cellW*scale, cellH*scale);
+      pieceURLs.push(cv.toDataURL('image/png'));
+    }
+  }
+}
+
+/* ===== build the board (slots) ===== */
+function buildBoard(){
+  const board=document.getElementById('board');
+  board.style.gridTemplateColumns='repeat('+cols+',1fr)';
+  board.style.width=fullW+'px'; board.style.height=fullH+'px';
+  board.innerHTML='';
+  for(let i=0;i<N;i++){
+    const s=document.createElement('div'); s.className='slot'; s.dataset.idx=i;
+    s.style.width=cellW+'px'; s.style.height=cellH+'px';
+    const gh=document.createElement('div'); gh.className='ghost';
+    gh.style.backgroundImage='url('+pieceURLs[i]+')';
+    s.appendChild(gh);
+    board.appendChild(s);
+  }
+}
+
+/* ===== build the tray (shuffled pieces) ===== */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function buildTray(){
+  const tray=document.getElementById('tray'); tray.innerHTML='';
+  const order=shuffle([...Array(N).keys()]);
+  order.forEach(idx=>{
+    const p=document.createElement('div'); p.className='piece'; p.dataset.idx=idx;
+    p.style.width=cellW+'px'; p.style.height=cellH+'px';
+    p.style.backgroundImage='url('+pieceURLs[idx]+')';
+    attachDrag(p);
+    tray.appendChild(p);
+  });
+}
+
+/* ===== drag & drop with pointer events ===== */
+function attachDrag(piece){
+  piece.addEventListener('pointerdown',e=>{
+    if(piece.classList.contains('locked')) return;
+    e.preventDefault();
+    startDrag(piece, e.clientX, e.clientY);
+  });
+}
+function startDrag(piece,x,y){
+  tone('pick');
+  const idx=+piece.dataset.idx;
+  const layer=document.createElement('div'); layer.className='drag-layer';
+  layer.style.width=cellW+'px'; layer.style.height=cellH+'px';
+  layer.style.backgroundImage='url('+pieceURLs[idx]+')';
+  document.body.appendChild(layer);
+  piece.classList.add('dragging');
+  dragState={piece,idx,layer,offX:cellW/2,offY:cellH/2};
+  moveGhost(x,y);
+  window.addEventListener('pointermove',onMove);
+  window.addEventListener('pointerup',onUp);
+}
+function moveGhost(x,y){
+  if(!dragState) return;
+  dragState.layer.style.left=(x-dragState.offX)+'px';
+  dragState.layer.style.top=(y-dragState.offY)+'px';
+}
+function onMove(e){ moveGhost(e.clientX,e.clientY); }
+function slotUnder(x,y){
+  if(dragState) dragState.layer.style.display='none';
+  const el=document.elementFromPoint(x,y);
+  if(dragState) dragState.layer.style.display='';
+  return el&&el.closest?el.closest('.slot'):null;
+}
+function onUp(e){
+  window.removeEventListener('pointermove',onMove);
+  window.removeEventListener('pointerup',onUp);
+  if(!dragState) return;
+  const {piece,idx,layer}=dragState;
+  const slot=slotUnder(e.clientX,e.clientY);
+  layer.remove();
+  piece.classList.remove('dragging');
+  dragState=null;
+  if(slot && +slot.dataset.idx===idx && !slot.classList.contains('filled')){
+    lockPiece(piece,slot,idx);
+  } else {
+    // wrong or dropped outside: bounce back in tray
+    tone('wrong');
+    piece.classList.add('wrong');
+    setTimeout(()=>piece.classList.remove('wrong'),400);
+  }
+}
+function lockPiece(piece,slot,idx){
+  // remove the tray piece, draw a fixed placed piece into the slot
+  piece.remove();
+  slot.classList.add('filled');
+  const ph=document.createElement('div'); ph.className='placed pop';
+  ph.style.left='0'; ph.style.top='0'; ph.style.width='100%'; ph.style.height='100%';
+  ph.style.backgroundImage='url('+pieceURLs[idx]+')';
+  slot.appendChild(ph);
+  const gh=slot.querySelector('.ghost'); if(gh) gh.remove();
+  placed++;
+  tone('lock');
+  updateHud();
+  if(placed>=N) win();
+}
+
+/* ===== HUD / timer ===== */
+function fmt(s){const m=Math.floor(s/60),ss=s%60;return m+':'+(ss<10?'0':'')+ss;}
+function curStars(){
+  // stars by fraction of time used
+  const used=level.secs-timeLeft, frac=used/level.secs;
+  return frac<=0.5?3:frac<=0.8?2:1;
+}
+function updateHud(){
+  document.getElementById('doneVal').textContent=placed+'/'+N;
+  document.getElementById('starVal').textContent='★'.repeat(curStars())+'☆'.repeat(3-curStars());
+}
+function tick(){
+  timeLeft--;
+  const tv=document.getElementById('timeVal'); tv.textContent=fmt(Math.max(0,timeLeft));
+  const chip=document.getElementById('chipTime');
+  chip.classList.toggle('low', timeLeft<=20);
+  document.getElementById('starVal').textContent='★'.repeat(curStars())+'☆'.repeat(3-curStars());
+  if(timeLeft<=0){ clearInterval(timerId); timerId=null; timeUp(); }
+}
+
+/* ===== game flow ===== */
+function startGame(lvKey){
+  level=LEVELS[lvKey];
+  cols=level.cols; rows=level.rows; N=cols*rows;
+  pic=PICTURES[Math.floor(Math.random()*PICTURES.length)];
+  // size cells to fit board width
+  const bw=boardPx();
+  cellW=Math.floor(bw/cols);
+  cellH=cellW; // square cells
+  // cap board height so tall grids still fit
+  const maxH=Math.min(window.innerHeight*0.5, 520);
+  if(cellH*rows>maxH){ cellH=Math.floor(maxH/rows); cellW=cellH; }
+
+  buildPieces();
+  buildBoard();
+  buildTray();
+
+  placed=0; timeLeft=level.secs; startTs=Date.now();
+  document.getElementById('playTitle').textContent='Ghép hình: '+pic.name;
+  document.getElementById('timeVal').textContent=fmt(timeLeft);
+  document.getElementById('chipTime').classList.remove('low');
+  updateHud();
+
+  document.getElementById('startScreen').hidden=true;
+  document.getElementById('playScreen').hidden=false;
+  document.getElementById('winBox').hidden=true;
+  window.scrollTo(0,0);
+  speak('Hãy ghép '+pic.name+' nhé.');
+
+  if(timerId) clearInterval(timerId);
+  timerId=setInterval(tick,1000);
+}
+
+function win(){
+  if(timerId){ clearInterval(timerId); timerId=null; }
+  const st=curStars();
+  const used=level.secs-timeLeft;
+  tone('win'); confetti();
+  document.getElementById('winStars').innerHTML='★'.repeat(st)+'<b>'+'★'.repeat(3-st)+'</b>';
+  const faces=['🎉','🥳','🌈','⭐','🏆'];
+  document.getElementById('winFace').textContent=faces[Math.floor(Math.random()*faces.length)];
+  const praise=st===3?'Xuất sắc!':st===2?'Giỏi lắm!':'Hoàn thành!';
+  document.getElementById('winMsg').textContent=praise;
+  document.getElementById('winStat').innerHTML='Bức <b>'+pic.name+'</b> · Thời gian: <b>'+fmt(used)+'</b> · '+st+' sao';
+  speak(praise+' Em ghép hình rất giỏi.');
+  setTimeout(()=>{ document.getElementById('winBox').hidden=false; }, 700);
+}
+
+function timeUp(){
+  document.getElementById('winStars').innerHTML='<b>★★★</b>';
+  document.getElementById('winFace').textContent='⏰';
+  document.getElementById('winMsg').textContent='Hết giờ rồi!';
+  document.getElementById('winMsg').style.color='#e11d48';
+  document.getElementById('winStat').innerHTML='Em đã ghép <b>'+placed+'/'+N+'</b> mảnh. Thử lại nhé!';
+  speak('Hết giờ rồi. Em thử lại nhé.');
+  setTimeout(()=>{ document.getElementById('winBox').hidden=false; }, 400);
+}
+
+function restart(){
+  document.getElementById('winMsg').style.color='';
+  if(level){
+    const key=Object.keys(LEVELS).find(k=>LEVELS[k]===level);
+    startGame(key);
+  }
+}
+function toStart(){
+  if(timerId){ clearInterval(timerId); timerId=null; }
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  document.getElementById('winMsg').style.color='';
+  document.getElementById('playScreen').hidden=true;
+  document.getElementById('winBox').hidden=true;
+  document.getElementById('startScreen').hidden=false;
+  window.scrollTo(0,0);
+}
+
+function confetti(){
+  const ic=['⭐','✨','🌟','🎉','🌈','💖','🎈','🧩'];
+  const cx=window.innerWidth/2, cy=window.innerHeight*0.4;
+  for(let i=0;i<28;i++){
+    const s=document.createElement('div'); s.className='burst'; s.textContent=ic[i%ic.length];
+    s.style.left=cx+'px'; s.style.top=cy+'px';
+    const a=Math.PI*2*i/28, d=120+Math.random()*170;
+    s.style.setProperty('--dx',(Math.cos(a)*d)+'px');
+    s.style.setProperty('--dy',(Math.sin(a)*d-40)+'px');
+    s.style.setProperty('--rot',(Math.random()*360)+'deg');
+    document.body.appendChild(s); setTimeout(()=>s.remove(),1150);
+  }
+}
+
+/* ===== wire controls ===== */
+document.querySelectorAll('.lvl').forEach(el=>{
+  el.addEventListener('click',()=>startGame(el.dataset.l));
+});
+document.getElementById('restartBtn').addEventListener('click',restart);
+document.getElementById('changeBtn').addEventListener('click',toStart);
+document.getElementById('againBtn').addEventListener('click',restart);
+document.getElementById('otherBtn').addEventListener('click',toStart);
+document.getElementById('topBack').addEventListener('click',()=>{
+  if(document.getElementById('startScreen').hidden) toStart();
+  else location.href='../../index.html';
+});
+document.getElementById('sound').addEventListener('click',()=>{
+  soundOn=!soundOn; document.getElementById('sound').textContent=soundOn?'🔊':'🔇';
+  if(!soundOn&&window.speechSynthesis) speechSynthesis.cancel();
+});
+</script>
+</body>
+</html>

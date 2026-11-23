@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leo Núi Tin Học - Ôn tập HK1 Lớp 4</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#1e2a5a;--xanh:#2f80ed;--la:#27ae60;--do:#e53935;--cam:#f59e0b;--tim:#8b5cf6;--kem:#fffdf6}
+html,body{min-height:100%}
+body{font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:var(--navy);
+  background:linear-gradient(180deg,#bfe6ff 0%,#e6f6ff 55%,#f3ffe9 100%);min-height:100vh;padding:14px;overflow-x:hidden}
+.back{display:inline-block;background:#fff;border:3px solid var(--navy);color:var(--navy);text-decoration:none;
+  font-weight:bold;padding:7px 16px;border-radius:24px;font-size:14px}
+.back:hover{background:#eef3ff}
+.wrap{max-width:1120px;margin:0 auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{background:#fff;border:3px solid var(--cam);border-radius:24px;padding:6px 16px;font-weight:bold;font-size:16px;color:#a35a00}
+.hearts{display:flex;gap:4px;background:#fff;border:3px solid #f8a5a5;border-radius:24px;padding:5px 12px}
+.hearts svg{width:24px;height:24px}
+.hearts .off{opacity:.18;filter:grayscale(1)}
+.ico{background:#fff;border:3px solid var(--navy);border-radius:50%;width:44px;height:44px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--navy)}
+.ico:hover{background:#eef3ff}
+
+.card{background:var(--kem);border:4px solid #fff;border-radius:30px;box-shadow:0 14px 40px rgba(30,42,90,.16);padding:22px 26px}
+h1{text-align:center;color:var(--xanh);font-size:clamp(28px,5vw,52px);line-height:1.15;letter-spacing:1px}
+h1 span{color:var(--la)}
+.sub{text-align:center;font-size:clamp(15px,2vw,20px);margin:8px 0 14px}
+.rules{max-width:760px;margin:0 auto;background:#fff;border:3px dashed var(--xanh);border-radius:22px;padding:14px 20px;
+  font-size:clamp(14px,1.8vw,18px);line-height:1.6}
+.rules b{color:var(--do)}
+.row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:18px}
+.btn{background:var(--la);color:#fff;border:none;border-radius:999px;padding:14px 34px;font-size:20px;font-weight:bold;
+  font-family:inherit;cursor:pointer;box-shadow:0 6px 0 #1b7a43}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #1b7a43}
+.btn.xanh{background:var(--xanh);box-shadow:0 6px 0 #1d5bb0}
+.btn.xanh:active{box-shadow:0 2px 0 #1d5bb0}
+.btn.cam{background:var(--cam);box-shadow:0 6px 0 #b4740a}
+.btn.cam:active{box-shadow:0 2px 0 #b4740a}
+.btn[hidden]{display:none}
+.hero{display:block;margin:0 auto 6px;width:min(330px,80%)}
+
+/* ===== màn chơi ===== */
+.game{display:grid;grid-template-columns:1fr 240px;gap:16px;align-items:start}
+.lifes{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.life{display:flex;align-items:center;gap:8px;background:#fff;border:3px solid var(--tim);border-radius:999px;
+  padding:7px 16px 7px 8px;font-family:inherit;font-weight:bold;font-size:15px;color:#5b34b5;cursor:pointer}
+.life svg{width:30px;height:30px;flex:none}
+.life:hover:not(:disabled){background:#f3eeff}
+.life:disabled{opacity:.35;cursor:default;text-decoration:line-through}
+.tag{display:inline-block;background:#e8f1ff;color:#1d5bb0;font-weight:bold;border-radius:14px;padding:4px 12px;font-size:13px;letter-spacing:.5px}
+.qbox{background:#fff;border:4px solid var(--xanh);border-radius:26px;padding:16px 20px;margin:10px 0 14px}
+.qhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.qtext{font-size:clamp(18px,2.4vw,26px);font-weight:bold;line-height:1.4}
+.say{background:#fff;border:2px solid var(--xanh);color:var(--xanh);border-radius:50%;width:38px;height:38px;flex:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.fig{display:flex;justify-content:center;margin-top:10px}
+.fig svg{width:min(330px,100%);height:auto}
+
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opts.one{grid-template-columns:1fr}
+.opts.pic{grid-template-columns:repeat(4,1fr)}
+.opt{display:flex;align-items:center;gap:12px;background:#fff;border:4px solid #c9d6f2;border-radius:22px;padding:12px 16px;
+  font-family:inherit;font-size:clamp(15px,1.9vw,20px);font-weight:bold;color:var(--navy);cursor:pointer;text-align:left;
+  transition:transform .12s,background .2s,border-color .2s;min-height:64px}
+.opt:hover:not(:disabled){transform:translateY(-3px);border-color:var(--xanh)}
+.opt .k{flex:none;width:38px;height:38px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px}
+.opt:nth-child(1) .k{background:#2f80ed}.opt:nth-child(2) .k{background:#e8590c}
+.opt:nth-child(3) .k{background:#8b5cf6}.opt:nth-child(4) .k{background:#0e9f6e}
+.opts.pic .opt{flex-direction:column;justify-content:center;text-align:center;padding:10px 6px;gap:6px}
+.opts.pic .opt svg{width:72px;height:72px}
+.opt .lab{font-size:15px}
+.opt.dung{background:#dcf7e3;border-color:var(--la)}
+.opt.sai{background:#ffe1e1;border-color:var(--do)}
+.opt.gone{visibility:hidden}
+.opt:disabled{cursor:default}
+
+.poll{display:none;background:#fff;border:3px solid var(--tim);border-radius:20px;padding:12px 16px;margin-top:12px}
+.poll.show{display:block;animation:pop .3s}
+.poll h4{color:#5b34b5;margin-bottom:8px}
+.bars{display:flex;gap:16px;align-items:flex-end;height:120px;justify-content:center}
+.bar{width:46px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-weight:bold;font-size:14px}
+.bar i{display:block;width:100%;background:linear-gradient(180deg,#a78bfa,#7c3aed);border-radius:8px 8px 0 0;transition:height .8s;height:0}
+.tip{display:none;background:#fff8e1;border:3px solid var(--cam);border-radius:20px;padding:12px 16px;margin-top:12px;
+  font-size:clamp(15px,1.9vw,19px);line-height:1.5}
+.tip.show{display:block;animation:pop .3s}
+.tip b{color:#a35a00}
+
+.note{display:none;margin-top:14px;border-radius:22px;padding:14px 18px;font-size:clamp(15px,1.9vw,19px);line-height:1.55;
+  background:#fff;border:4px dashed var(--la)}
+.note.show{display:block;animation:pop .3s}
+.note.bad{border-color:var(--do)}
+.note .h{font-weight:bold;font-size:clamp(17px,2.2vw,22px);margin-bottom:4px}
+.note.ok .h{color:var(--la)}.note.bad .h{color:var(--do)}
+.note b{color:#c2410c}
+@keyframes pop{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* thang leo núi */
+.mtn{background:linear-gradient(180deg,#dff1ff,#fff);border:4px solid #fff;border-radius:26px;padding:10px;box-shadow:0 10px 26px rgba(30,42,90,.12);position:relative}
+.mtn h3{text-align:center;font-size:16px;color:var(--xanh);margin-bottom:6px}
+.step{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:12px;font-weight:bold;font-size:14px;color:#7a86a8;margin:2px 0}
+.step .n{width:26px;height:26px;border-radius:50%;background:#e7ecf7;display:flex;align-items:center;justify-content:center;font-size:13px;flex:none}
+.step .lbl{flex:1}
+.step .me{width:26px;height:26px;flex:none}
+.step.camp .lbl{color:#a35a00}
+.step.camp .n{background:#ffe7b3;color:#a35a00}
+.step.done{color:var(--la)}
+.step.done .n{background:var(--la);color:#fff}
+.step.cur{background:var(--xanh);color:#fff}
+.step.cur .n{background:#fff;color:var(--xanh)}
+.step.cur .lbl{color:#fff}
+
+.float{position:fixed;font-weight:bold;font-size:30px;color:var(--la);pointer-events:none;z-index:20;animation:up 1s forwards;text-shadow:0 2px 0 #fff}
+@keyframes up{to{transform:translateY(-80px);opacity:0}}
+.toast{position:fixed;left:50%;top:22%;transform:translateX(-50%);background:#fff;border:4px solid var(--cam);border-radius:24px;
+  padding:16px 28px;font-size:clamp(18px,2.6vw,28px);font-weight:bold;color:#a35a00;z-index:25;box-shadow:0 12px 30px rgba(0,0,0,.18);
+  text-align:center;animation:pop .3s}
+.confetti{position:fixed;top:-20px;width:12px;height:18px;z-index:30;pointer-events:none;border-radius:3px}
+@keyframes roi{to{transform:translateY(105vh) rotate(720deg);opacity:0}}
+
+/* kết quả + sổ tay */
+.res{text-align:center}
+.stars{display:flex;justify-content:center;gap:8px;margin:8px 0}
+.stars svg{width:60px;height:60px}
+.big{font-size:clamp(30px,5vw,54px);font-weight:bold;color:var(--xanh)}
+.praise{font-size:clamp(18px,2.4vw,26px);font-weight:bold;margin:6px 0}
+.review{text-align:left;max-width:820px;margin:14px auto 0;background:#fff;border:3px solid var(--navy);border-radius:20px;
+  padding:12px 18px;max-height:300px;overflow:auto;font-size:15px;line-height:1.5}
+.review h3{color:var(--do);margin-bottom:6px}
+.review li{margin:8px 0 8px 18px}
+.review b{color:#c2410c}
+.ov{position:fixed;inset:0;background:rgba(20,30,60,.55);z-index:40;display:none;align-items:center;justify-content:center;padding:14px}
+.ov.show{display:flex}
+.book{background:var(--kem);border-radius:26px;max-width:860px;width:100%;max-height:90vh;overflow:auto;padding:20px 24px;position:relative}
+.book h2{color:var(--xanh);text-align:center;margin-bottom:10px}
+.book h3{color:#fff;background:var(--xanh);display:inline-block;border-radius:14px;padding:4px 14px;margin:12px 0 6px;font-size:16px}
+.book li{margin:6px 0 6px 20px;line-height:1.5;font-size:16px}
+.book b{color:#c2410c}
+.close{position:sticky;top:0;float:right;background:var(--do);color:#fff;border:none;border-radius:50%;width:40px;height:40px;
+  font-size:22px;font-weight:bold;cursor:pointer}
+.hide{display:none!important}
+
+@media(max-width:820px){
+  .game{grid-template-columns:1fr}
+  .mtn{order:-1}
+  .mtn h3{display:none}
+  .ladder{display:flex;gap:3px;justify-content:space-between}
+  .step{flex-direction:column;padding:4px 2px;margin:0;flex:1;gap:2px}
+  .step .lbl,.step .me{display:none}
+  .step .n{width:22px;height:22px;font-size:11px}
+  .opts{grid-template-columns:1fr}
+  .opts.pic{grid-template-columns:1fr 1fr}
+  .card{padding:16px 14px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="../">&larr; Quay lại</a>
+    <div class="hud">
+      <span class="pill" id="diem">Điểm: 0</span>
+      <span class="hearts" id="tim"></span>
+      <button class="ico" id="amBtn" title="Bật/tắt âm thanh"></button>
+    </div>
+  </div>
+
+  <!-- màn đầu -->
+  <section class="card" id="mDau">
+    <svg class="hero" viewBox="0 0 330 150" aria-hidden="true">
+      <path d="M0 150 L95 40 L150 95 L205 20 L330 150Z" fill="#7cc4a4"/>
+      <path d="M205 20 L232 52 L218 48 L205 58 L192 47 L180 52Z" fill="#fff"/>
+      <path d="M95 40 L112 60 L95 56 L80 58Z" fill="#fff"/>
+      <path d="M0 150 L60 110 L120 150Z" fill="#4fa37f"/>
+      <line x1="205" y1="20" x2="205" y2="-2" stroke="#6b4f2a" stroke-width="3"/>
+      <path d="M205 -2 L228 6 L205 13Z" fill="#e53935"/>
+      <g transform="translate(118 88)">
+        <rect x="0" y="12" width="26" height="22" rx="5" fill="#3b7dd8" stroke="#26406e" stroke-width="2"/>
+        <rect x="2" y="-6" width="22" height="18" rx="5" fill="#ffd23b" stroke="#c99f24" stroke-width="2"/>
+        <circle cx="9" cy="3" r="2.2" fill="#2b2f45"/><circle cx="17" cy="3" r="2.2" fill="#2b2f45"/>
+        <line x1="13" y1="-6" x2="13" y2="-13" stroke="#8892a3" stroke-width="2"/><circle cx="13" cy="-14" r="3" fill="#e53935"/>
+      </g>
+    </svg>
+    <h1>LEO NÚI <span>TIN HỌC</span></h1>
+    <p class="sub">Ôn tập Học kì I - Tin học Lớp 4</p>
+    <div class="rules">
+      Trả lời đúng để leo lên <b>15 bậc</b> tới đỉnh núi. Bậc 5 và bậc 10 là <b>trạm nghỉ</b>.<br>
+      Em có <b>3 trái tim</b>: trả lời sai mất 1 tim và nhận câu khác ở cùng bậc.<br>
+      Có 3 quyền trợ giúp, mỗi quyền dùng <b>1 lần</b>: <b>50:50</b>, <b>Hỏi cả lớp</b>, <b>Hỏi cô</b>.<br>
+      Mỗi câu xong đều có ô <b>Ghi nhớ</b> - đọc kĩ để nhớ bài nhé!
+    </div>
+    <div class="row">
+      <button class="btn" id="batDau">Bắt đầu leo núi</button>
+      <button class="btn cam" id="soTay1">Sổ tay ôn tập</button>
+    </div>
+    <p class="sub" id="kyLuc" style="margin-top:14px"></p>
+  </section>
+
+  <!-- màn chơi -->
+  <section class="game hide" id="mChoi">
+    <div class="card">
+      <div class="lifes">
+        <button class="life" id="l50"><svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" fill="#8b5cf6"/><text x="15" y="19.5" text-anchor="middle" font-size="8" font-weight="bold" fill="#fff" font-family="Arial">50:50</text></svg>50:50</button>
+        <button class="life" id="lLop"><svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" fill="#8b5cf6"/><rect x="7" y="15" width="4" height="8" fill="#fff"/><rect x="13" y="9" width="4" height="14" fill="#fff"/><rect x="19" y="12" width="4" height="11" fill="#fff"/></svg>Hỏi cả lớp</button>
+        <button class="life" id="lCo"><svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="14" fill="#8b5cf6"/><circle cx="15" cy="11" r="4.5" fill="#fff"/><path d="M7 24c1-5 4.5-7 8-7s7 2 8 7z" fill="#fff"/></svg>Hỏi cô</button>
+      </div>
+      <span class="tag" id="phan"></span>
+      <div class="qbox">
+        <div class="qhead"><b id="bacTxt" style="color:var(--xanh)"></b><button class="say" id="docLai" title="Đọc lại câu hỏi"></button></div>
+        <div class="qtext" id="cauHoi"></div>
+        <div class="fig" id="hinh"></div>
+      </div>
+      <div class="opts" id="dapAn"></div>
+      <div class="poll" id="poll"><h4>Cả lớp chọn:</h4><div class="bars" id="bars"></div></div>
+      <div class="tip" id="tip"></div>
+      <div class="note" id="note"></div>
+      <div class="row"><button class="btn xanh" id="tiep" hidden>Leo tiếp</button></div>
+    </div>
+    <aside class="mtn"><h3>Đường lên đỉnh</h3><div class="ladder" id="thang"></div></aside>
+  </section>
+
+  <!-- màn kết quả -->
+  <section class="card res hide" id="mKQ">
+    <div class="stars" id="sao"></div>
+    <div class="praise" id="khen"></div>
+    <div class="big" id="kqBac"></div>
+    <p class="sub" id="kqDiem"></p>
+    <div class="review" id="onLai"></div>
+    <div class="row">
+      <button class="btn" id="choiLai">Leo lại</button>
+      <button class="btn cam" id="soTay2">Sổ tay ôn tập</button>
+    </div>
+  </section>
+</div>
+
+<div class="ov" id="ov"><div class="book"><button class="close" id="dong">&times;</button><h2>Sổ tay ôn tập Tin học 4 - HK1</h2><div id="soTay"></div></div></div>
+
+<script>
+/* ===== hình SVG ===== */
+const ICON={
+  monitor:{n:'Màn hình',s:'<svg viewBox="0 0 80 80"><rect x="8" y="12" width="64" height="42" rx="4" fill="#2b2f45"/><rect x="13" y="17" width="54" height="32" fill="#5ec4ff"/><rect x="34" y="54" width="12" height="10" fill="#555b70"/><rect x="24" y="64" width="32" height="5" rx="2" fill="#2b2f45"/></svg>'},
+  mouse:{n:'Chuột',s:'<svg viewBox="0 0 80 80"><rect x="24" y="12" width="32" height="54" rx="16" fill="#5b6275"/><line x1="40" y1="13" x2="40" y2="34" stroke="#2b2f45" stroke-width="2.5"/><line x1="25" y1="34" x2="55" y2="34" stroke="#2b2f45" stroke-width="2.5"/><rect x="38" y="19" width="4" height="9" rx="2" fill="#cfd6e6"/></svg>'},
+  keyboard:{n:'Bàn phím',s:'<svg viewBox="0 0 80 80"><rect x="4" y="24" width="72" height="34" rx="5" fill="#5b6275"/>'+(()=>{let r='';for(let y=0;y<3;y++)for(let x=0;x<8;x++)r+='<rect x="'+(9+x*8)+'" y="'+(28+y*8)+'" width="6" height="6" rx="1" fill="#e9edf5"/>';return r})()+'<rect x="22" y="52" width="36" height="4" rx="1" fill="#e9edf5"/></svg>'},
+  app:{n:'Phần mềm trình chiếu',s:'<svg viewBox="0 0 80 80"><rect x="10" y="10" width="60" height="60" rx="14" fill="#e8590c"/><rect x="20" y="22" width="40" height="28" rx="3" fill="#fff"/><circle cx="32" cy="36" r="7" fill="#ffb37a"/><path d="M32 29v7h7a7 7 0 0 0-7-7z" fill="#e8590c"/><rect x="42" y="31" width="13" height="3" fill="#e8590c"/><rect x="42" y="37" width="10" height="3" fill="#e8590c"/><rect x="30" y="54" width="20" height="5" rx="2" fill="#fff"/></svg>'},
+  moveto:{n:'Move to',s:'<svg viewBox="0 0 80 80"><path d="M8 20h22l6 6h36v40H8z" fill="#f6b73c" stroke="#e08a00" stroke-width="2"/><path d="M60 46H32" stroke="#1e6fd9" stroke-width="7" stroke-linecap="round"/><path d="M36 36l-12 10 12 10z" fill="#1e6fd9"/></svg>'},
+  copyto:{n:'Copy to',s:'<svg viewBox="0 0 80 80"><path d="M8 20h22l6 6h36v40H8z" fill="#f6b73c" stroke="#e08a00" stroke-width="2"/><rect x="26" y="32" width="20" height="24" rx="2" fill="#fff" stroke="#1e6fd9" stroke-width="3"/><rect x="34" y="38" width="20" height="24" rx="2" fill="#fff" stroke="#1e6fd9" stroke-width="3"/></svg>'},
+  delete:{n:'Delete',s:'<svg viewBox="0 0 80 80"><path d="M16 16L64 64M64 16L16 64" stroke="#e53935" stroke-width="11" stroke-linecap="round"/></svg>'},
+  rename:{n:'Rename',s:'<svg viewBox="0 0 80 80"><rect x="8" y="28" width="56" height="24" rx="4" fill="#fff" stroke="#1e6fd9" stroke-width="3"/><rect x="13" y="33" width="38" height="14" fill="#8cc3ff"/><path d="M60 20v40M54 20h12M54 60h12" stroke="#2b2f45" stroke-width="3"/></svg>'},
+  newfolder:{n:'New folder',s:'<svg viewBox="0 0 80 80"><path d="M6 16h22l6 6h38v40H6z" fill="#f6b73c" stroke="#e08a00" stroke-width="2"/><circle cx="60" cy="58" r="15" fill="#22a447" stroke="#fff" stroke-width="3"/><path d="M60 50v16M52 58h16" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/></svg>'}
+};
+function folder(x,y){return '<path d="M'+x+' '+(y+2)+'h9l3 3h14v15h-26z" fill="#f6b73c" stroke="#e08a00" stroke-width="1.2"/>'}
+function file(x,y){return '<path d="M'+(x+3)+' '+y+'h12l5 5v17h-17z" fill="#fff" stroke="#8892a3" stroke-width="1.4"/><path d="M'+(x+7)+' '+(y+9)+'h9M'+(x+7)+' '+(y+13)+'h9M'+(x+7)+' '+(y+17)+'h9" stroke="#8892a3" stroke-width="1.2"/>'}
+const TREE='<svg viewBox="0 0 330 250"><g font-family="Arial" font-size="17" fill="#1e2a5a" font-weight="bold">'
+  +folder(10,6)+'<text x="44" y="24" font-size="21">Hoc tap</text>'
+  +'<path d="M22 30V214M22 58h30M22 150h30M22 214h30M64 86v62M64 86h30M64 120h30M64 178h30M64 166v12M64 236h30M64 230v6" stroke="#2b2f45" stroke-width="2" fill="none"/>'
+  +folder(52,46)+'<text x="86" y="64">Mon hoc</text>'
+  +folder(94,74)+'<text x="128" y="92">Toan</text>'
+  +folder(94,108)+'<text x="128" y="126">Tieng Viet</text>'
+  +folder(52,138)+'<text x="86" y="156">Bai giang</text>'
+  +file(94,166)+'<text x="128" y="184">Bai1.pptx</text>'
+  +folder(52,202)+'<text x="86" y="220">Bai tap</text>'
+  +file(94,224)+'<text x="128" y="242">Bai_tap_toan.docx</text>'
+  +'</g><path d="M64 166V150M64 230v-14" stroke="#2b2f45" stroke-width="2"/></svg>';
+
+/* ===== ngân hàng câu hỏi =====
+   a[0] luôn là đáp án đúng (khi chơi sẽ xáo vị trí A/B/C/D).
+   lv: 1 = bậc 1-5, 2 = bậc 6-10, 3 = bậc 11-15. g = lời gợi ý của cô, m = ô Ghi nhớ.
+   pic: đáp án là hình (khoá trong ICON), nolab: ẩn tên dưới hình, fig: hình minh hoạ cho câu hỏi. */
+const S={pc:'Phần cứng - Phần mềm',dc:'Dùng máy tính đúng cách',bq:'Bản quyền phần mềm',net:'Tìm kiếm trên Internet',tm:'Tệp và thư mục',tc:'Bài trình chiếu'};
+const M_TREE='Cây thư mục <b>Hoc tap</b>: <b>Mon hoc</b> chứa Toan, Tieng Viet; <b>Bai giang</b> chứa Bai1.pptx; <b>Bai tap</b> chứa Bai_tap_toan.docx.';
+const M_HAI='Thao tác nhầm với tệp và thư mục có thể: <b>làm mất thông tin</b>, <b>gây lỗi chương trình</b>, <b>đảo lộn trật tự lưu trữ</b>, <b>tốn bộ nhớ</b>.';
+const M_BUOC='4 bước tìm kiếm: <b>1.</b> Xác định từ khoá. <b>2.</b> Mở trình duyệt, gõ địa chỉ máy tìm kiếm. <b>3.</b> Gõ từ khoá, nhấn Enter, hiện danh sách siêu liên kết. <b>4.</b> Nháy chuột vào một siêu liên kết để xem chi tiết.';
+const M_TC='Hiệu ứng <b>chuyển trang</b> ở dải lệnh <b>Transitions</b> (Wipe, Rotate, Pan...). Hiệu ứng <b>chuyển động cho chữ, hình</b> trong trang ở dải lệnh <b>Animations</b>. Mẹo: <b>T</b>ransitions = <b>T</b>rang.';
+const NH=[
+/* ---- bậc 1-5 ---- */
+{lv:1,s:S.pc,q:'Màn hình cảm ứng và ống kính (camera) của điện thoại là gì?',a:['Phần cứng','Phần mềm','Ứng dụng','Bộ nhớ'],g:'Em có chạm, cầm được màn hình và ống kính không?',m:'Những gì <b>cầm, chạm được</b> như màn hình, ống kính, bàn phím, chuột là <b>phần cứng</b>.'},
+{lv:1,s:S.pc,q:'Hình nào dưới đây là PHẦN MỀM?',pic:1,nolab:1,a:['app','monitor','mouse','keyboard'],g:'Phần mềm là biểu tượng em nháy chuột để mở trên màn hình máy tính.',m:'<b>Phần mềm</b> là chương trình chạy trong máy, em thấy <b>biểu tượng</b> của nó trên màn hình. Màn hình, chuột, bàn phím là <b>phần cứng</b>.'},
+{lv:1,s:S.pc,q:'Phần mềm có đặc điểm nào sau đây?',a:['Không có hình dạng, không cầm nắm được','Giống hệt phần cứng','Có kích thước nhỏ','Nằm bên ngoài máy tính'],g:'Em có thể cầm một phần mềm trên tay không?',m:'Phần mềm <b>không có hình dạng</b>, không cầm nắm được.'},
+{lv:1,s:S.dc,q:'Việc làm nào sau đây là sử dụng máy tính ĐÚNG CÁCH?',a:['Đặt máy tính ở nơi thoáng mát, khô ráo, sạch sẽ','Để cặp sách lên trên bàn phím','Dùng bút bi viết lên màn hình điện thoại','Vào tùy tiện bất kì trang web nào'],g:'Máy tính cũng thích chỗ ở sạch sẽ, không ẩm ướt.',m:'Đặt máy tính ở nơi <b>thoáng mát, khô ráo, sạch sẽ</b>. Không để đồ vật lên bàn phím, không viết lên màn hình.'},
+{lv:1,s:S.dc,q:'Việc nào em KHÔNG NÊN làm khi dùng máy tính?',a:['Để cặp sách, đồ vật lên bàn phím','Giữ bàn phím sạch sẽ','Ngồi thẳng lưng khi gõ phím','Đặt máy tính ở nơi khô ráo'],g:'Việc nào có thể làm hỏng phím?',m:'<b>Không</b> để cặp sách, đồ vật lên bàn phím vì dễ làm hỏng phím.'},
+{lv:1,s:S.dc,q:'Gõ bàn phím đúng cách mang lại lợi ích gì?',a:['Tiết kiệm thời gian và công sức, bảo vệ sức khoẻ','Tiết kiệm bộ nhớ máy tính','Bảo vệ quyền riêng tư cá nhân','Tiết kiệm tiền mua bàn phím'],g:'Gõ đúng cách thì gõ nhanh hơn và ngồi đúng tư thế.',m:'Gõ phím đúng cách giúp <b>tiết kiệm thời gian, công sức</b> và <b>bảo vệ sức khoẻ</b>.'},
+{lv:1,s:S.dc,q:'Để nghe được âm thanh từ máy tính, em cần có gì?',a:['Loa nối với máy tính và phần mềm phát âm thanh','Chỉ cần loa, không cần phần mềm','Chỉ cần micrô và loa','Chỉ cần phần mềm, không cần loa'],g:'Cần cả phần cứng để phát ra tiếng và phần mềm để mở bài.',m:'Muốn nghe âm thanh cần <b>loa</b> (phần cứng) <b>và phần mềm phát âm thanh</b>.'},
+{lv:1,s:S.tm,q:'Nút lệnh nào dùng để XOÁ tệp hoặc thư mục?',pic:1,a:['delete','moveto','rename','newfolder'],g:'Tìm dấu X màu đỏ.',m:'<b>Delete</b> (dấu X đỏ) dùng để <b>xoá</b> tệp, thư mục.'},
+{lv:1,s:S.tm,q:'Nút lệnh New folder dùng để làm gì?',a:['Tạo thư mục mới','Xoá thư mục','Đổi tên thư mục','Di chuyển thư mục'],g:'New nghĩa là "mới", folder nghĩa là "thư mục".',m:'<b>New folder</b> = <b>tạo thư mục mới</b> (hình thư mục có dấu cộng xanh).'},
+{lv:1,s:S.tc,q:'Các nút lệnh hiệu ứng CHUYỂN TRANG nằm trên dải lệnh nào?',a:['Transitions','Animations','Home','Design'],g:'Mẹo: Transitions bắt đầu bằng chữ T, giống chữ "Trang".',m:M_TC},
+{lv:1,s:S.net,q:'Để tìm kiếm thông tin trên Internet, máy tính của em cần có gì?',a:['Có mạng Internet và có trình duyệt web','Chỉ cần kết nối Internet','Chỉ cần có trình duyệt web','Chỉ cần có mạng wifi'],g:'Cần đủ hai thứ: đường kết nối mạng và chương trình để mở trang web.',m:'Muốn tìm kiếm cần <b>mạng Internet</b> và <b>trình duyệt web</b>.'},
+{lv:1,s:S.net,q:'Khi tìm kiếm thông tin trên Internet, bước ĐẦU TIÊN là gì?',a:['Xác định từ khoá cần tìm','Nhấn phím Enter','Nháy chuột vào một siêu liên kết','Tắt trình duyệt web'],g:'Trước khi làm gì, em phải biết mình muốn tìm điều gì.',m:M_BUOC},
+/* ---- bậc 6-10 ---- */
+{lv:2,s:S.bq,q:'Vì sao chúng ta nên sử dụng phần mềm có bản quyền?',a:['Giữ được an toàn thông tin trên máy tính','Thiết kế được nhiều bài thuyết trình','Không được hỗ trợ khi phần mềm gặp sự cố','Được xem nhiều video quảng cáo'],g:'Phần mềm có bản quyền không bị cài thêm thứ lạ, nên máy tính an toàn hơn.',m:'Dùng phần mềm có bản quyền giúp <b>giữ an toàn thông tin</b> trên máy tính.'},
+{lv:2,s:S.bq,q:'Vi phạm bản quyền phần mềm được coi là gì?',a:['Hành động xấu, phạm luật','Điều nên hạn chế tái phạm','Bình thường, ai cũng làm','Tội phạm rất nguy hiểm'],g:'Đây là việc làm sai, trái với pháp luật.',m:'Vi phạm bản quyền phần mềm là <b>hành động xấu, phạm luật</b>.'},
+{lv:2,s:S.net,q:'Siêu văn bản là văn bản chứa những loại thông tin nào?',a:['Văn bản, hình ảnh, âm thanh, video và siêu liên kết','Văn bản, hình ảnh, âm thanh','Văn bản, hình ảnh, âm thanh và video','Văn bản, hình ảnh, âm thanh và siêu liên kết'],g:'Chọn đáp án có NHIỀU loại thông tin nhất, nhớ có cả siêu liên kết.',m:'<b>Siêu văn bản</b> có đủ 5 thứ: văn bản, hình ảnh, âm thanh, <b>video</b> và <b>siêu liên kết</b>.'},
+{lv:2,s:S.net,q:'Muốn tìm thông tin về "Khí hậu Việt Nam", em nhập từ khoá nào phù hợp nhất?',a:['Khí hậu Việt Nam','Khí hậu','Việt Nam','Khí hậu Đông Nam Á'],g:'Từ khoá nên nói đúng và đủ điều em muốn tìm.',m:'Từ khoá tốt là từ khoá <b>đúng và đủ</b> nội dung cần tìm, ví dụ "Khí hậu Việt Nam".'},
+{lv:2,s:S.net,q:'Vì sao em KHÔNG NÊN xem các trang web không phù hợp với lứa tuổi?',a:['Vì có thể bị lừa đảo, dụ dỗ, bắt nạt','Vì làm mất kết nối Internet','Vì các trang đó có nhiều hình ảnh, âm thanh','Vì mất nhiều thời gian để mở trang'],g:'Hãy nghĩ đến sự an toàn của em.',m:'Trang web không phù hợp lứa tuổi có thể khiến em bị <b>lừa đảo, dụ dỗ, bắt nạt</b>.'},
+{lv:2,s:S.net,q:'Bước 2 khi tìm kiếm thông tin trên Internet là gì?',a:['Mở trình duyệt và gõ địa chỉ máy tìm kiếm','Xác định từ khoá cần tìm','Nháy chuột vào một siêu liên kết','Gõ từ khoá rồi nhấn Enter'],g:'Sau khi có từ khoá, em cần mở chương trình để vào web.',m:M_BUOC},
+{lv:2,s:S.net,q:'Gõ từ khoá vào ô tìm kiếm rồi nhấn Enter, trang web sẽ hiện ra gì?',a:['Danh sách các siêu liên kết','Một bài trình chiếu','Một thư mục mới','Trình duyệt bị đóng lại'],g:'Đó là một danh sách để em nháy chuột vào.',m:M_BUOC},
+{lv:2,s:S.net,q:'Muốn xem thông tin chi tiết trong kết quả tìm kiếm, em làm gì?',a:['Nháy chuột vào một siêu liên kết trong danh sách','Tắt máy tính','Nhấn phím Delete','Đóng trình duyệt web'],g:'Đây là bước cuối cùng, bước 4.',m:M_BUOC},
+{lv:2,s:S.tm,q:'Nút lệnh nào dùng để DI CHUYỂN tệp hoặc thư mục?',pic:1,a:['moveto','delete','rename','newfolder'],g:'Tìm hình thư mục có mũi tên.',m:'<b>Move to</b> (thư mục có mũi tên xanh) dùng để <b>di chuyển</b>.'},
+{lv:2,s:S.tm,q:'Nút lệnh Rename dùng để làm gì?',a:['Đổi tên','Xoá','Di chuyển','Tạo thư mục mới'],g:'Hình của nút là một ô chữ có con trỏ để gõ.',m:'<b>Rename</b> = <b>đổi tên</b> tệp hoặc thư mục.'},
+{lv:2,s:S.tc,q:'Muốn tạo hiệu ứng chuyển động cho chữ, hình ảnh TRONG trang chiếu, em dùng dải lệnh nào?',a:['Animations','Transitions','Home','Design'],g:'Transitions dùng cho cả trang. Còn chữ và hình trong trang thì dùng dải lệnh kia.',m:M_TC},
+{lv:2,s:S.tc,q:'Wipe, Rotate, Pan là các hiệu ứng nằm trên dải lệnh nào?',a:['Transitions','Animations','Insert','View'],g:'Đây là hiệu ứng khi chuyển từ trang này sang trang khác.',m:M_TC},
+/* ---- bậc 11-15 ---- */
+{lv:3,s:S.bq,q:'Dùng phần mềm vi phạm bản quyền có thể gây ra hậu quả nào?',a:['Ảnh hưởng quyền và lợi ích của tác giả, nhà phát triển phần mềm','Giúp người dùng dùng phần mềm thuận tiện hơn','Làm phần mềm được dùng rộng rãi hơn','Giúp mọi người dùng phần mềm hợp pháp'],g:'Hãy nghĩ đến người đã vất vả làm ra phần mềm.',m:'Dùng phần mềm vi phạm bản quyền làm <b>ảnh hưởng quyền và lợi ích của tác giả</b>, nhà phát triển phần mềm.'},
+{lv:3,s:S.pc,q:'Nhóm nào dưới đây TOÀN LÀ phần mềm?',a:['Trình duyệt web, PowerPoint, Word','Loa, micrô, PowerPoint','Màn hình, chuột, Word','Bàn phím, trình duyệt web, loa'],g:'Loại bỏ nhóm nào có thứ cầm nắm được.',m:'Trình duyệt web, PowerPoint, Word là <b>phần mềm</b>. Loa, micrô, màn hình, chuột, bàn phím là <b>phần cứng</b>.'},
+{lv:3,s:S.tm,q:'Thao tác nhầm với tệp và thư mục có thể gây ra tác hại nào?',a:['Làm mất thông tin, gây lỗi chương trình','Làm máy tính chạy nhanh hơn','Làm màn hình đổi màu','Làm bàn phím bị hỏng'],g:'Tác hại xảy ra với thông tin bên trong máy.',m:M_HAI},
+{lv:3,s:S.tm,q:'Điều nào KHÔNG PHẢI là tác hại của việc thao tác nhầm với tệp và thư mục?',a:['Làm hỏng con chuột máy tính','Làm mất thông tin','Đảo lộn trật tự lưu trữ thông tin','Tốn bộ nhớ để lưu trữ'],g:'Thao tác nhầm chỉ ảnh hưởng thông tin trong máy, không làm hỏng thiết bị.',m:M_HAI},
+{lv:3,s:S.tm,q:'Nhìn cây thư mục: thư mục Toan và Tieng Viet nằm trong thư mục nào?',fig:TREE,a:['Mon hoc','Bai giang','Bai tap','Hoc tap'],g:'Lần theo đường kẻ từ Toan đi lên.',m:M_TREE},
+{lv:3,s:S.tm,q:'Nhìn cây thư mục: tệp Bai1.pptx nằm trong thư mục nào?',fig:TREE,a:['Bai giang','Bai tap','Mon hoc','Toan'],g:'Lần theo đường kẻ từ Bai1.pptx đi lên.',m:M_TREE},
+{lv:3,s:S.tm,q:'Muốn có thêm Bai1.pptx trong thư mục Bai tap mà thư mục Bai giang VẪN CÒN tệp đó, em dùng lệnh nào?',fig:TREE,a:['Copy to (sao chép)','Move to (di chuyển)','Delete (xoá)','Rename (đổi tên)'],g:'Sao chép thì tệp gốc vẫn còn, di chuyển thì tệp gốc chuyển đi.',m:'<b>Copy to</b> (sao chép): tệp gốc <b>vẫn còn</b>. <b>Move to</b> (di chuyển): tệp gốc <b>chuyển</b> sang chỗ mới.'},
+{lv:3,s:S.tm,q:'Đổi tên tệp Bai_tap_toan.docx thành Toan 4A.docx, em chọn nút lệnh nào?',pic:1,a:['rename','moveto','delete','newfolder'],g:'Tìm ô chữ có con trỏ để gõ tên mới.',m:'<b>Rename</b> dùng để <b>đổi tên</b> tệp, thư mục.'},
+{lv:3,s:S.tm,q:'Sau khi DI CHUYỂN thư mục Tieng Viet vào thư mục Bai tap, thư mục Mon hoc còn chứa gì?',fig:TREE,a:['Chỉ còn thư mục Toan','Cả Toan và Tieng Viet','Không còn gì','Chỉ còn thư mục Tieng Viet'],g:'Di chuyển thì thư mục rời khỏi chỗ cũ.',m:'<b>Move to</b> (di chuyển): thư mục rời chỗ cũ sang chỗ mới, nên Mon hoc chỉ còn <b>Toan</b>.'},
+{lv:3,s:S.tm,q:'Tệp Bai1.pptx là tệp của phần mềm nào?',a:['PowerPoint','Word','Trình duyệt web','Phần mềm phát âm thanh'],g:'Đuôi .pptx là bài trình chiếu.',m:'Đuôi <b>.pptx</b> là tệp <b>PowerPoint</b> (trình chiếu). Đuôi <b>.docx</b> là tệp <b>Word</b> (văn bản).'},
+{lv:3,s:S.net,q:'Thứ tự ĐÚNG các bước tìm kiếm thông tin trên Internet là gì?',a:['Xác định từ khoá &rarr; Mở trình duyệt, vào máy tìm kiếm &rarr; Gõ từ khoá, nhấn Enter &rarr; Nháy vào siêu liên kết','Mở trình duyệt &rarr; Nháy vào siêu liên kết &rarr; Xác định từ khoá &rarr; Nhấn Enter','Gõ từ khoá, nhấn Enter &rarr; Xác định từ khoá &rarr; Mở trình duyệt &rarr; Nháy vào siêu liên kết','Nháy vào siêu liên kết &rarr; Gõ từ khoá &rarr; Mở trình duyệt &rarr; Xác định từ khoá'],g:'Bước đầu tiên là nghĩ ra từ khoá, bước cuối là nháy vào siêu liên kết.',m:M_BUOC},
+{lv:3,s:S.tc,q:'Bạn Nam muốn chữ tiêu đề bay vào từ bên trái. Nam cần dùng dải lệnh nào?',a:['Animations','Transitions','Home','File'],g:'Tiêu đề là một đối tượng trong trang, không phải cả trang.',m:M_TC},
+{lv:3,s:S.tc,q:'Theo đề cương, bài trình chiếu được lưu vào đâu, đặt tên thế nào?',a:['Ổ đĩa D:\\, tên: Tên tiêu đề - Họ và tên - Lớp','Ổ đĩa C:\\, tên: Bai1','Màn hình nền, tên: Slide 1','Ổ đĩa D:\\, tên: Họ và tên'],g:'Tên tệp có đủ 3 phần, nối với nhau bằng dấu gạch.',m:'Lưu bài vào <b>ổ đĩa D:\\</b>, tên tệp: <b>Tên tiêu đề - Họ và tên - Lớp</b>.'}
+];
+
+/* ===== âm thanh ===== */
+let amOn=true,AC=null;
+const SPK_ON='<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16 8a5 5 0 0 1 0 8M18.5 5.5a8.5 8.5 0 0 1 0 13" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+const SPK_OFF='<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16 9l6 6M22 9l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function tone(f,d,t='sine',v=.2,delay=0){if(!amOn)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+  const o=AC.createOscillator(),g=AC.createGain(),s=AC.currentTime+delay;o.type=t;o.frequency.value=f;
+  g.gain.setValueAtTime(v,s);g.gain.exponentialRampToValueAtTime(.001,s+d);o.connect(g).connect(AC.destination);o.start(s);o.stop(s+d)}catch(e){}}
+const ting=()=>{tone(784,.15);tone(1047,.3,'sine',.2,.12)};
+const buzz=()=>{tone(220,.35,'square',.08)};
+const fanfare=()=>[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',.18,i*.13));
+let vVoice=null;
+function pickVoice(){if(!('speechSynthesis' in window))return;vVoice=speechSynthesis.getVoices().find(v=>/vi/i.test(v.lang))||null}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function plain(h){const d=document.createElement('div');d.innerHTML=h;return d.textContent.replace(/\s*\u2192\s*/g,', ')}
+function speak(t){if(!amOn||!('speechSynthesis' in window))return;speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(plain(t));u.lang='vi-VN';if(vVoice)u.voice=vVoice;u.rate=.95;speechSynthesis.speak(u)}
+const $=id=>document.getElementById(id);
+function setAm(){$('amBtn').innerHTML=amOn?SPK_ON:SPK_OFF}
+$('amBtn').onclick=()=>{amOn=!amOn;if(!amOn&&'speechSynthesis' in window)speechSynthesis.cancel();setAm();try{localStorage.setItem('leonui_am',amOn?'1':'0')}catch(e){}};
+try{amOn=localStorage.getItem('leonui_am')!=='0'}catch(e){}
+setAm();$('docLai').innerHTML=SPK_ON;
+
+/* ===== trạng thái ===== */
+const TOP=15,CAMPS=[5,10],LBL=['','','','','','Trạm nghỉ','','','','','Trạm nghỉ','','','','','Đỉnh núi'];
+let bac=1,tim=3,diem=0,pools,cur,locked,usedLife,wrongs,firstTry;
+const HEART='<svg viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z" fill="#e53935"/></svg>';
+const ROBOT='<svg viewBox="0 0 26 26"><rect x="5" y="12" width="16" height="11" rx="3" fill="#ffd23b" stroke="#c99f24" stroke-width="1.5"/><rect x="6" y="3" width="14" height="10" rx="3" fill="#fff" stroke="#c99f24" stroke-width="1.5"/><circle cx="10.5" cy="8" r="1.6" fill="#2b2f45"/><circle cx="15.5" cy="8" r="1.6" fill="#2b2f45"/></svg>';
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const tier=b=>b<=5?1:b<=10?2:3;
+
+function drawHUD(){
+  $('diem').textContent='Điểm: '+diem;
+  $('tim').innerHTML=[0,1,2].map(i=>'<span class="'+(i<tim?'':'off')+'">'+HEART+'</span>').join('');
+}
+function drawLadder(){
+  let h='';
+  for(let b=TOP;b>=1;b--){
+    const cls=['step'];if(CAMPS.includes(b)||b===TOP)cls.push('camp');if(b<bac)cls.push('done');if(b===bac)cls.push('cur');
+    h+='<div class="'+cls.join(' ')+'"><span class="n">'+(b<bac?'&#10003;':b)+'</span><span class="lbl">'+(LBL[b]||'Bậc '+b)+'</span><span class="me">'+(b===bac?ROBOT:'')+'</span></div>';
+  }
+  $('thang').innerHTML=h;
+}
+function show(id){['mDau','mChoi','mKQ'].forEach(x=>$(x).classList.toggle('hide',x!==id));window.scrollTo(0,0)}
+
+function start(){
+  bac=1;tim=3;diem=0;wrongs=[];usedLife={l50:0,lLop:0,lCo:0};
+  pools={1:[],2:[],3:[]};shuffle(NH.slice()).forEach(q=>pools[q.lv].push(q));
+  ['l50','lLop','lCo'].forEach(id=>$(id).disabled=false);
+  drawHUD();show('mChoi');loadQ();
+}
+function nextFromPool(t){
+  if(!pools[t].length)pools[t]=shuffle(NH.filter(q=>q.lv===t&&q!==cur));
+  return pools[t].shift();
+}
+function loadQ(){
+  cur=nextFromPool(tier(bac));locked=false;firstTry=true;
+  drawLadder();
+  $('phan').textContent=cur.s;
+  $('bacTxt').textContent='Bậc '+bac+' / '+TOP;
+  $('cauHoi').textContent=cur.q;
+  $('hinh').innerHTML=cur.fig||'';
+  ['poll','tip','note'].forEach(id=>$(id).classList.remove('show','ok','bad'));
+  $('tiep').hidden=true;
+  const order=shuffle([0,1,2,3]);
+  const box=$('dapAn');box.className='opts'+(cur.pic?' pic':(cur.a.some(x=>plain(x).length>34)?' one':''));
+  box.innerHTML=order.map((i,p)=>{
+    const k=String.fromCharCode(65+p);
+    const body=cur.pic?ICON[cur.a[i]].s+(cur.nolab?'':'<span class="lab">'+ICON[cur.a[i]].n+'</span>'):'<span>'+cur.a[i]+'</span>';
+    return '<button class="opt" data-i="'+i+'"><span class="k">'+k+'</span>'+body+'</button>';
+  }).join('');
+  box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>choose(b));
+  speak(cur.q);
+}
+function choose(btn){
+  if(locked)return;locked=true;
+  const ok=btn.dataset.i==='0';
+  $('dapAn').querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.dataset.i==='0')b.classList.add('dung')});
+  const n=$('note');
+  if(ok){
+    ting();diem+=10;floatTxt('+10',btn);
+    n.className='note ok show';n.innerHTML='<div class="h">Đúng rồi! Ghi nhớ:</div>'+cur.m;
+    speak('Đúng rồi! '+cur.m);
+    bac++;
+    if(bac>TOP){drawHUD();drawLadder();fanfare();confetti(120);setTimeout(()=>end(true),1600);return}
+    $('tiep').textContent='Leo tiếp';
+    if(CAMPS.includes(bac-1)){setTimeout(()=>{toast('Tới trạm nghỉ! Em đã leo được '+(bac-1)+' bậc');confetti(50);fanfare()},500)}
+  }else{
+    buzz();btn.classList.add('sai');tim--;
+    wrongs.push(cur);
+    const right=cur.pic?ICON[cur.a[0]].n:cur.a[0];
+    n.className='note bad show';n.innerHTML='<div class="h">Chưa đúng! Đáp án: '+right+'</div>'+cur.m;
+    speak('Chưa đúng. '+cur.m);
+    $('tiep').textContent=tim>0?'Câu khác':'Xem kết quả';
+  }
+  drawHUD();drawLadder();$('tiep').hidden=false;
+  setTimeout(()=>$('note').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+}
+$('tiep').onclick=()=>{if(tim<=0)end(false);else loadQ()};
+
+/* quyền trợ giúp */
+$('l50').onclick=()=>{if(locked)return;$('l50').disabled=true;
+  const wrong=shuffle([...$('dapAn').querySelectorAll('.opt')].filter(b=>b.dataset.i!=='0'));
+  wrong.slice(0,2).forEach(b=>b.classList.add('gone'));tone(600,.2)};
+$('lLop').onclick=()=>{if(locked)return;$('lLop').disabled=true;
+  const btns=[...$('dapAn').querySelectorAll('.opt')];
+  const live=btns.filter(b=>!b.classList.contains('gone'));
+  let rest=100,pct={};const right=45+Math.random()*25|0;pct['0']=right;rest-=right;
+  const others=live.filter(b=>b.dataset.i!=='0');
+  others.forEach((b,i)=>{const v=i===others.length-1?rest:Math.random()*rest*.7|0;pct[b.dataset.i]=v;rest-=v});
+  $('bars').innerHTML=btns.map(b=>{const v=pct[b.dataset.i]||0;return '<div class="bar"><span>'+v+'%</span><i data-h="'+v+'"></i><span>'+b.querySelector('.k').textContent+'</span></div>'}).join('');
+  $('poll').classList.add('show');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>$('bars').querySelectorAll('i').forEach(i=>i.style.height=(+i.dataset.h)+'%')));
+  speak('Cả lớp đã chọn xong, em xem biểu đồ nhé');
+};
+$('lCo').onclick=()=>{if(locked)return;$('lCo').disabled=true;
+  $('tip').innerHTML='<b>Cô gợi ý:</b> '+cur.g;$('tip').classList.add('show');speak('Cô gợi ý: '+cur.g)};
+
+/* hiệu ứng */
+function floatTxt(t,el){const r=el.getBoundingClientRect(),d=document.createElement('div');d.className='float';d.textContent=t;
+  d.style.left=(r.left+r.width/2-20)+'px';d.style.top=(r.top-10)+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
+function confetti(n){const C=['#2f80ed','#27ae60','#f59e0b','#e53935','#8b5cf6','#ec4899'];
+  for(let i=0;i<n;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';
+    c.style.background=C[i%C.length];c.style.animation='roi '+(1.6+Math.random()*1.6)+'s linear '+(Math.random()*.6)+'s forwards';
+    document.body.appendChild(c);setTimeout(()=>c.remove(),4000)}}
+
+/* kết quả */
+const STAR=f=>'<svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7L12 17.6 5.7 21.1l1.5-7L2 9.3l7-.8z" fill="'+(f?'#fbbf24':'#e2e8f0')+'" stroke="'+(f?'#d97706':'#cbd5e1')+'" stroke-width="1"/></svg>';
+function end(win){
+  const reached=Math.min(bac-1,TOP);
+  const s=reached>=15?3:reached>=10?2:reached>=5?1:0;
+  $('sao').innerHTML=[0,1,2].map(i=>STAR(i<s)).join('');
+  $('khen').textContent=win?'Tuyệt vời! Em đã lên tới đỉnh núi!':reached>=10?'Giỏi lắm! Chỉ còn một chút nữa là tới đỉnh!':reached>=5?'Khá lắm! Ôn thêm rồi leo tiếp nhé!':'Cố lên! Đọc Sổ tay ôn tập rồi thử lại nhé!';
+  $('kqBac').textContent='Leo được '+reached+' / '+TOP+' bậc';
+  let best=0;try{best=+localStorage.getItem('leonui_best_4')||0;if(diem>best){localStorage.setItem('leonui_best_4',diem);best=diem}}catch(e){}
+  $('kqDiem').textContent='Điểm: '+diem+'  -  Kỷ lục: '+best;
+  const uniq=[...new Set(wrongs)];
+  $('onLai').innerHTML=uniq.length?'<h3>Những ý em cần ôn lại</h3><ul>'+uniq.map(q=>'<li><b>'+q.q+'</b><br>'+q.m+'</li>').join('')+'</ul>'
+    :'<h3 style="color:var(--la)">Em không sai câu nào. Xuất sắc!</h3>';
+  show('mKQ');if(win)confetti(80);
+  speak($('khen').textContent);
+}
+
+/* sổ tay ôn tập: gom ô Ghi nhớ theo từng phần, bỏ trùng */
+function buildBook(){
+  let h='';
+  Object.values(S).forEach(s=>{
+    const ms=[...new Set(NH.filter(q=>q.s===s).map(q=>q.m))];
+    h+='<h3>'+s+'</h3><ul>'+ms.map(m=>'<li>'+m+'</li>').join('')+'</ul>';
+    if(s===S.tm)h+='<div class="fig">'+TREE+'</div>';
+  });
+  $('soTay').innerHTML=h;
+}
+function openBook(){buildBook();$('ov').classList.add('show')}
+$('soTay1').onclick=openBook;$('soTay2').onclick=openBook;
+$('dong').onclick=()=>$('ov').classList.remove('show');
+$('ov').onclick=e=>{if(e.target===$('ov'))$('ov').classList.remove('show')};
+
+$('batDau').onclick=start;$('choiLai').onclick=start;
+$('docLai').onclick=()=>cur&&speak(cur.q);
+document.addEventListener('keydown',e=>{
+  if($('mChoi').classList.contains('hide')||$('ov').classList.contains('show'))return;
+  const m={'1':0,'2':1,'3':2,'4':3,a:0,b:1,c:2,d:3}[e.key.toLowerCase()];
+  if(m!==undefined&&!locked){const b=$('dapAn').querySelectorAll('.opt')[m];if(b&&!b.classList.contains('gone'))choose(b)}
+  if(e.key==='Enter'&&!$('tiep').hidden){e.preventDefault();$('tiep').click()}
+});
+try{const b=+localStorage.getItem('leonui_best_4');if(b)$('kyLuc').textContent='Kỷ lục của em: '+b+' điểm'}catch(e){}
+drawHUD();
+</script>
+</body>
+</html>

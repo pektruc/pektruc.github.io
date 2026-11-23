@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Phần Cứng hay Phần Mềm? - Lớp 4</title>
+<style>
+  :root{
+    --sky1:#cfe9ff; --sky2:#eef7ff; --ink:#2b3a55;
+    --hw:#f4913c; --hw2:#e5720f; --sw:#7c5cff; --sw2:#5b39e0;
+    --green:#25c15c; --red:#ff6b6b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Nunito',sans-serif;
+    background:linear-gradient(160deg,var(--sky1),var(--sky2) 60%,#fff);
+    color:var(--ink); min-height:100vh; overflow-x:hidden;
+    user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  }
+  #app{max-width:920px;margin:0 auto;padding:12px;min-height:100vh;display:flex;flex-direction:column}
+  .back-home{position:fixed;top:12px;left:12px;z-index:20;color:#3a5170;text-decoration:none;font-size:13px;font-weight:800;
+    background:rgba(255,255,255,.8);padding:8px 14px;border-radius:20px;box-shadow:0 4px 12px rgba(43,58,85,.14)}
+
+  /* ---------- HUD ---------- */
+  #hud{display:flex;align-items:center;gap:8px;background:#fff;border-radius:18px;
+    padding:8px 12px;box-shadow:0 6px 18px rgba(43,58,85,.12);margin-bottom:12px;flex-wrap:wrap}
+  #hud .pill{font-weight:800;font-size:1rem;background:#f1f7ff;border-radius:14px;padding:6px 12px;white-space:nowrap;display:inline-block}
+  .pill.score{color:#e8890b}
+  .pill.hearts{color:#ff5470;letter-spacing:2px}
+  .pill.streak{background:linear-gradient(90deg,#ffd36e,#ff8a3d);color:#7a2e00}
+  .progress{flex:1;height:16px;background:#e6eefc;border-radius:12px;overflow:hidden;min-width:60px}
+  #progressFill{height:100%;width:0;border-radius:12px;background:linear-gradient(90deg,var(--green),#3fc46a);transition:width .4s}
+  #soundBtn{border:none;background:#f1f7ff;font-size:1.3rem;width:44px;height:44px;border-radius:14px;cursor:pointer}
+  #soundBtn:active{transform:scale(.92)}
+  .pill.bump{animation:bump .45s}
+  @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+  /* ---------- Screens ---------- */
+  .screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  h1{font-size:clamp(1.9rem,6.5vw,3rem);line-height:1.1;
+    background:linear-gradient(90deg,#f4913c,#7c5cff);-webkit-background-clip:text;
+    background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 rgba(255,255,255,.6))}
+  .sub{font-size:clamp(1rem,3.5vw,1.3rem);color:#4a5b78;margin:12px 0 4px;font-weight:800}
+  .rulecard{background:#fff;border-radius:20px;padding:16px 20px;margin:16px auto 0;max-width:520px;
+    box-shadow:0 8px 20px rgba(43,58,85,.12);text-align:left}
+  .rulecard .r{display:flex;align-items:center;gap:12px;font-weight:800;font-size:1.05rem;margin:8px 0}
+  .rulecard .r .ic{font-size:2rem;flex:0 0 auto}
+  .rulecard .r.hw{color:var(--hw2)} .rulecard .r.sw{color:var(--sw2)}
+  .big-btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:clamp(1.2rem,4vw,1.6rem);
+    padding:16px 34px;border-radius:22px;margin-top:24px;
+    background:linear-gradient(180deg,#67e28c,#25c15c);box-shadow:0 8px 0 #189745,0 12px 22px rgba(24,151,69,.4);
+    transition:transform .08s,box-shadow .08s}
+  .big-btn:active{transform:translateY(6px);box-shadow:0 2px 0 #189745,0 6px 12px rgba(24,151,69,.4)}
+
+  /* ---------- Game ---------- */
+  #gameScreen{justify-content:flex-start;padding-top:4px}
+  .card-item{background:#fff;border-radius:28px;box-shadow:0 10px 28px rgba(43,58,85,.16);
+    width:min(94%,460px);margin:6px auto 18px;padding:26px 20px;animation:pop .32s}
+  .card-item .emoji{font-size:clamp(5rem,22vw,7.5rem);line-height:1;display:block;filter:drop-shadow(0 6px 8px rgba(43,58,85,.18))}
+  .card-item .name{font-size:clamp(1.4rem,6vw,2.1rem);font-weight:900;margin-top:8px;color:#2b3a55}
+  @keyframes pop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+
+  .ask{font-size:clamp(1rem,4vw,1.3rem);font-weight:800;color:#5a6b88;margin-bottom:12px}
+  .choices{display:flex;gap:14px;width:min(96%,520px);margin:0 auto}
+  .choice{flex:1;border:none;cursor:pointer;color:#fff;font-weight:900;font-size:clamp(1.05rem,4.2vw,1.5rem);
+    padding:22px 10px;border-radius:24px;transition:transform .1s,box-shadow .1s,filter .1s;line-height:1.2}
+  .choice .ic{display:block;font-size:clamp(2rem,9vw,3rem);margin-bottom:6px}
+  .choice.hw{background:linear-gradient(180deg,#f7a457,var(--hw2));box-shadow:0 8px 0 #b85a09,0 12px 22px rgba(184,90,9,.35)}
+  .choice.sw{background:linear-gradient(180deg,#9a80ff,var(--sw2));box-shadow:0 8px 0 #4526bf,0 12px 22px rgba(69,38,191,.35)}
+  .choice:active{transform:translateY(5px);filter:brightness(1.05)}
+  .choice:disabled{cursor:default}
+  .choice.dim{filter:grayscale(.55) brightness(.9);opacity:.6}
+  .choice.pick-correct{animation:glow .5s}
+  .choice.pick-wrong{animation:shake .45s}
+  @keyframes glow{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(7px)}}
+
+  /* feedback */
+  .feedback{width:min(96%,520px);margin:16px auto 0;border-radius:20px;padding:16px 18px;font-weight:800;
+    font-size:clamp(1rem,3.6vw,1.2rem);box-shadow:0 8px 20px rgba(43,58,85,.12);animation:pop .3s;min-height:10px}
+  .feedback.ok{background:#e7fbef;color:#137a3c;border:2px solid #6fe39a}
+  .feedback.no{background:#fff0f0;color:#c0324a;border:2px solid #ffb0b0}
+  .feedback .head{font-size:1.15em;font-weight:900;margin-bottom:4px}
+  .next-btn{border:none;cursor:pointer;font-weight:900;color:#fff;font-size:clamp(1.05rem,3.6vw,1.3rem);
+    padding:12px 30px;border-radius:20px;margin-top:14px;
+    background:linear-gradient(180deg,#5bc0ff,#2b8fe0);box-shadow:0 6px 0 #1c6db3,0 10px 18px rgba(28,109,179,.35)}
+  .next-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #1c6db3}
+
+  /* ---------- End ---------- */
+  #endScreen .stars{font-size:clamp(2.4rem,12vw,4rem);letter-spacing:6px;margin:10px 0}
+  #endScreen .bigscore{font-size:clamp(1.4rem,6vw,2.2rem);font-weight:900;color:#e8890b}
+  #endScreen .msg{font-size:clamp(1.05rem,4vw,1.3rem);font-weight:800;color:#4a5b78;margin-top:6px}
+
+  /* confetti + floaters */
+  .confetti{position:fixed;top:-14px;width:12px;height:16px;border-radius:3px;z-index:60;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+  .floater{position:fixed;z-index:60;font-weight:900;font-size:2rem;color:#25c15c;pointer-events:none;
+    text-shadow:0 2px 6px rgba(0,0,0,.15);animation:floatup 1s ease-out forwards}
+  @keyframes floatup{0%{opacity:1;transform:translateY(0) scale(.6)}30%{transform:translateY(-10px) scale(1.15)}100%{opacity:0;transform:translateY(-90px) scale(1)}}
+</style>
+</head>
+<body>
+<a href="../index.html" class="back-home">← Lớp 4</a>
+<div id="app">
+
+  <!-- HUD -->
+  <div id="hud" hidden>
+    <span class="pill score">⭐ <span id="scoreVal">0</span></span>
+    <span class="pill hearts" id="heartsVal">❤️❤️❤️</span>
+    <span class="pill streak" id="streakPill" hidden>🔥 <span id="streakVal">0</span></span>
+    <div class="progress"><div id="progressFill"></div></div>
+    <button id="soundBtn" title="Bật/tắt âm thanh">🔊</button>
+  </div>
+
+  <!-- START -->
+  <section id="startScreen" class="screen">
+    <h1>🔧 Phần Cứng hay Phần Mềm? 💿</h1>
+    <p class="sub">Xem từng thứ hiện ra rồi chọn đúng nhóm nhé!</p>
+    <div class="rulecard">
+      <div class="r hw"><span class="ic">🔧</span><span>Phần cứng: <b>sờ được, cầm được</b> — là thiết bị máy móc.</span></div>
+      <div class="r sw"><span class="ic">💿</span><span>Phần mềm: <b>chương trình, ứng dụng</b> chạy trên máy — không cầm được.</span></div>
+    </div>
+    <button class="big-btn" id="startBtn">Bắt đầu chơi ▶</button>
+  </section>
+
+  <!-- GAME -->
+  <section id="gameScreen" class="screen" hidden>
+    <div class="card-item" id="itemCard">
+      <span class="emoji" id="itemEmoji">🖱️</span>
+      <div class="name" id="itemName">Chuột</div>
+    </div>
+    <p class="ask">Đây là gì?</p>
+    <div class="choices">
+      <button class="choice hw" id="btnHW"><span class="ic">🔧</span>Phần Cứng</button>
+      <button class="choice sw" id="btnSW"><span class="ic">💿</span>Phần Mềm</button>
+    </div>
+    <div class="feedback" id="feedback" hidden></div>
+  </section>
+
+  <!-- END -->
+  <section id="endScreen" class="screen" hidden>
+    <h1 id="endTitle">Hoàn thành!</h1>
+    <div class="stars" id="endStars">⭐⭐⭐</div>
+    <div class="bigscore">Điểm: <span id="endScore">0</span></div>
+    <div class="msg" id="endMsg"></div>
+    <button class="big-btn" id="againBtn">Chơi lại 🔄</button>
+  </section>
+
+</div>
+
+<script>
+/* ================= DỮ LIỆU 25 MỤC ================= */
+const ITEMS = [
+  // Phần cứng (hw)
+  {name:"Chuột máy tính", emoji:"🖱️", type:"hw", why:"Chuột cầm được, di chuyển bằng tay."},
+  {name:"Bàn phím", emoji:"⌨️", type:"hw", why:"Bàn phím có các phím bấm được bằng tay."},
+  {name:"Màn hình", emoji:"🖥️", type:"hw", why:"Màn hình là thiết bị nhìn thấy, sờ được."},
+  {name:"Loa", emoji:"🔊", type:"hw", why:"Loa là thiết bị phát ra âm thanh, cầm được."},
+  {name:"Máy in", emoji:"🖨️", type:"hw", why:"Máy in là máy móc đặt trên bàn, sờ được."},
+  {name:"Tai nghe", emoji:"🎧", type:"hw", why:"Tai nghe là thiết bị đeo vào tai được."},
+  {name:"Webcam", emoji:"📷", type:"hw", why:"Webcam là thiết bị gắn vào máy, cầm được."},
+  {name:"USB (thẻ nhớ)", emoji:"💾", type:"hw", why:"USB cắm vào máy để lưu dữ liệu, cầm được."},
+  {name:"Ổ cứng", emoji:"💽", type:"hw", why:"Ổ cứng là thiết bị lưu trữ, cầm được."},
+  {name:"Micro", emoji:"🎤", type:"hw", why:"Micro là thiết bị thu tiếng nói, cầm được."},
+  {name:"Máy chiếu", emoji:"📽️", type:"hw", why:"Máy chiếu chiếu hình lên tường, là thiết bị."},
+  {name:"Máy ảnh số", emoji:"📸", type:"hw", why:"Máy ảnh số là thiết bị chụp hình, cầm được."},
+  {name:"Máy tính xách tay", emoji:"💻", type:"hw", why:"Máy tính xách tay là thiết bị, mang đi được."},
+  // Phần mềm (sw)
+  {name:"Windows", emoji:"🪟", type:"sw", why:"Windows là hệ điều hành — chương trình chạy trên máy."},
+  {name:"Word", emoji:"📝", type:"sw", why:"Word là chương trình để gõ văn bản."},
+  {name:"Trình duyệt web", emoji:"🌐", type:"sw", why:"Trình duyệt (Cốc Cốc, Chrome) là phần mềm để lướt web."},
+  {name:"Paint", emoji:"🎨", type:"sw", why:"Paint là chương trình để vẽ trên máy."},
+  {name:"PowerPoint", emoji:"📊", type:"sw", why:"PowerPoint là chương trình làm trình chiếu."},
+  {name:"Trò chơi điện tử", emoji:"🎮", type:"sw", why:"Trò chơi chạy trên máy là một phần mềm."},
+  {name:"Zalo", emoji:"💬", type:"sw", why:"Zalo là ứng dụng nhắn tin, gọi điện."},
+  {name:"YouTube", emoji:"▶️", type:"sw", why:"YouTube là ứng dụng để xem video."},
+  {name:"Phần mềm diệt virus", emoji:"🛡️", type:"sw", why:"Diệt virus là phần mềm bảo vệ máy tính."},
+  {name:"Excel", emoji:"📈", type:"sw", why:"Excel là chương trình tính toán bằng bảng."},
+  {name:"Ứng dụng nghe nhạc", emoji:"🎵", type:"sw", why:"Ứng dụng nghe nhạc là một phần mềm."},
+  {name:"Máy tính (tính toán)", emoji:"🔢", type:"sw", why:"Ứng dụng Máy tính để tính toán là phần mềm."},
+];
+
+const PRAISE = ["Giỏi quá!","Chính xác!","Tuyệt vời!","Đúng rồi!","Xuất sắc!","Hay lắm!"];
+
+/* ================= TRẠNG THÁI ================= */
+let deck=[], idx=0, score=0, hearts=3, streak=0, soundOn=true, locked=false;
+
+/* ================= ÂM THANH (Web Audio, không đọc chữ) ================= */
+let AC=null;
+function ac(){ if(!AC){ try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } return AC; }
+function beep(freqs, dur, type, gain){
+  if(!soundOn) return; const c=ac(); if(!c) return;
+  if(c.state==="suspended") c.resume();
+  freqs.forEach((f,i)=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type=type||"sine"; o.frequency.value=f;
+    const t0=c.currentTime+i*0.09;
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.exponentialRampToValueAtTime(gain||0.18,t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+(dur||0.2));
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+(dur||0.2)+0.02);
+  });
+}
+const sndCorrect = ()=>beep([784,1046],0.18,"sine",0.2);        // ting
+const sndWrong   = ()=>beep([200,150],0.22,"sawtooth",0.14);    // bụp
+const sndStreak  = ()=>beep([784,988,1318],0.16,"triangle",0.18);
+const sndWin     = ()=>beep([523,659,784,1046,1318],0.22,"triangle",0.2);
+const sndTap     = ()=>beep([440],0.06,"sine",0.1);
+
+/* ================= TIỆN ÍCH ================= */
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+const $=id=>document.getElementById(id);
+
+function bump(el){ el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+
+function confetti(){
+  const colors=["#f4913c","#7c5cff","#25c15c","#ff6b6b","#ffd36e","#5bc0ff"];
+  for(let i=0;i<26;i++){
+    const c=document.createElement("div"); c.className="confetti";
+    c.style.left=Math.random()*100+"vw";
+    c.style.background=colors[i%colors.length];
+    c.style.animationDuration=(1.6+Math.random()*1.4)+"s";
+    c.style.transform="rotate("+Math.random()*360+"deg)";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),3200);
+  }
+}
+function floatPlus(text){
+  const f=document.createElement("div"); f.className="floater"; f.textContent=text;
+  f.style.left=(45+Math.random()*10)+"vw"; f.style.top="46vh";
+  document.body.appendChild(f); setTimeout(()=>f.remove(),1000);
+}
+
+/* ================= LUỒNG GAME ================= */
+function startGame(){
+  deck=shuffle(ITEMS.slice());
+  idx=0; score=0; hearts=3; streak=0; locked=false;
+  $("scoreVal").textContent="0";
+  updateHearts(); updateStreak(); updateProgress();
+  $("startScreen").hidden=true; $("endScreen").hidden=true;
+  $("gameScreen").hidden=false; $("hud").hidden=false;
+  showItem();
+}
+function showItem(){
+  locked=false;
+  const it=deck[idx];
+  $("itemEmoji").textContent=it.emoji;
+  $("itemName").textContent=it.name;
+  const card=$("itemCard"); card.classList.remove("card-item"); void card.offsetWidth; card.classList.add("card-item");
+  const fb=$("feedback"); fb.hidden=true; fb.innerHTML="";
+  const hw=$("btnHW"), sw=$("btnSW");
+  [hw,sw].forEach(b=>{ b.disabled=false; b.classList.remove("dim","pick-correct","pick-wrong"); });
+  updateProgress();
+  sndTap();
+}
+function choose(pick){
+  if(locked) return; locked=true;
+  const it=deck[idx];
+  const correct = (pick===it.type);
+  const hw=$("btnHW"), sw=$("btnSW");
+  hw.disabled=true; sw.disabled=true;
+  const pickedBtn = pick==="hw"?hw:sw;
+  const rightBtn  = it.type==="hw"?hw:sw;
+  const wrongBtn  = it.type==="hw"?sw:hw;
+  const typeLabel = it.type==="hw"?"Phần cứng":"Phần mềm";
+
+  const fb=$("feedback"); fb.hidden=false;
+  if(correct){
+    score+=10; streak++;
+    if(streak>=3) score+=5; // thưởng chuỗi
+    $("scoreVal").textContent=score; bump($("scoreVal").parentElement);
+    rightBtn.classList.add("pick-correct");
+    wrongBtn.classList.add("dim");
+    sndCorrect(); floatPlus(streak>=3?"+15":"+10"); confetti();
+    if(streak>=3){ sndStreak(); }
+    fb.className="feedback ok";
+    fb.innerHTML='<div class="head">'+PRAISE[Math.floor(Math.random()*PRAISE.length)]+' ✅</div>'+
+                 '<div>'+it.name+' → <b>'+typeLabel+'</b>. '+it.why+'</div>'+
+                 '<button class="next-btn" id="nextBtn">Tiếp theo ➜</button>';
+  } else {
+    hearts--; streak=0;
+    updateHearts();
+    pickedBtn.classList.add("pick-wrong");
+    rightBtn.classList.add("pick-correct");
+    sndWrong();
+    fb.className="feedback no";
+    fb.innerHTML='<div class="head">Chưa đúng 💡</div>'+
+                 '<div>'+it.name+' là <b>'+typeLabel+'</b>. '+it.why+'</div>'+
+                 '<button class="next-btn" id="nextBtn">Tiếp theo ➜</button>';
+  }
+  updateStreak();
+  $("nextBtn").addEventListener("click", next);
+  if(hearts<=0){ // để học sinh đọc giải thích rồi mới kết thúc
+    $("nextBtn").textContent="Xem kết quả ➜";
+  }
+}
+function next(){
+  if(hearts<=0){ endGame(false); return; }
+  idx++;
+  if(idx>=deck.length){ endGame(true); return; }
+  showItem();
+}
+
+function updateHearts(){ $("heartsVal").textContent = "❤️".repeat(Math.max(0,hearts)) + "🖤".repeat(3-Math.max(0,hearts)); }
+function updateStreak(){
+  const p=$("streakPill");
+  if(streak>=2){ p.hidden=false; $("streakVal").textContent=streak; bump(p); } else { p.hidden=true; }
+}
+function updateProgress(){ $("progressFill").style.width = (idx/deck.length*100)+"%"; }
+
+function endGame(finished){
+  $("gameScreen").hidden=true; $("hud").hidden=true; $("endScreen").hidden=false;
+  $("progressFill").style.width = finished ? "100%" : (idx/deck.length*100)+"%";
+  $("endScore").textContent=score;
+  const maxIfPerfect = deck.length*10;
+  let stars, msg, title;
+  if(finished){
+    const ratio = score / maxIfPerfect;
+    if(ratio>=0.9){ stars="⭐⭐⭐"; msg="Con là chuyên gia máy tính! 🎉"; }
+    else if(ratio>=0.6){ stars="⭐⭐"; msg="Rất tốt! Cố thêm chút nữa nhé."; }
+    else { stars="⭐"; msg="Khá lắm! Chơi lại để nhớ lâu hơn nào."; }
+    title="Hoàn thành! 🎓"; sndWin(); confetti(); setTimeout(confetti,300);
+  } else {
+    stars="💗"; title="Hết lượt rồi!"; msg="Đừng lo, chơi lại để giỏi hơn nhé!";
+  }
+  $("endTitle").textContent=title; $("endStars").textContent=stars; $("endMsg").textContent=msg;
+}
+
+/* ================= SỰ KIỆN ================= */
+$("startBtn").addEventListener("click", ()=>{ ac(); startGame(); });
+$("againBtn").addEventListener("click", startGame);
+$("btnHW").addEventListener("click", ()=>choose("hw"));
+$("btnSW").addEventListener("click", ()=>choose("sw"));
+$("soundBtn").addEventListener("click", ()=>{
+  soundOn=!soundOn; $("soundBtn").textContent = soundOn?"🔊":"🔇";
+  if(soundOn) sndTap();
+});
+</script>
+</body>
+</html>
